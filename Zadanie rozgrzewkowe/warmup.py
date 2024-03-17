@@ -4,6 +4,8 @@ from sklearn import cluster
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
 
+import matplotlib as matplot
+
 
 def load(path):
     """
