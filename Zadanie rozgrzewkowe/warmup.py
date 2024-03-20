@@ -1,10 +1,12 @@
 import numpy as np
+import pandas as pd
 
 from sklearn import cluster
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
 
-import matplotlib as matplot
+import matplotlib.pyplot as plt
+from scipy.spatial import Voronoi, voronoi_plot_2d
 
 
 def load(path):
@@ -17,7 +19,14 @@ def load(path):
     zaweira n+1 liczb odpowiadających wpierw kolejnym cechom obiektu (n wartości) i jego
     etykiecie (1 wartość). Liczby w każdej linii pliku CSV oddzielone są średnikami.
     """
-    pass
+
+    X = pd.read_csv(path, sep = ";", usecols=[0,1])
+    Labels = pd.read_csv(path, sep = ";", usecols=[2])
+
+    cechy = np.array(X)
+    etykiety = np.array(Labels)
+     
+    return cechy, etykiety
 
 
 def plot_voronoi_diagram(X, y_true, y_pred):
@@ -28,7 +37,42 @@ def plot_voronoi_diagram(X, y_true, y_pred):
     N elementową z prawdziwymi etykietami. Rysując diagram należy zadbać, aby wszystkie obiekty
     były widoczne. Wszystkie rozważane tablice są tablicami NumPy.
     """
-    pass
+    # Tworzenie diagramu Voronoi na podstawie punktów X
+    vor = Voronoi(X)
+
+    # Tworzenie wykresu
+    voronoi_plot_2d(vor, show_vertices=False)
+
+    # Kolorowanie obszarów Voronoi na podstawie przypisanych etykiet
+    if y_true is None:
+        colors = ['tab:blue']  # Jeśli brak prawdziwych etykiet, użyj jednego koloru
+    else:
+        unique_labels = np.unique(y_true)
+        colors = plt.cm.tab10(np.linspace(0, 1, len(unique_labels)))  # Kolorowanie według unikalnych etykiet
+
+    for region, label in zip(vor.regions, y_pred):
+        if not -1 in region and label != -1:
+            polygon = [vor.vertices[i] for i in region]
+            plt.fill(*zip(*polygon), color=colors[label % len(colors)], alpha=0.4)
+
+    # Dodanie punktów danych do wykresu
+    plt.plot(X[:, 0], X[:, 1], 'ko', markersize=3)
+
+    # Dodanie legendy dla etykiet prawdziwych (jeśli dostępne)
+    if y_true is not None:
+        unique_labels = np.unique(y_true)
+        for label, color in zip(unique_labels, colors):
+            plt.plot([], [], 'o', label=str(label), markersize=8, color=color)
+
+        plt.legend(title='True Labels')
+
+    # Ustawienie tytułu i etykiet osi
+    plt.title('Diagram Voronoi')
+    plt.xlabel('X1')
+    plt.ylabel('X2')
+
+    # Wyświetlenie wykresu
+    plt.show()
 
 
 def plot_decision_boundary(X, y_true, func):
@@ -46,7 +90,7 @@ def plot_decision_boundary(X, y_true, func):
 
 
 if __name__ == "__main__":
-    X, y_true = load("./warmup.csv")
+    X, y_true = load("C:\\Users\\Michał\\Documents\\STUDIA\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\Zadanie rozgrzewkowe\\warmup.csv")
 
     X = StandardScaler().fit_transform(X)
 
@@ -56,6 +100,6 @@ if __name__ == "__main__":
     plot_voronoi_diagram(X, y_true, y_pred)
     plot_voronoi_diagram(X, None, y_pred)
 
-    algorithm = KNeighborsClassifier(n_neighbors=3)
-    algorithm.fit(X, y_true)
-    plot_decision_boundary(X, y_true, algorithm.predict)
+    #algorithm = KNeighborsClassifier(n_neighbors=3)
+    #algorithm.fit(X, y_true)
+    #plot_decision_boundary(X, y_true, algorithm.predict)
