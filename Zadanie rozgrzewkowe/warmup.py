@@ -86,7 +86,29 @@ def plot_decision_boundary(X, y_true, func):
     obiektów. Rysując diagram należy zadbać, aby wszystkie obiekty były widoczne. Wszystkie
     rozważane tablice są tablicami NumPy.
     """
-    pass
+
+     # Definiujemy zakres dla osi x i y
+    x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+    y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+    
+    # Tworzymy siatkę punktów w celu wygenerowania granicy decyzyjnej
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.1),
+                         np.arange(y_min, y_max, 0.1))
+    
+    # Obliczamy etykiety dla każdego punktu w siatce
+    Z = func(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+    
+    # Rysujemy kontury granicy decyzyjnej
+    plt.contourf(xx, yy, Z, alpha=0.4)
+    
+    # Rysujemy punkty treningowe
+    plt.scatter(X[:, 0], X[:, 1], c=y_true, s=20, edgecolors='k')
+    
+    plt.xlabel('Feature 1')
+    plt.ylabel('Feature 2')
+    plt.title('Decision Boundary')
+    plt.show()
 
 
 if __name__ == "__main__":
@@ -100,6 +122,6 @@ if __name__ == "__main__":
     plot_voronoi_diagram(X, y_true, y_pred)
     plot_voronoi_diagram(X, None, y_pred)
 
-    #algorithm = KNeighborsClassifier(n_neighbors=3)
-    #algorithm.fit(X, y_true)
-    #plot_decision_boundary(X, y_true, algorithm.predict)
+    algorithm = KNeighborsClassifier(n_neighbors=3)
+    algorithm.fit(X, y_true)
+    plot_decision_boundary(X, y_true, algorithm.predict)
