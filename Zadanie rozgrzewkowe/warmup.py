@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from scipy.spatial import Voronoi, voronoi_plot_2d
 
 
-def load(path):
+def load(path) -> np.array:
     """
     Funkcja powinna wczytywać plik CSV, którego lokalizacja wskazywana jest przez argument
     oraz zwracać dwie tablice NumPy o rozmiarach Nxn oraz N, gdzie N to liczba obiektów,
@@ -29,7 +29,7 @@ def load(path):
     return cechy, etykiety
 
 
-def plot_voronoi_diagram(X, y_true, y_pred):
+def plot_voronoi_diagram(X, y_true, y_pred) -> None:
     """
     Funkcja rysująca diagram Woronoja dla obiektów opisanych tablicą X rozmiaru Nx2 (N to liczba
     obiektów) pogrupowanych za pomocą etykiet y_pred (tablica liczby całkowitych o rozmiarze N).
@@ -75,7 +75,7 @@ def plot_voronoi_diagram(X, y_true, y_pred):
     plt.show()
 
 
-def plot_decision_boundary(X, y_true, func):
+def plot_decision_boundary(X, y_true, func)-> None:
     """
     Funkcja rysująca granicę decyzyjną wyznaczaną przez funkcję klasyfikując func. Funkcja ta
     przyjmuje tablicę obiektów X o rozmiarze Nx2 (N to liczba obiektów) i zwraca tablicę liczb
@@ -111,9 +111,10 @@ def plot_decision_boundary(X, y_true, func):
     plt.show()
 
 
+
 if __name__ == "__main__":
     X, y_true = load("C:\\Users\\Michał\\Documents\\STUDIA\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\Zadanie rozgrzewkowe\\warmup.csv")
-
+    print("2222222testttttt")
     X = StandardScaler().fit_transform(X)
 
     algorithm = cluster.KMeans(n_clusters=3)
