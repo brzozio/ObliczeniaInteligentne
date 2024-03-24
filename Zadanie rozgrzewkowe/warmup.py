@@ -114,7 +114,6 @@ def plot_decision_boundary(X, y_true, func)-> None:
 
 if __name__ == "__main__":
     X, y_true = load("C:\\Users\\Michał\\Documents\\STUDIA\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\Zadanie rozgrzewkowe\\warmup.csv")
-    print("2222222testttttt")
     X = StandardScaler().fit_transform(X)
 
     algorithm = cluster.KMeans(n_clusters=3)
