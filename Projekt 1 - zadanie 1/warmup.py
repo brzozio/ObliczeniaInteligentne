@@ -29,23 +29,25 @@ def load(path) -> np.array:
     return cechy, etykiety
 
 
-def plot_voronoi_diagram(X, y_true, y_pred) -> None:
+def plot_voronoi_diagram(X, y_true, y_pred) -> plt.Figure:
     """
-    Funkcja rysująca diagram Woronoja dla obiektów opisanych tablicą X rozmiaru Nx2 (N to liczba
+    Funkcja rysująca diagram Voronoia dla obiektów opisanych tablicą X rozmiaru Nx2 (N to liczba
     obiektów) pogrupowanych za pomocą etykiet y_pred (tablica liczby całkowitych o rozmiarze N).
-    Parametr y_true może być równy None, i wtedy nie znamy prawdziwich etykiet, lub być tablicą
+    Parametr y_true może być równy None, i wtedy nie znamy prawdziwych etykiet, lub być tablicą
     N elementową z prawdziwymi etykietami. Rysując diagram należy zadbać, aby wszystkie obiekty
     były widoczne. Wszystkie rozważane tablice są tablicami NumPy.
     """
+   
     # Tworzenie diagramu Voronoi na podstawie punktów X
     vor = Voronoi(X)
 
     # Tworzenie wykresu
-    voronoi_plot_2d(vor, show_vertices=False)
+    fig, ax = plt.subplots()
+    voronoi_plot_2d(vor, ax=ax, show_vertices=False)
 
     # Kolorowanie obszarów Voronoi na podstawie przypisanych etykiet
     if y_true is None:
-        colors = ['tab:blue']  # Jeśli brak prawdziwych etykiet, użyj jednego koloru
+        colors = plt.cm.tab10(np.linspace(0, 1, 10))
     else:
         unique_labels = np.unique(y_true)
         colors = plt.cm.tab10(np.linspace(0, 1, len(unique_labels)))  # Kolorowanie według unikalnych etykiet
@@ -53,26 +55,25 @@ def plot_voronoi_diagram(X, y_true, y_pred) -> None:
     for region, label in zip(vor.regions, y_pred):
         if not -1 in region and label != -1:
             polygon = [vor.vertices[i] for i in region]
-            plt.fill(*zip(*polygon), color=colors[label % len(colors)], alpha=0.4)
+            ax.fill(*zip(*polygon), color=colors[label % len(colors)], alpha=0.4)
 
     # Dodanie punktów danych do wykresu
-    plt.plot(X[:, 0], X[:, 1], 'ko', markersize=3)
+    ax.plot(X[:, 0], X[:, 1], 'ko', markersize=3)
 
     # Dodanie legendy dla etykiet prawdziwych (jeśli dostępne)
     if y_true is not None:
         unique_labels = np.unique(y_true)
         for label, color in zip(unique_labels, colors):
-            plt.plot([], [], 'o', label=str(label), markersize=8, color=color)
+            ax.plot([], [], 'o', label=str(label), markersize=8, color=color)
 
-        plt.legend(title='True Labels')
+        ax.legend(title='True Labels')
 
     # Ustawienie tytułu i etykiet osi
-    plt.title('Diagram Voronoi')
-    plt.xlabel('X1')
-    plt.ylabel('X2')
+    ax.set_title('Diagram Voronoi')
+    ax.set_xlabel('X1')
+    ax.set_ylabel('X2')
 
-    # Wyświetlenie wykresu
-    plt.show()
+    return fig
 
 
 def plot_decision_boundary(X, y_true, func)-> None:
@@ -108,7 +109,7 @@ def plot_decision_boundary(X, y_true, func)-> None:
     plt.xlabel('Feature 1')
     plt.ylabel('Feature 2')
     plt.title('Decision Boundary')
-    plt.show()
+    #plt.show()
 
 
 
