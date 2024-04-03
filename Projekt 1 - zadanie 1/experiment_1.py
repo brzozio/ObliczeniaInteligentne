@@ -72,6 +72,7 @@ def experiment_1_KMeans() -> None:
             
             #Silhouette Score
             sil_score_kmeans : float = silhouette_score(points[index], np.ravel(y_pred[index][n_clusters-2]))
+
             if sil_score_kmeans > list_best_silhouette_score[index].value:
                 list_best_silhouette_score[index].setVal(val=sil_score_kmeans, vindex=index, n_cluster=n_clusters)
                 print(f'CSV: {1 if index < 3 else 2}_{(index)%3+1} BEST: INDEX {list_best_silhouette_score[index].best_index} SIL {list_best_silhouette_score[index].value} NCLUST {list_best_silhouette_score[index].best_n_cluster}')
@@ -87,13 +88,13 @@ def experiment_1_KMeans() -> None:
     #Plotowanie najlepszego i najgorszego wyniku Silhouette dla każdego CSV
     for index in range(6):
         vor_ax_best = plot_voronoi_diagram(X=points[list_best_silhouette_score[index].best_index], y_true=None, y_pred=y_pred[index][list_best_silhouette_score[index].best_n_cluster-2])
-        vor_ax_best.savefig(f'k_means_vor_ax_best_{1 if index < 3 else 2}_{(index)%3+1}.png')
-        vor_image_best = plt.imread(f'k_means_vor_ax_best_{1 if index < 3 else 2}_{(index)%3+1}.png')
+        vor_ax_best.savefig(f'experiment_1_k_means_vor_ax_best_{1 if index < 3 else 2}_{(index)%3+1}.png')
+        vor_image_best = plt.imread(f'experiment_1_k_means_vor_ax_best_{1 if index < 3 else 2}_{(index)%3+1}.png')
         axs[index][1].imshow(vor_image_best)
             
         vor_ax_worst = plot_voronoi_diagram(X=points[list_worst_silhouette_score[index].worst_index], y_true = None, y_pred=y_pred[index][list_worst_silhouette_score[index].worst_n_cluster-2])
-        vor_ax_worst.savefig(f'k_means_vor_ax_worst_{1 if index < 3 else 2}_{(index)%3+1}.png')
-        vor_image_worst = plt.imread(f'k_means_vor_ax_worst_{1 if index < 3 else 2}_{(index)%3+1}.png')
+        vor_ax_worst.savefig(f'experiment_1_k_means_vor_ax_worst_{1 if index < 3 else 2}_{(index)%3+1}.png')
+        vor_image_worst = plt.imread(f'experiment_1_k_means_vor_ax_worst_{1 if index < 3 else 2}_{(index)%3+1}.png')
         axs[index][2].imshow(vor_image_worst)
         print('----------------')
         print(f'CSV: {1 if index < 3 else 2}_{(index)%3+1} BEST: INDEX {list_best_silhouette_score[index].best_index} SIL {list_best_silhouette_score[index].value} NCLUST {list_best_silhouette_score[index].best_n_cluster} WORST: INDEX {list_worst_silhouette_score[index].worst_index} SIL {list_worst_silhouette_score[index].value} NCLUST {list_worst_silhouette_score[index].worst_n_cluster}')
@@ -106,13 +107,6 @@ def experiment_1_KMeans() -> None:
     fig.savefig('experiment_1_K_Means_Silhouette_Voronoi.png')
     plt.subplots_adjust(hspace=1.1,wspace=0.5)
     plt.show()
-    #----------------------CZĘŚĆ IRIS -------------------------------
-
-
-    #---------------------- CZĘŚĆ WINE --------------------------------
-
-
-    #----------------------- CZĘŚĆ BREAST CANCER WISCONSIN -------------
 
 def experiment_1_DBSCAN() -> None:
     #----------------------  CZĘŚĆ CSV  ---------------------------
@@ -140,7 +134,9 @@ def experiment_1_DBSCAN() -> None:
     
     list_best_silhouette_score  = []
     list_worst_silhouette_score = []
-    list_eps : list[float] = [0.25,0.5,0.75,1.0,1.25,1.5]
+    #list_eps : list[float] = [0.25,0.5,0.75,1.0,1.25,1.5]
+    list_eps : list[float] = [0.05,0.1,0.15,0.2,0.25,0.5,0.75,1.0,1.25,1.5]
+    #list_eps : list[float] = [0.05,0.1,0.15,0.2,0.25]
 
     for index in range(6):
         list_worst_silhouette_score.append(worst_silhouette_score(index,0,1.0))
@@ -149,12 +145,12 @@ def experiment_1_DBSCAN() -> None:
     fig, axs = plt.subplots(6,3)
     
     
-    y_pred : list[list[list[int]]] = [[[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[]]]
+    y_pred : list[list[list[int]]] = [[[],[],[],[],[],[],[],[],[],[],[],[]],
+                                      [[],[],[],[],[],[],[],[],[],[],[],[]],
+                                      [[],[],[],[],[],[],[],[],[],[],[],[]],
+                                      [[],[],[],[],[],[],[],[],[],[],[],[]],
+                                      [[],[],[],[],[],[],[],[],[],[],[],[]],
+                                      [[],[],[],[],[],[],[],[],[],[],[],[]]]
     
     for index in range(6):
         for iter_eps in range(len(list_eps)):
@@ -197,11 +193,3 @@ def experiment_1_DBSCAN() -> None:
     fig.savefig('experiment_1_DBSCAN_Silhouette_Voronoi.png')
     plt.subplots_adjust(hspace=1.1,wspace=0.5)
     plt.show()
-
-    #----------------------CZĘŚĆ IRIS -------------------------------
-
-
-    #---------------------- CZĘŚĆ WINE --------------------------------
-
-
-    #----------------------- CZĘŚĆ BREAST CANCER WISCONSIN -------------

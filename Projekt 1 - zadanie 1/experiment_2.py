@@ -15,113 +15,37 @@ from var import labels, points
 
 def experiment_2_KMeans() -> None:
     #----------------------  CZĘŚĆ CSV  ---------------------------
-    class best_rand_score(object):
+    class score(object):
         def __init__(self, vindex: int, n_cluster: int, val: float) -> None:
             self.best_index:     int     = vindex
-            self.best_n_cluster: int     = n_cluster
+            self.n_cluster: int     = n_cluster
             self.value:          float   = val
 
         def setVal(self, vindex: int, n_cluster: int, val: float) -> None:
             self.best_index = vindex
-            self.best_n_cluster = n_cluster
-            self.value = val
-
-    class worst_rand_score(object):
-        def __init__(self, vindex: int, n_cluster: int, val: float) -> None:
-            self.worst_index:        int     = vindex
-            self.worst_n_cluster:    int     = n_cluster
-            self.value:              float   = val
-
-        def setVal(self, vindex: int, n_cluster: int, val: float) -> None:
-            self.worst_index = vindex
-            self.worst_n_cluster = n_cluster
-            self.value = val
-    
-    class best_homogenity_score(object):
-        def __init__(self, vindex: int, n_cluster: int, val: float) -> None:
-            self.best_index:     int     = vindex
-            self.best_n_cluster: int     = n_cluster
-            self.value:          float   = val
-
-        def setVal(self, vindex: int, n_cluster: int, val: float) -> None:
-            self.best_index = vindex
-            self.best_n_cluster = n_cluster
-            self.value = val
-
-    class worst_homogenity_score(object):
-        def __init__(self, vindex: int, n_cluster: int, val: float) -> None:
-            self.worst_index:        int     = vindex
-            self.worst_n_cluster:    int     = n_cluster
-            self.value:              float   = val
-
-        def setVal(self, vindex: int, n_cluster: int, val: float) -> None:
-            self.worst_index = vindex
-            self.worst_n_cluster = n_cluster
-            self.value = val
-
-    class best_completness_score(object):
-        def __init__(self, vindex: int, n_cluster: int, val: float) -> None:
-            self.best_index:     int     = vindex
-            self.best_n_cluster: int     = n_cluster
-            self.value:          float   = val
-
-        def setVal(self, vindex: int, n_cluster: int, val: float) -> None:
-            self.best_index = vindex
-            self.best_n_cluster = n_cluster
-            self.value = val
-
-    class worst_completness_score(object):
-        def __init__(self, vindex: int, n_cluster: int, val: float) -> None:
-            self.worst_index:        int     = vindex
-            self.worst_n_cluster:    int     = n_cluster
-            self.value:              float   = val
-
-        def setVal(self, vindex: int, n_cluster: int, val: float) -> None:
-            self.worst_index = vindex
-            self.worst_n_cluster = n_cluster
-            self.value = val
-
-    class best_v_measure_score(object):
-        def __init__(self, vindex: int, n_cluster: int, val: float) -> None:
-            self.best_index:     int     = vindex
-            self.best_n_cluster: int     = n_cluster
-            self.value:          float   = val
-
-        def setVal(self, vindex: int, n_cluster: int, val: float) -> None:
-            self.best_index = vindex
-            self.best_n_cluster = n_cluster
-            self.value = val
-
-    class worst_v_measure_score(object):
-        def __init__(self, vindex: int, n_cluster: int, val: float) -> None:
-            self.worst_index:        int     = vindex
-            self.worst_n_cluster:    int     = n_cluster
-            self.value:              float   = val
-
-        def setVal(self, vindex: int, n_cluster: int, val: float) -> None:
-            self.worst_index = vindex
-            self.worst_n_cluster = n_cluster
+            self.n_cluster = n_cluster
             self.value = val
 
 
 
-    list_best_rand_score_score  = []
-    list_worst_rand_score_score = []
-    list_best_homogenity_score  = []
-    list_worst_homogenity_score = []
-    list_best_completness_score  = []
-    list_worst_completness_score = []
-    list_best_v_measure_score  = []
-    list_worst_v_measure_score = []
+    list_best_rand_score_score : list[score] = []
+    list_worst_rand_score_score : list[score] = []
+    list_best_homogenity_score : list[score] = []
+    list_worst_homogenity_score : list[score] = []
+    list_best_completness_score : list[score] = []
+    list_worst_completness_score : list[score] = []
+    list_best_v_measure_score : list[score] = []
+    list_worst_v_measure_score : list[score] = []
+
     for index in range(6):
-        list_best_rand_score_score.append(best_rand_score(index,0,1.0))
-        list_worst_rand_score_score.append(worst_rand_score(index,0,1.0))
-        list_best_homogenity_score.append(best_homogenity_score(index,0,1.0))
-        list_worst_homogenity_score.append(worst_homogenity_score(index,0,1.0))
-        list_best_completness_score.append(best_completness_score(index,0,1.0))
-        list_worst_completness_score.append(worst_completness_score(index,0,1.0))
-        list_best_v_measure_score.append(best_v_measure_score(index,0,1.0))
-        list_worst_v_measure_score.append(worst_v_measure_score(index,0,1.0))
+        list_best_rand_score_score.append(score(index,0,1.0))
+        list_worst_rand_score_score.append(score(index,0,1.0))
+        list_best_homogenity_score.append(score(index,0,1.0))
+        list_worst_homogenity_score.append(score(index,0,1.0))
+        list_best_completness_score.append(score(index,0,1.0))
+        list_worst_completness_score.append(score(index,0,1.0))
+        list_best_v_measure_score.append(score(index,0,1.0))
+        list_worst_v_measure_score.append(score(index,0,1.0))
 
     fig, axs = plt.subplots(6,1)  
     fig_vor, ax_vor = plt.subplots(6,2)
@@ -132,80 +56,126 @@ def experiment_2_KMeans() -> None:
                                       [[],[],[],[],[],[],[],[]],
                                       [[],[],[],[],[],[],[],[]],
                                       [[],[],[],[],[],[],[],[]]]
+    list_n_clusters : list[int] = [2,3,4,5,6,9,13,50]
+    list_vision_best_clusters : list[int] = [2,2,9,2,4,4]
+    list_vision_worst_clusters : list[int] = [9,9,5,9,9,6]
     
     for index in range(6):
-        for n_clusters in range(2,10):
-            #K-Means cluster
-            klaster_KMeans: cluster.KMeans = cluster.KMeans(n_clusters=n_clusters)
-            klaster_KMeans.fit(points[index])
-            y_pred[index][n_clusters-2] = klaster_KMeans.labels_.astype(int)
+        if index is 0 or index is 1 or index is 3 or index is 4:
+            list_k_means_rand : list[float] = []
+            list_k_means_homogenity : list[float] = []
+            list_k_means_completness : list[float] = []
+            list_k_means_v_measure_05 : list[float] = []
+            list_k_means_v_measure_1 : list[float] = []
+            list_k_means_v_measure_2 : list[float] = []
+            for n_clusters in range(2,10):
+                #K-Means cluster
+                klaster_KMeans: cluster.KMeans = cluster.KMeans(n_clusters=n_clusters)
+                klaster_KMeans.fit(points[index])
+                y_pred[index][n_clusters-2] = klaster_KMeans.labels_.astype(int)
+                
+                #Rand Score
+                rand_score_kmeans : float = rand_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]))
+                list_k_means_rand.append(rand_score_kmeans)
             
-            #Rand Score
-            rand_score_kmeans : float = rand_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]))
-            if rand_score_kmeans > list_best_rand_score_score[index].value:
-                list_best_rand_score_score[index].setVal(val=rand_score_kmeans, vindex=index, n_cluster=n_clusters)
-                print(f'CSV: {1 if index < 3 else 2}_{(index)%3+1} BEST: INDEX {list_best_rand_score_score[index].best_index} SIL {list_best_rand_score_score[index].value} NCLUST {list_best_rand_score_score[index].best_n_cluster}')
-            if rand_score_kmeans < list_worst_rand_score_score[index].value:
-                list_worst_rand_score_score[index].setVal(val=rand_score_kmeans, vindex=index, n_cluster=n_clusters)
-                print(f'CSV: {1 if index < 3 else 2}_{(index)%3+1} WORST: INDEX {list_worst_rand_score_score[index].worst_index} SIL {list_worst_rand_score_score[index].value} NCLUST {list_worst_rand_score_score[index].worst_n_cluster}')
-
-            axs[index].plot(n_clusters, rand_score_kmeans, 'o', color='yellow', linestyle='solid', linewidth=5, label="Rand Score")
+                
+                #Homogenity Score
+                homogenity_score_kmeans : float = homogeneity_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]))
+                list_k_means_homogenity.append(homogenity_score_kmeans)
             
-            #Homogenity Score
-            homogenity_score_kmeans : float = homogeneity_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]))
-            if homogenity_score_kmeans > list_best_rand_score_score[index].value:
-                list_best_homogenity_score[index].setVal(val=homogenity_score_kmeans, vindex=index, n_cluster=n_clusters)
-                print(f'CSV: {1 if index < 3 else 2}_{(index)%3+1} BEST: INDEX {list_best_homogenity_score[index].best_index} SIL {list_best_homogenity_score[index].value} NCLUST {list_best_homogenity_score[index].best_n_cluster}')
-            if homogenity_score_kmeans < list_worst_homogenity_score[index].value:
-                list_worst_homogenity_score[index].setVal(val=homogenity_score_kmeans, vindex=index, n_cluster=n_clusters)
-                print(f'CSV: {1 if index < 3 else 2}_{(index)%3+1} WORST: INDEX {list_worst_homogenity_score[index].worst_index} SIL {list_worst_homogenity_score[index].value} NCLUST {list_worst_homogenity_score[index].worst_n_cluster}')
+                #Completness Score
+                completeness_score_kmeans : float = completeness_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]))
+                list_k_means_completness.append(completeness_score_kmeans)
+            
+                #V-Measure Score
+                v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]), beta=0.5)
+                list_k_means_v_measure_05.append(v_mneasure_score_kmeans)
 
-            axs[index].plot(n_clusters, homogenity_score_kmeans, 'o', color='green', linestyle='solid', linewidth=5, label="Homogeneity Score")
-            #Completness Score
-            completeness_score_kmeans : float = completeness_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]))
-            if completeness_score_kmeans > list_best_rand_score_score[index].value:
-                list_best_completness_score[index].setVal(val=completeness_score_kmeans, vindex=index, n_cluster=n_clusters)
-                print(f'CSV: {1 if index < 3 else 2}_{(index)%3+1} BEST: INDEX {list_best_completness_score[index].best_index} SIL {list_best_completness_score[index].value} NCLUST {list_best_completness_score[index].best_n_cluster}')
-            if completeness_score_kmeans < list_worst_completness_score[index].value:
-                list_worst_completness_score[index].setVal(val=completeness_score_kmeans, vindex=index, n_cluster=n_clusters)
-                print(f'CSV: {1 if index < 3 else 2}_{(index)%3+1} WORST: INDEX {list_worst_completness_score[index].worst_index} SIL {list_worst_completness_score[index].value} NCLUST {list_worst_completness_score[index].worst_n_cluster}')
+                v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]), beta=1.5)
+                list_k_means_v_measure_1.append(v_mneasure_score_kmeans)
 
-            axs[index].plot(n_clusters, completeness_score_kmeans, 'o', color='blue', linestyle='solid', linewidth=5, label="Completness Score")
-            #V-Measure Score
-            v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]))
-            if v_mneasure_score_kmeans > list_best_v_measure_score[index].value:
-                list_best_completness_score[index].setVal(val=v_mneasure_score_kmeans, vindex=index, n_cluster=n_clusters)
-                print(f'CSV: {1 if index < 3 else 2}_{(index)%3+1} BEST: INDEX {list_best_v_measure_score[index].best_index} SIL {list_best_v_measure_score[index].value} NCLUST {list_best_v_measure_score[index].best_n_cluster}')
-            if v_mneasure_score_kmeans < list_worst_completness_score[index].value:
-                list_worst_v_measure_score[index].setVal(val=v_mneasure_score_kmeans, vindex=index, n_cluster=n_clusters)
-                print(f'CSV: {1 if index < 3 else 2}_{(index)%3+1} WORST: INDEX {list_worst_v_measure_score[index].worst_index} SIL {list_worst_v_measure_score[index].value} NCLUST {list_worst_v_measure_score[index].worst_n_cluster}')
+                v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]), beta=2.0)
+                list_k_means_v_measure_2.append(v_mneasure_score_kmeans)
 
-            axs[index].plot(n_clusters, v_mneasure_score_kmeans, 'o', color='red', linestyle='solid', linewidth=5, label="V-Measure Score")
+            
+            axs[index].plot(range(2,10), list_k_means_homogenity, 'o', color='green', linestyle='solid', linewidth=2, label="Homogeneity Score")
+            axs[index].plot(range(2,10), list_k_means_v_measure_05, 'o', color='red', linestyle='--', linewidth=2, label="V-Measure Score beta=0.5")
+            axs[index].plot(range(2,10), list_k_means_v_measure_1, 'o', color='purple', linestyle='--', linewidth=2, label="V-Measure Score beta=1.0")
+            axs[index].plot(range(2,10), list_k_means_v_measure_2, 'o', color='gray', linestyle='--', linewidth=2, label="V-Measure Score beta=2.0")
+            axs[index].plot(range(2,10), list_k_means_rand, 'o', color='yellow', linestyle='solid', linewidth=2, label="Rand Score")
+            axs[index].plot(range(2,10), list_k_means_completness, 'o', color='blue', linestyle='solid', linewidth=2, label="Completness Score")
 
 
             axs[index].set_title(f'CSV: {1 if index < 3 else 2}_{(index)%3+1}')
             axs[index].set_xlabel("n-clusters")
             
-            axs[index].set_ylabel("Score")
-    """
-    #Plotowanie najlepszego i najgorszego wyniku Silhouette dla każdego CSV
-    for index in range(6):
-        vor_ax_best = plot_voronoi_diagram(X=points[list_best_rand_score_score[index].best_index], y_true=None, y_pred=y_pred[index][list_best_rand_score_score[index].best_n_cluster-2])
-        vor_ax_best.savefig(f'experiment_2_k_means_vor_RAND_SCORE_best_{1 if index < 3 else 2}_{(index)%3+1}.png')
-        vor_image_best = plt.imread(f'experiment_2_k_means_vor_RAND_SCORE_best_{1 if index < 3 else 2}_{(index)%3+1}.png')
-        ax_vor[index][1].imshow(vor_image_best)
-            
-        vor_ax_worst = plot_voronoi_diagram(X=points[list_worst_rand_score_score[index].worst_index], y_true = None, y_pred=y_pred[index][list_worst_rand_score_score[index].worst_n_cluster-2])
-        vor_ax_worst.savefig(f'k_means_vor_ax_worst_{1 if index < 3 else 2}_{(index)%3+1}.png')
-        vor_image_worst = plt.imread(f'k_means_vor_ax_worst_{1 if index < 3 else 2}_{(index)%3+1}.png')
-        ax_vor[index][2].imshow(vor_image_worst)
+            axs[index].set_ylabel("Score") 
 
-        print('----------------')
-        print(f'CSV: {1 if index < 3 else 2}_{(index)%3+1} BEST: INDEX {list_best_silhouette_score[index].best_index} SIL {list_best_silhouette_score[index].value} NCLUST {list_best_silhouette_score[index].best_n_cluster} WORST: INDEX {list_worst_silhouette_score[index].worst_index} SIL {list_worst_silhouette_score[index].value} NCLUST {list_worst_silhouette_score[index].worst_n_cluster}')
-        #Tytuły
-        ax_vor[0][2].set_title(f'WORST CASE')
-        ax_vor[0][1].set_title(f'BEST CASE')
-    """        
+        else:
+            list_k_means_rand : list[float] = []
+            list_k_means_homogenity : list[float] = []
+            list_k_means_completness : list[float] = []
+            list_k_means_v_measure_05 : list[float] = []
+            list_k_means_v_measure_1 : list[float] = []
+            list_k_means_v_measure_2 : list[float] = []
+            for n_clusters in range(2,10):
+                #K-Means cluster
+                klaster_KMeans: cluster.KMeans = cluster.KMeans(n_clusters=list_n_clusters[n_clusters-2])
+                klaster_KMeans.fit(points[index])
+                y_pred[index][n_clusters-2] = klaster_KMeans.labels_.astype(int)
+                
+                #Rand Score
+                rand_score_kmeans : float = rand_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]))
+                list_k_means_rand.append(rand_score_kmeans)
+            
+                
+                #Homogenity Score
+                homogenity_score_kmeans : float = homogeneity_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]))
+                list_k_means_homogenity.append(homogenity_score_kmeans)
+            
+                #Completness Score
+                completeness_score_kmeans : float = completeness_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]))
+                list_k_means_completness.append(completeness_score_kmeans)
+            
+                #V-Measure Score
+                v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]), beta=0.5)
+                list_k_means_v_measure_05.append(v_mneasure_score_kmeans)
+
+                v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]), beta=1.5)
+                list_k_means_v_measure_1.append(v_mneasure_score_kmeans)
+
+                v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]), beta=2.0)
+                list_k_means_v_measure_2.append(v_mneasure_score_kmeans)
+            
+            axs[index].plot(list_n_clusters, list_k_means_homogenity, 'o', color='green', linestyle='solid', linewidth=2, label="Homogeneity Score")
+            axs[index].plot(list_n_clusters, list_k_means_v_measure_05, 'o', color='red', linestyle='--', linewidth=2, label="V-Measure Score beta=0.5")
+            axs[index].plot(list_n_clusters, list_k_means_v_measure_1, 'o', color='purple', linestyle='--', linewidth=2, label="V-Measure Score beta=1.0")
+            axs[index].plot(list_n_clusters, list_k_means_v_measure_2, 'o', color='gray', linestyle='--', linewidth=2, label="V-Measure Score beta=2.0")
+            axs[index].plot(list_n_clusters, list_k_means_rand, 'o', color='yellow', linestyle='solid', linewidth=2, label="Rand Score")
+            axs[index].plot(list_n_clusters, list_k_means_completness, 'o', color='blue', linestyle='solid', linewidth=2, label="Completness Score")
+
+
+            axs[index].set_title(f'CSV: {1 if index < 3 else 2}_{(index)%3+1}')
+            axs[index].set_xlabel("n-clusters")
+            
+            axs[index].set_ylabel("Score")    
+
+
+    #Plotowanie najlepszego i najgorszego wyniku Silhouette dla każdego CSV
+    
+        vor_ax_best = plot_voronoi_diagram(X=points[index], y_true=None, y_pred=y_pred[index][list_vision_best_clusters[index]-2])
+        vor_ax_best.savefig(f'experiment_2_k_means_vor_best_{1 if index < 3 else 2}_{(index)%3+1}.png')
+        vor_image_best = plt.imread(f'experiment_2_k_means_vor_best_{1 if index < 3 else 2}_{(index)%3+1}.png')
+        ax_vor[index][0].imshow(vor_image_best)
+            
+        vor_ax_worst = plot_voronoi_diagram(X=points[index], y_true=None, y_pred=y_pred[index][list_vision_worst_clusters[index]-2])
+        vor_ax_worst.savefig(f'experiment_2_k_means_vor_worst_{1 if index < 3 else 2}_{(index)%3+1}.png')
+        vor_image_worst = plt.imread(f'experiment_2_k_means_vor_worst_{1 if index < 3 else 2}_{(index)%3+1}.png')
+        ax_vor[index][1].imshow(vor_image_worst)
+
+        ax_vor[0][1].set_title(f'WORST CASE')
+        ax_vor[0][0].set_title(f'BEST CASE')
+           
     
     
     #fig.savefig('experiment_2_K_Means_Silhouette_Voronoi.png')
@@ -217,200 +187,119 @@ def experiment_2_KMeans() -> None:
 
 def experiment_2_DBSCAN() -> None:
     #----------------------  CZĘŚĆ CSV  ---------------------------
-    class best_rand_score(object):
-        def __init__(self, vindex: int, eps: int, val: float) -> None:
+    class score(object):
+        def __init__(self, vindex: int, n_cluster: int, val: float) -> None:
             self.best_index:     int     = vindex
-            self.best_eps:       int     = eps
+            self.n_cluster: int     = n_cluster
             self.value:          float   = val
 
         def setVal(self, vindex: int, n_cluster: int, val: float) -> None:
             self.best_index = vindex
-            self.best_eps = n_cluster
-            self.value = val
-
-    class worst_rand_score(object):
-        def __init__(self, vindex: int, eps: int, val: float) -> None:
-            self.worst_index:        int     = vindex
-            self.best_eps:           int     = eps
-            self.value:              float   = val
-
-        def setVal(self, vindex: int, eps: int, val: float) -> None:
-            self.worst_index = vindex
-            self.best_eps = eps
-            self.value = val
-    
-    class best_homogenity_score(object):
-        def __init__(self, vindex: int, eps: int, val: float) -> None:
-            self.best_index:     int     = vindex
-            self.best_eps:       int     = eps
-            self.value:          float   = val
-
-        def setVal(self, vindex: int, eps: int, val: float) -> None:
-            self.best_index = vindex
-            self.best_eps = eps
-            self.value = val
-
-    class worst_homogenity_score(object):
-        def __init__(self, vindex: int, n_cluster: int, val: float) -> None:
-            self.worst_index:        int     = vindex
-            self.worst_n_cluster:    int     = n_cluster
-            self.value:              float   = val
-
-        def setVal(self, vindex: int, n_cluster: int, val: float) -> None:
-            self.worst_index = vindex
-            self.worst_n_cluster = n_cluster
-            self.value = val
-
-    class best_completness_score(object):
-        def __init__(self, vindex: int, n_cluster: int, val: float) -> None:
-            self.best_index:     int     = vindex
-            self.best_n_cluster: int     = n_cluster
-            self.value:          float   = val
-
-        def setVal(self, vindex: int, n_cluster: int, val: float) -> None:
-            self.best_index = vindex
-            self.best_n_cluster = n_cluster
-            self.value = val
-
-    class worst_completness_score(object):
-        def __init__(self, vindex: int, n_cluster: int, val: float) -> None:
-            self.worst_index:        int     = vindex
-            self.worst_n_cluster:    int     = n_cluster
-            self.value:              float   = val
-
-        def setVal(self, vindex: int, n_cluster: int, val: float) -> None:
-            self.worst_index = vindex
-            self.worst_n_cluster = n_cluster
-            self.value = val
-
-    class best_v_measure_score(object):
-        def __init__(self, vindex: int, n_cluster: int, val: float) -> None:
-            self.best_index:     int     = vindex
-            self.best_n_cluster: int     = n_cluster
-            self.value:          float   = val
-
-        def setVal(self, vindex: int, n_cluster: int, val: float) -> None:
-            self.best_index = vindex
-            self.best_n_cluster = n_cluster
-            self.value = val
-
-    class worst_v_measure_score(object):
-        def __init__(self, vindex: int, n_cluster: int, val: float) -> None:
-            self.worst_index:        int     = vindex
-            self.worst_n_cluster:    int     = n_cluster
-            self.value:              float   = val
-
-        def setVal(self, vindex: int, n_cluster: int, val: float) -> None:
-            self.worst_index = vindex
-            self.worst_n_cluster = n_cluster
+            self.n_cluster = n_cluster
             self.value = val
 
 
+    list_eps : list[float] = [0.1,0.15,0.2,0.25,0.3,0.5,0.75,1.0,1.25,1.5]
+    list_best_rand_score_score : list[score] = []
+    list_worst_rand_score_score : list[score] = []
+    list_best_homogenity_score : list[score] = []
+    list_worst_homogenity_score : list[score] = []
+    list_best_completness_score : list[score] = []
+    list_worst_completness_score : list[score] = []
+    list_best_v_measure_score : list[score] = []
+    list_worst_v_measure_score : list[score] = []
 
-    list_best_rand_score_score  = []
-    list_worst_rand_score_score = []
-    list_best_homogenity_score  = []
-    list_worst_homogenity_score = []
-    list_best_completness_score  = []
-    list_worst_completness_score = []
-    list_best_v_measure_score  = []
-    list_worst_v_measure_score = []
     for index in range(6):
-        list_best_rand_score_score.append(best_rand_score(index,0,1.0))
-        list_worst_rand_score_score.append(worst_rand_score(index,0,1.0))
-        list_best_homogenity_score.append(best_homogenity_score(index,0,1.0))
-        list_worst_homogenity_score.append(worst_homogenity_score(index,0,1.0))
-        list_best_completness_score.append(best_completness_score(index,0,1.0))
-        list_worst_completness_score.append(worst_completness_score(index,0,1.0))
-        list_best_v_measure_score.append(best_v_measure_score(index,0,1.0))
-        list_worst_v_measure_score.append(worst_v_measure_score(index,0,1.0))
+        list_best_rand_score_score.append(score(index,0,1.0))
+        list_worst_rand_score_score.append(score(index,0,1.0))
+        list_best_homogenity_score.append(score(index,0,1.0))
+        list_worst_homogenity_score.append(score(index,0,1.0))
+        list_best_completness_score.append(score(index,0,1.0))
+        list_worst_completness_score.append(score(index,0,1.0))
+        list_best_v_measure_score.append(score(index,0,1.0))
+        list_worst_v_measure_score.append(score(index,0,1.0))
 
     fig, axs = plt.subplots(6,1)  
     fig_vor, ax_vor = plt.subplots(6,2)
     
-    y_pred : list[list[list[int]]] = [[[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[]]]
+    y_pred : list[list[list[int]]] = [[[],[],[],[],[],[],[],[],[],[],[],[]],
+                                      [[],[],[],[],[],[],[],[],[],[],[],[]],
+                                      [[],[],[],[],[],[],[],[],[],[],[],[]],
+                                      [[],[],[],[],[],[],[],[],[],[],[],[]],
+                                      [[],[],[],[],[],[],[],[],[],[],[],[]],
+                                      [[],[],[],[],[],[],[],[],[],[],[],[]]]
+    
+    list_vision_best_clusters : list[int] = [2,2,9,2,4,4]
+    list_vision_worst_clusters : list[int] = [9,9,5,9,9,6]
     
     for index in range(6):
-        for n_clusters in range(2,10):
-            #K-Means cluster
-            klaster_KMeans: cluster.KMeans = cluster.KMeans(n_clusters=n_clusters)
-            klaster_KMeans.fit(points[index])
-            y_pred[index][n_clusters-2] = klaster_KMeans.labels_.astype(int)
+        if True:
+            list_k_means_rand : list[float] = []
+            list_k_means_homogenity : list[float] = []
+            list_k_means_completness : list[float] = []
+            list_k_means_v_measure_05 : list[float] = []
+            list_k_means_v_measure_1 : list[float] = []
+            list_k_means_v_measure_2 : list[float] = []
+            for iter_eps in range(len(list_eps)):
+                #K-Means cluster
+                klaster_KMeans: cluster.DBSCAN = cluster.DBSCAN(eps=list_eps[iter_eps],min_samples=10)
+                klaster_KMeans.fit(points[index])
+                y_pred[index][iter_eps] = klaster_KMeans.labels_.astype(int)
+                
+                #Rand Score
+                rand_score_kmeans : float = rand_score(np.ravel(labels[index]), np.ravel(y_pred[index][iter_eps]))
+                list_k_means_rand.append(rand_score_kmeans)
             
-            #Rand Score
-            rand_score_kmeans : float = rand_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]))
-            if rand_score_kmeans > list_best_rand_score_score[index].value:
-                list_best_rand_score_score[index].setVal(val=rand_score_kmeans, vindex=index, n_cluster=n_clusters)
-                print(f'CSV: {1 if index < 3 else 2}_{(index)%3+1} BEST: INDEX {list_best_rand_score_score[index].best_index} SIL {list_best_rand_score_score[index].value} NCLUST {list_best_rand_score_score[index].best_n_cluster}')
-            if rand_score_kmeans < list_worst_rand_score_score[index].value:
-                list_worst_rand_score_score[index].setVal(val=rand_score_kmeans, vindex=index, n_cluster=n_clusters)
-                print(f'CSV: {1 if index < 3 else 2}_{(index)%3+1} WORST: INDEX {list_worst_rand_score_score[index].worst_index} SIL {list_worst_rand_score_score[index].value} NCLUST {list_worst_rand_score_score[index].worst_n_cluster}')
-
-            axs[index].plot(n_clusters, rand_score_kmeans, 'o', color='yellow', linestyle='solid', linewidth=5, label="Rand Score")
+                
+                #Homogenity Score
+                homogenity_score_kmeans : float = homogeneity_score(np.ravel(labels[index]), np.ravel(y_pred[index][iter_eps]))
+                list_k_means_homogenity.append(homogenity_score_kmeans)
             
-            #Homogenity Score
-            homogenity_score_kmeans : float = homogeneity_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]))
-            if homogenity_score_kmeans > list_best_rand_score_score[index].value:
-                list_best_homogenity_score[index].setVal(val=homogenity_score_kmeans, vindex=index, n_cluster=n_clusters)
-                print(f'CSV: {1 if index < 3 else 2}_{(index)%3+1} BEST: INDEX {list_best_homogenity_score[index].best_index} SIL {list_best_homogenity_score[index].value} NCLUST {list_best_homogenity_score[index].best_n_cluster}')
-            if homogenity_score_kmeans < list_worst_homogenity_score[index].value:
-                list_worst_homogenity_score[index].setVal(val=homogenity_score_kmeans, vindex=index, n_cluster=n_clusters)
-                print(f'CSV: {1 if index < 3 else 2}_{(index)%3+1} WORST: INDEX {list_worst_homogenity_score[index].worst_index} SIL {list_worst_homogenity_score[index].value} NCLUST {list_worst_homogenity_score[index].worst_n_cluster}')
+                #Completness Score
+                completeness_score_kmeans : float = completeness_score(np.ravel(labels[index]), np.ravel(y_pred[index][iter_eps]))
+                list_k_means_completness.append(completeness_score_kmeans)
+            
+                #V-Measure Score
+                v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels[index]), np.ravel(y_pred[index][iter_eps]), beta=0.5)
+                list_k_means_v_measure_05.append(v_mneasure_score_kmeans)
 
-            axs[index].plot(n_clusters, homogenity_score_kmeans, 'o', color='green', linestyle='solid', linewidth=5, label="Homogeneity Score")
-            #Completness Score
-            completeness_score_kmeans : float = completeness_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]))
-            if completeness_score_kmeans > list_best_rand_score_score[index].value:
-                list_best_completness_score[index].setVal(val=completeness_score_kmeans, vindex=index, n_cluster=n_clusters)
-                print(f'CSV: {1 if index < 3 else 2}_{(index)%3+1} BEST: INDEX {list_best_completness_score[index].best_index} SIL {list_best_completness_score[index].value} NCLUST {list_best_completness_score[index].best_n_cluster}')
-            if completeness_score_kmeans < list_worst_completness_score[index].value:
-                list_worst_completness_score[index].setVal(val=completeness_score_kmeans, vindex=index, n_cluster=n_clusters)
-                print(f'CSV: {1 if index < 3 else 2}_{(index)%3+1} WORST: INDEX {list_worst_completness_score[index].worst_index} SIL {list_worst_completness_score[index].value} NCLUST {list_worst_completness_score[index].worst_n_cluster}')
+                v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels[index]), np.ravel(y_pred[index][iter_eps]), beta=1.5)
+                list_k_means_v_measure_1.append(v_mneasure_score_kmeans)
 
-            axs[index].plot(n_clusters, completeness_score_kmeans, 'o', color='blue', linestyle='solid', linewidth=5, label="Completness Score")
-            #V-Measure Score
-            v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]))
-            if v_mneasure_score_kmeans > list_best_v_measure_score[index].value:
-                list_best_completness_score[index].setVal(val=v_mneasure_score_kmeans, vindex=index, n_cluster=n_clusters)
-                print(f'CSV: {1 if index < 3 else 2}_{(index)%3+1} BEST: INDEX {list_best_v_measure_score[index].best_index} SIL {list_best_v_measure_score[index].value} NCLUST {list_best_v_measure_score[index].best_n_cluster}')
-            if v_mneasure_score_kmeans < list_worst_completness_score[index].value:
-                list_worst_v_measure_score[index].setVal(val=v_mneasure_score_kmeans, vindex=index, n_cluster=n_clusters)
-                print(f'CSV: {1 if index < 3 else 2}_{(index)%3+1} WORST: INDEX {list_worst_v_measure_score[index].worst_index} SIL {list_worst_v_measure_score[index].value} NCLUST {list_worst_v_measure_score[index].worst_n_cluster}')
+                v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels[index]), np.ravel(y_pred[index][iter_eps]), beta=2.0)
+                list_k_means_v_measure_2.append(v_mneasure_score_kmeans)
 
-            axs[index].plot(n_clusters, v_mneasure_score_kmeans, 'o', color='red', linestyle='solid', linewidth=5, label="V-Measure Score")
+            
+            axs[index].plot(list_eps, list_k_means_homogenity, 'o', color='green', linestyle='solid', linewidth=2, label="Homogeneity Score")
+            axs[index].plot(list_eps, list_k_means_v_measure_05, 'o', color='red', linestyle='--', linewidth=2, label="V-Measure Score beta=0.5")
+            axs[index].plot(list_eps, list_k_means_v_measure_1, 'o', color='purple', linestyle='--', linewidth=2, label="V-Measure Score beta=1.0")
+            axs[index].plot(list_eps, list_k_means_v_measure_2, 'o', color='gray', linestyle='--', linewidth=2, label="V-Measure Score beta=2.0")
+            axs[index].plot(list_eps, list_k_means_rand, 'o', color='yellow', linestyle='solid', linewidth=2, label="Rand Score")
+            axs[index].plot(list_eps, list_k_means_completness, 'o', color='blue', linestyle='solid', linewidth=2, label="Completness Score")
 
 
             axs[index].set_title(f'CSV: {1 if index < 3 else 2}_{(index)%3+1}')
-            axs[index].set_xlabel("n-clusters")
+            axs[index].set_xlabel("eps")
             
-            axs[index].set_ylabel("Score")
-    """
-    #Plotowanie najlepszego i najgorszego wyniku Silhouette dla każdego CSV
-    for index in range(6):
-        vor_ax_best = plot_voronoi_diagram(X=points[list_best_rand_score_score[index].best_index], y_true=None, y_pred=y_pred[index][list_best_rand_score_score[index].best_n_cluster-2])
-        vor_ax_best.savefig(f'experiment_2_k_means_vor_RAND_SCORE_best_{1 if index < 3 else 2}_{(index)%3+1}.png')
-        vor_image_best = plt.imread(f'experiment_2_k_means_vor_RAND_SCORE_best_{1 if index < 3 else 2}_{(index)%3+1}.png')
-        ax_vor[index][1].imshow(vor_image_best)
-            
-        vor_ax_worst = plot_voronoi_diagram(X=points[list_worst_rand_score_score[index].worst_index], y_true = None, y_pred=y_pred[index][list_worst_rand_score_score[index].worst_n_cluster-2])
-        vor_ax_worst.savefig(f'k_means_vor_ax_worst_{1 if index < 3 else 2}_{(index)%3+1}.png')
-        vor_image_worst = plt.imread(f'k_means_vor_ax_worst_{1 if index < 3 else 2}_{(index)%3+1}.png')
-        ax_vor[index][2].imshow(vor_image_worst)
+            axs[index].set_ylabel("Score") 
 
-        print('----------------')
-        print(f'CSV: {1 if index < 3 else 2}_{(index)%3+1} BEST: INDEX {list_best_silhouette_score[index].best_index} SIL {list_best_silhouette_score[index].value} NCLUST {list_best_silhouette_score[index].best_n_cluster} WORST: INDEX {list_worst_silhouette_score[index].worst_index} SIL {list_worst_silhouette_score[index].value} NCLUST {list_worst_silhouette_score[index].worst_n_cluster}')
-        #Tytuły
-        ax_vor[0][2].set_title(f'WORST CASE')
-        ax_vor[0][1].set_title(f'BEST CASE')
-    """        
+
+    #Plotowanie najlepszego i najgorszego wyniku Silhouette dla każdego CSV
     
+        vor_ax_best = plot_voronoi_diagram(X=points[index], y_true=None, y_pred=y_pred[index][list_vision_best_clusters[index]-2])
+        vor_ax_best.savefig(f'experiment_2_DBSCAN_vor_best_{1 if index < 3 else 2}_{(index)%3+1}.png')
+        vor_image_best = plt.imread(f'experiment_2_DBSCAN_vor_best_{1 if index < 3 else 2}_{(index)%3+1}.png')
+        ax_vor[index][0].imshow(vor_image_best)
+            
+        vor_ax_worst = plot_voronoi_diagram(X=points[index], y_true=None, y_pred=y_pred[index][list_vision_worst_clusters[index]-2])
+        vor_ax_worst.savefig(f'experiment_2_DBSCAN_vor_worst_{1 if index < 3 else 2}_{(index)%3+1}.png')
+        vor_image_worst = plt.imread(f'experiment_2_DBSCAN_vor_worst_{1 if index < 3 else 2}_{(index)%3+1}.png')
+        ax_vor[index][1].imshow(vor_image_worst)
+
+        ax_vor[0][1].set_title(f'WORST CASE')
+        ax_vor[0][0].set_title(f'BEST CASE')
+           
     
-    #fig.savefig('experiment_2_K_Means_Silhouette_Voronoi.png')
     axs[5].legend(loc='upper left', bbox_to_anchor=(1, 1))
     plt.subplots_adjust(hspace=0.6,wspace=0.5)
     plt.show()

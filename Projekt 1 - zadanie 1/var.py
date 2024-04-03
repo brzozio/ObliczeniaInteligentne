@@ -24,12 +24,12 @@ def load_lists() -> None:
 
     points_2_1, labels_2_1 = load_csv("C:\\Users\\Michał\\Documents\\STUDIA\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\Projekt 1 - zadanie 1\\2_1.csv")
     points_2_1 = StandardScaler().fit_transform(points_2_1)
-    points.append(points_1_3)
+    points.append(points_2_1)
     labels.append(labels_2_1)
 
     points_2_2, labels_2_2 = load_csv("C:\\Users\\Michał\\Documents\\STUDIA\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\Projekt 1 - zadanie 1\\2_2.csv")
     points_2_2 = StandardScaler().fit_transform(points_2_2)
-    points.append(points_1_3)
+    points.append(points_2_2)
     labels.append(labels_2_2)
 
     points_2_3, labels_2_3 = load_csv("C:\\Users\\Michał\\Documents\\STUDIA\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\Projekt 1 - zadanie 1\\2_3.csv")
