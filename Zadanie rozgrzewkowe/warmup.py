@@ -117,8 +117,8 @@ if __name__ == "__main__":
     X = StandardScaler().fit_transform(X)
 
     algorithm = cluster.KMeans(n_clusters=3)
-    algorithm.fit(X)
-    y_pred = algorithm.labels_.astype(int)
+    algorithm.fit_predict(X)
+    y_pred = algorithm.labels_
     plot_voronoi_diagram(X, y_true, y_pred)
     plot_voronoi_diagram(X, None, y_pred)
 

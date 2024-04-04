@@ -11,9 +11,24 @@ from sklearn import cluster
 import matplotlib.pyplot as plt
 from sklearn.metrics import rand_score, homogeneity_score, completeness_score, v_measure_score, silhouette_score
 from warmup import plot_voronoi_diagram
-from var import labels, points
+
 from sklearn import datasets
 from sklearn.preprocessing import StandardScaler
+
+Data: np.ndarray = np.zeros((6,300,3))
+X: np.ndarray = np.genfromtxt("C:\\Users\\Michał\\Documents\\STUDIA\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\Projekt 1 - zadanie 1\\1_1.csv", delimiter=';')
+Data[0] = X
+X: np.ndarray = np.genfromtxt("C:\\Users\\Michał\\Documents\\STUDIA\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\Projekt 1 - zadanie 1\\1_2.csv", delimiter=';')
+Data[1] = X
+X: np.ndarray = np.genfromtxt("C:\\Users\\Michał\\Documents\\STUDIA\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\Projekt 1 - zadanie 1\\1_3.csv", delimiter=';')
+Data[2] = X
+X: np.ndarray = np.genfromtxt("C:\\Users\\Michał\\Documents\\STUDIA\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\Projekt 1 - zadanie 1\\2_1.csv", delimiter=';')
+Data[3] = X
+X: np.ndarray = np.genfromtxt("C:\\Users\\Michał\\Documents\\STUDIA\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\Projekt 1 - zadanie 1\\2_2.csv", delimiter=';')
+Data[4] = X
+X: np.ndarray = np.genfromtxt("C:\\Users\\Michał\\Documents\\STUDIA\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\Projekt 1 - zadanie 1\\2_3.csv", delimiter=';')
+Data[5] = X
+Y: np.ndarray = np.zeros((6,300))
 
 def experiment_2_KMeans() -> None:
     #----------------------  CZĘŚĆ CSV  ---------------------------
@@ -70,33 +85,37 @@ def experiment_2_KMeans() -> None:
             list_k_means_v_measure_05 : list[float] = []
             list_k_means_v_measure_1 : list[float] = []
             list_k_means_v_measure_2 : list[float] = []
+
+            points = Data[index, :, 0:2]
+            labels = Data[index,:,2]
+
             for n_clusters in range(2,10):
                 #K-Means cluster
                 klaster_KMeans: cluster.KMeans = cluster.KMeans(n_clusters=n_clusters)
-                klaster_KMeans.fit(points[index])
+                klaster_KMeans.fit(points)
                 y_pred[index][n_clusters-2] = klaster_KMeans.labels_
                 
                 #Rand Score
-                rand_score_kmeans : float = rand_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]))
+                rand_score_kmeans : float = rand_score(np.ravel(labels), np.ravel(y_pred[index][n_clusters-2]))
                 list_k_means_rand.append(rand_score_kmeans)
             
                 
                 #Homogenity Score
-                homogenity_score_kmeans : float = homogeneity_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]))
+                homogenity_score_kmeans : float = homogeneity_score(np.ravel(labels), np.ravel(y_pred[index][n_clusters-2]))
                 list_k_means_homogenity.append(homogenity_score_kmeans)
             
                 #Completness Score
-                completeness_score_kmeans : float = completeness_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]))
+                completeness_score_kmeans : float = completeness_score(np.ravel(labels), np.ravel(y_pred[index][n_clusters-2]))
                 list_k_means_completness.append(completeness_score_kmeans)
             
                 #V-Measure Score
-                v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]), beta=0.5)
+                v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels), np.ravel(y_pred[index][n_clusters-2]), beta=0.5)
                 list_k_means_v_measure_05.append(v_mneasure_score_kmeans)
 
-                v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]), beta=1.5)
+                v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels), np.ravel(y_pred[index][n_clusters-2]), beta=1.5)
                 list_k_means_v_measure_1.append(v_mneasure_score_kmeans)
 
-                v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]), beta=2.0)
+                v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels), np.ravel(y_pred[index][n_clusters-2]), beta=2.0)
                 list_k_means_v_measure_2.append(v_mneasure_score_kmeans)
 
             
@@ -120,33 +139,37 @@ def experiment_2_KMeans() -> None:
             list_k_means_v_measure_05 : list[float] = []
             list_k_means_v_measure_1 : list[float] = []
             list_k_means_v_measure_2 : list[float] = []
+
+            points = Data[index, :, 0:2]
+            labels = Data[index,:,2]
+
             for n_clusters in range(2,10):
                 #K-Means cluster
                 klaster_KMeans: cluster.KMeans = cluster.KMeans(n_clusters=list_n_clusters[n_clusters-2])
-                klaster_KMeans.fit(points[index])
+                klaster_KMeans.fit(points)
                 y_pred[index][n_clusters-2] = klaster_KMeans.labels_.astype(int)
                 
                 #Rand Score
-                rand_score_kmeans : float = rand_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]))
+                rand_score_kmeans : float = rand_score(np.ravel(labels), np.ravel(y_pred[index][n_clusters-2]))
                 list_k_means_rand.append(rand_score_kmeans)
             
                 
                 #Homogenity Score
-                homogenity_score_kmeans : float = homogeneity_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]))
+                homogenity_score_kmeans : float = homogeneity_score(np.ravel(labels), np.ravel(y_pred[index][n_clusters-2]))
                 list_k_means_homogenity.append(homogenity_score_kmeans)
             
                 #Completness Score
-                completeness_score_kmeans : float = completeness_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]))
+                completeness_score_kmeans : float = completeness_score(np.ravel(labels), np.ravel(y_pred[index][n_clusters-2]))
                 list_k_means_completness.append(completeness_score_kmeans)
             
                 #V-Measure Score
-                v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]), beta=0.5)
+                v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels), np.ravel(y_pred[index][n_clusters-2]), beta=0.5)
                 list_k_means_v_measure_05.append(v_mneasure_score_kmeans)
 
-                v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]), beta=1.5)
+                v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels), np.ravel(y_pred[index][n_clusters-2]), beta=1.5)
                 list_k_means_v_measure_1.append(v_mneasure_score_kmeans)
 
-                v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]), beta=2.0)
+                v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels), np.ravel(y_pred[index][n_clusters-2]), beta=2.0)
                 list_k_means_v_measure_2.append(v_mneasure_score_kmeans)
             
             axs[index].plot(list_n_clusters, list_k_means_homogenity, 'o', color='green', linestyle='solid', linewidth=2, label="Homogeneity Score")
@@ -165,7 +188,7 @@ def experiment_2_KMeans() -> None:
 
 
     #Plotowanie najlepszego i najgorszego wyniku Silhouette dla każdego CSV
-    
+    """
         vor_ax_best = plot_voronoi_diagram(X=points[index], y_true=None, y_pred=y_pred[index][list_vision_best_clusters[index]-2])
         vor_ax_best.savefig(f'experiment_2_k_means_vor_best_{1 if index < 3 else 2}_{(index)%3+1}.png')
         vor_image_best = plt.imread(f'experiment_2_k_means_vor_best_{1 if index < 3 else 2}_{(index)%3+1}.png')
@@ -178,7 +201,7 @@ def experiment_2_KMeans() -> None:
 
         ax_vor[0][1].set_title(f'WORST CASE')
         ax_vor[0][0].set_title(f'BEST CASE')
-           
+    """       
     
     
     #fig.savefig('experiment_2_K_Means_Silhouette_Voronoi.png')
@@ -243,34 +266,30 @@ def experiment_2_DBSCAN() -> None:
             list_k_means_v_measure_05 : list[float] = []
             list_k_means_v_measure_1 : list[float] = []
             list_k_means_v_measure_2 : list[float] = []
+
+            points = Data[index, :, 0:2]
+            labels = Data[index,:,2]
+
             for iter_eps in range(len(list_eps)):
                 #K-Means cluster
                 klaster_KMeans: cluster.DBSCAN = cluster.DBSCAN(eps=list_eps[iter_eps],min_samples=10)
-                klaster_KMeans.fit(points[index])
+                klaster_KMeans.fit(points)
                 y_pred[index][iter_eps] = klaster_KMeans.labels_
                 
                 #Rand Score
-                rand_score_kmeans : float = rand_score(np.ravel(labels[index]), np.ravel(y_pred[index][iter_eps]))
-                list_k_means_rand.append(rand_score_kmeans)
-            
+                rand_score_kmeans : float = rand_score(np.ravel(labels), np.ravel(y_pred[index][iter_eps]))
                 
                 #Homogenity Score
-                homogenity_score_kmeans : float = homogeneity_score(np.ravel(labels[index]), np.ravel(y_pred[index][iter_eps]))
-                list_k_means_homogenity.append(homogenity_score_kmeans)
+                homogenity_score_kmeans : float = homogeneity_score(np.ravel(labels), np.ravel(y_pred[index][iter_eps]))
             
                 #Completness Score
-                completeness_score_kmeans : float = completeness_score(np.ravel(labels[index]), np.ravel(y_pred[index][iter_eps]))
-                list_k_means_completness.append(completeness_score_kmeans)
+                completeness_score_kmeans : float = completeness_score(np.ravel(labels), np.ravel(y_pred[index][iter_eps]))
             
                 #V-Measure Score
-                v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels[index]), np.ravel(y_pred[index][iter_eps]), beta=0.5)
-                list_k_means_v_measure_05.append(v_mneasure_score_kmeans)
+                v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels), np.ravel(y_pred[index][iter_eps]), beta=0.5)
 
-                v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels[index]), np.ravel(y_pred[index][iter_eps]), beta=1.5)
-                list_k_means_v_measure_1.append(v_mneasure_score_kmeans)
-
-                v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels[index]), np.ravel(y_pred[index][iter_eps]), beta=2.0)
-                list_k_means_v_measure_2.append(v_mneasure_score_kmeans)
+                v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels), np.ravel(y_pred[index][iter_eps]), beta=1.5)
+                v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels), np.ravel(y_pred[index][iter_eps]), beta=2.0)
 
                 if max(y_pred[0][index])+1 <= 1:
                     list_k_means_completness.append(0)
@@ -304,7 +323,7 @@ def experiment_2_DBSCAN() -> None:
             #Etykiety ilosci klastrów na wykresie
             for eps_text in range(len(list_eps)):
                 axs[index].text(list_eps[eps_text], 0.1, len(set(y_pred[index][eps_text])))
-
+    """
     #Plotowanie najlepszego i najgorszego wyniku Silhouette dla każdego CSV
     
         vor_ax_best = plot_voronoi_diagram(X=points[index], y_true=None, y_pred=y_pred[index][list_vision_best_clusters[index]])
@@ -319,7 +338,7 @@ def experiment_2_DBSCAN() -> None:
 
         ax_vor[0][1].set_title(f'WORST CASE')
         ax_vor[0][0].set_title(f'BEST CASE')
-           
+       """    
     axs[5].legend(loc='upper left', bbox_to_anchor=(1, 1))
     
     
@@ -598,14 +617,7 @@ def experiment_2_DBSCAN_IRIS_AND_OTHERS() -> None:
     list_k_means_homogenity : list[float] = []
     list_k_means_completness : list[float] = []
 
-    distance_avg = 0.0
-    for n in range(569):
-        for m in range(n,569):
-            distance_avg  += np.linalg.norm(breast_cancer.data[n]-breast_cancer.data[m])
-    distance_avg /= 569*568/2
-    print(f'SREDNIA DYSTANSU: {distance_avg}')
-
-    list_eps : list[float] = np.arange(distance_avg/10,distance_avg,distance_avg/10)
+    list_eps : list[float] = [0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,5.5,7.0,8.5]
     
     for index in range(len(list_eps)):
         #K-Means cluster
