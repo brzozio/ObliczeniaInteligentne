@@ -45,7 +45,7 @@ def plot_voronoi_diagram(X, y_true, y_pred) -> None:
 
     # Kolorowanie obszarów Voronoi na podstawie przypisanych etykiet
     if y_true is None:
-        colors = ['tab:blue']  # Jeśli brak prawdziwych etykiet, użyj jednego koloru
+        colors = ['tab:blue','tab:red','tab:green']  
     else:
         unique_labels = np.unique(y_true)
         colors = plt.cm.tab10(np.linspace(0, 1, len(unique_labels)))  # Kolorowanie według unikalnych etykiet

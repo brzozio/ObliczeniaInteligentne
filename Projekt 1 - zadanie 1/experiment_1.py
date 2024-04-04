@@ -173,6 +173,7 @@ def experiment_1_DBSCAN() -> None:
                 axs[index][0].set_title(f'CSV: {1 if index < 3 else 2}_{(index)%3+1}')
                 axs[index][0].set_xlabel("eps")
                 axs[index][0].set_ylabel("Silhouette Score")
+              
 
     #Plotowanie najlepszego i najgorszego wyniku Silhouette dla każdego CSV
     for index in range(6):
