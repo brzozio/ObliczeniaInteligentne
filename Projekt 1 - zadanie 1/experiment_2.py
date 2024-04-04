@@ -13,6 +13,7 @@ from sklearn.metrics import rand_score, homogeneity_score, completeness_score, v
 from warmup import plot_voronoi_diagram
 from var import labels, points
 from sklearn import datasets
+from sklearn.preprocessing import StandardScaler
 
 def experiment_2_KMeans() -> None:
     #----------------------  CZĘŚĆ CSV  ---------------------------
@@ -73,7 +74,7 @@ def experiment_2_KMeans() -> None:
                 #K-Means cluster
                 klaster_KMeans: cluster.KMeans = cluster.KMeans(n_clusters=n_clusters)
                 klaster_KMeans.fit(points[index])
-                y_pred[index][n_clusters-2] = klaster_KMeans.labels_.astype(int)
+                y_pred[index][n_clusters-2] = klaster_KMeans.labels_
                 
                 #Rand Score
                 rand_score_kmeans : float = rand_score(np.ravel(labels[index]), np.ravel(y_pred[index][n_clusters-2]))
@@ -224,15 +225,15 @@ def experiment_2_DBSCAN() -> None:
     fig, axs = plt.subplots(6,1)  
     fig_vor, ax_vor = plt.subplots(6,2)
     
-    y_pred : list[list[list[int]]] = [[[],[],[],[],[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[],[],[],[],[]]]
+    y_pred : np.array = [[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
+                        [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
+                        [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
+                        [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
+                        [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
+                        [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]]
     
-    list_vision_best_clusters : list[int] = [2,2,9,2,4,4]
-    list_vision_worst_clusters : list[int] = [9,9,5,9,9,6]
+    list_vision_best_clusters : list[int] = [3,4,3,2,3,4]
+    list_vision_worst_clusters : list[int] = [0,1,2,0,1,1]
     
     for index in range(6):
         if True:
@@ -246,7 +247,7 @@ def experiment_2_DBSCAN() -> None:
                 #K-Means cluster
                 klaster_KMeans: cluster.DBSCAN = cluster.DBSCAN(eps=list_eps[iter_eps],min_samples=10)
                 klaster_KMeans.fit(points[index])
-                y_pred[index][iter_eps] = klaster_KMeans.labels_.astype(int)
+                y_pred[index][iter_eps] = klaster_KMeans.labels_
                 
                 #Rand Score
                 rand_score_kmeans : float = rand_score(np.ravel(labels[index]), np.ravel(y_pred[index][iter_eps]))
@@ -271,6 +272,21 @@ def experiment_2_DBSCAN() -> None:
                 v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels[index]), np.ravel(y_pred[index][iter_eps]), beta=2.0)
                 list_k_means_v_measure_2.append(v_mneasure_score_kmeans)
 
+                if max(y_pred[0][index])+1 <= 1:
+                    list_k_means_completness.append(0)
+                    list_k_means_homogenity.append(0)
+                    list_k_means_rand.append(0)
+                    list_k_means_v_measure_05.append(v_mneasure_score_kmeans)
+                    list_k_means_v_measure_1.append(v_mneasure_score_kmeans)
+                    list_k_means_v_measure_2.append(v_mneasure_score_kmeans)
+                else:
+                    list_k_means_completness.append(completeness_score_kmeans)
+                    list_k_means_homogenity.append(homogenity_score_kmeans)
+                    list_k_means_rand.append(rand_score_kmeans)
+                    list_k_means_v_measure_05.append(v_mneasure_score_kmeans)
+                    list_k_means_v_measure_1.append(v_mneasure_score_kmeans)
+                    list_k_means_v_measure_2.append(v_mneasure_score_kmeans)
+
             
             axs[index].plot(list_eps, list_k_means_homogenity, 'o', color='green', linestyle='solid', linewidth=2, label="Homogeneity Score")
             axs[index].plot(list_eps, list_k_means_v_measure_05, 'o', color='red', linestyle='--', linewidth=2, label="V-Measure Score beta=0.5")
@@ -291,12 +307,12 @@ def experiment_2_DBSCAN() -> None:
 
     #Plotowanie najlepszego i najgorszego wyniku Silhouette dla każdego CSV
     
-        vor_ax_best = plot_voronoi_diagram(X=points[index], y_true=None, y_pred=y_pred[index][list_vision_best_clusters[index]-2])
+        vor_ax_best = plot_voronoi_diagram(X=points[index], y_true=None, y_pred=y_pred[index][list_vision_best_clusters[index]])
         vor_ax_best.savefig(f'experiment_2_DBSCAN_vor_best_{1 if index < 3 else 2}_{(index)%3+1}.png')
         vor_image_best = plt.imread(f'experiment_2_DBSCAN_vor_best_{1 if index < 3 else 2}_{(index)%3+1}.png')
         ax_vor[index][0].imshow(vor_image_best)
             
-        vor_ax_worst = plot_voronoi_diagram(X=points[index], y_true=None, y_pred=y_pred[index][list_vision_worst_clusters[index]-2])
+        vor_ax_worst = plot_voronoi_diagram(X=points[index], y_true=None, y_pred=y_pred[index][list_vision_worst_clusters[index]])
         vor_ax_worst.savefig(f'experiment_2_DBSCAN_vor_worst_{1 if index < 3 else 2}_{(index)%3+1}.png')
         vor_image_worst = plt.imread(f'experiment_2_DBSCAN_vor_worst_{1 if index < 3 else 2}_{(index)%3+1}.png')
         ax_vor[index][1].imshow(vor_image_worst)
@@ -316,17 +332,20 @@ def experiment_2_DBSCAN() -> None:
 def experiment_2_KMeans_IRIS_AND_OTHERS() -> None:
     fig, axs = plt.subplots(3,1)  
     
-    y_pred : list[list[list[int]]] = [[[],[],[],[],[],[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[],[],[],[],[],[]]]
+    y_pred : np.array = [[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
+                        [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
+                        [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
+                        [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
+                        [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
+                        [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]]
     
-    list_n_clusters : list[int]          = [2,3,4,5,10,12,13,14,20,29,30,31,50]
-    iris          = datasets.load_iris(return_X_y=True)
-    breast_cancer = datasets.load_breast_cancer(return_X_y=True)
-    wine          = datasets.load_wine(return_X_y=True)
+    list_n_clusters : list[int]          = [2,3,4,5,6,7,8,9,10]
+    iris                = datasets.load_iris()
+    iris.data           = StandardScaler().fit_transform(iris.data)
+    breast_cancer       = datasets.load_breast_cancer()
+    breast_cancer.data  = StandardScaler().fit_transform(breast_cancer.data)
+    wine                = datasets.load_wine()
+    wine.data           = StandardScaler().fit_transform(wine.data)
     #list_vision_best_clusters : list[int] = [2,2,9,2,4,4]
     #list_vision_worst_clusters : list[int] = [9,9,5,9,9,6]
     
@@ -338,26 +357,26 @@ def experiment_2_KMeans_IRIS_AND_OTHERS() -> None:
     for index in range(len(list_n_clusters)):
         #K-Means cluster
         klaster_KMeans: cluster.KMeans = cluster.KMeans(n_clusters=list_n_clusters[index])
-        klaster_KMeans.fit(iris[0])
+        klaster_KMeans.fit(iris.data)
         y_pred[0][index] = klaster_KMeans.labels_.astype(int)
 
         print(f'IRIS {index} CLUSTERS: {len(set(y_pred[0][index]))}')
         
         #Rand Score
-        rand_score_kmeans : float = rand_score(np.ravel(iris[1]), np.ravel(y_pred[0][index]))
+        rand_score_kmeans : float = rand_score(np.ravel(iris.target), np.ravel(y_pred[0][index]))
         list_k_means_rand.append(rand_score_kmeans)
 
         
         #Homogenity Score
-        homogenity_score_kmeans : float = homogeneity_score(np.ravel(iris[1]), np.ravel(y_pred[0][index]))
+        homogenity_score_kmeans : float = homogeneity_score(np.ravel(iris.target), np.ravel(y_pred[0][index]))
         list_k_means_homogenity.append(homogenity_score_kmeans)
     
         #Completness Score
-        completeness_score_kmeans : float = completeness_score(np.ravel(iris[1]), np.ravel(y_pred[0][index]))
+        completeness_score_kmeans : float = completeness_score(np.ravel(iris.target), np.ravel(y_pred[0][index]))
         list_k_means_completness.append(completeness_score_kmeans)
 
         #Silhouette Score
-        #silhouette_score_kmeans : float = silhouette_score(iris[1], y_pred[0][index])
+        #silhouette_score_kmeans : float = silhouette_score(iris.target, y_pred[0][index])
         #list_k_means_silhouette.append(silhouette_score_kmeans)
         
     
@@ -377,22 +396,22 @@ def experiment_2_KMeans_IRIS_AND_OTHERS() -> None:
     for index in range(len(list_n_clusters)):
         #K-Means cluster
         klaster_KMeans: cluster.KMeans = cluster.KMeans(n_clusters=list_n_clusters[index])
-        klaster_KMeans.fit(wine[0])
-        y_pred[0][index] = klaster_KMeans.labels_.astype(int)
+        klaster_KMeans.fit(wine.data)
+        y_pred[0][index] = klaster_KMeans.labels_
 
         print(f'WINE {index} CLUSTERS: {len(set(y_pred[0][index]))}')
         
         #Rand Score
-        rand_score_kmeans : float = rand_score(np.ravel(wine[1]), np.ravel(y_pred[0][index]))
+        rand_score_kmeans : float = rand_score(np.ravel(wine.target), np.ravel(y_pred[0][index]))
         list_k_means_rand.append(rand_score_kmeans)
 
         
         #Homogenity Score
-        homogenity_score_kmeans : float = homogeneity_score(np.ravel(wine[1]), np.ravel(y_pred[0][index]))
+        homogenity_score_kmeans : float = homogeneity_score(np.ravel(wine.target), np.ravel(y_pred[0][index]))
         list_k_means_homogenity.append(homogenity_score_kmeans)
     
         #Completness Score
-        completeness_score_kmeans : float = completeness_score(np.ravel(wine[1]), np.ravel(y_pred[0][index]))
+        completeness_score_kmeans : float = completeness_score(np.ravel(wine.target), np.ravel(y_pred[0][index]))
         list_k_means_completness.append(completeness_score_kmeans)
 
     
@@ -412,23 +431,24 @@ def experiment_2_KMeans_IRIS_AND_OTHERS() -> None:
     for index in range(len(list_n_clusters)):
         #K-Means cluster
         klaster_KMeans: cluster.KMeans = cluster.KMeans(n_clusters=list_n_clusters[index])
-        klaster_KMeans.fit(breast_cancer[0])
+        klaster_KMeans.fit(breast_cancer.data)
         y_pred[0][index] = klaster_KMeans.labels_.astype(int)
 
         print(f'BREAST {index} CLUSTERS: {len(set(y_pred[0][index]))}')
         
         #Rand Score
-        rand_score_kmeans : float = rand_score(np.ravel(breast_cancer[1]), np.ravel(y_pred[0][index]))
+        rand_score_kmeans : float = rand_score(np.ravel(breast_cancer.target), np.ravel(y_pred[0][index]))
         list_k_means_rand.append(rand_score_kmeans)
 
         
         #Homogenity Score
-        homogenity_score_kmeans : float = homogeneity_score(np.ravel(breast_cancer[1]), np.ravel(y_pred[0][index]))
+        homogenity_score_kmeans : float = homogeneity_score(np.ravel(breast_cancer.target), np.ravel(y_pred[0][index]))
         list_k_means_homogenity.append(homogenity_score_kmeans)
     
         #Completness Score
-        completeness_score_kmeans : float = completeness_score(np.ravel(breast_cancer[1]), np.ravel(y_pred[0][index]))
+        completeness_score_kmeans : float = completeness_score(np.ravel(breast_cancer.target), np.ravel(y_pred[0][index]))
         list_k_means_completness.append(completeness_score_kmeans)
+        
 
     
     axs[2].plot(list_n_clusters, list_k_means_homogenity, 'o', color='green', linestyle='solid', linewidth=2, label="Homogeneity Score")
@@ -451,16 +471,19 @@ def experiment_2_KMeans_IRIS_AND_OTHERS() -> None:
 def experiment_2_DBSCAN_IRIS_AND_OTHERS() -> None:
     fig, axs = plt.subplots(3,1)  
     
-    y_pred : list[list[list[int]]] = [[[],[],[],[],[],[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[],[],[],[],[],[]]]
+    y_pred : np.array = [[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
+                        [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
+                        [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
+                        [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
+                        [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
+                        [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]]
     
-    iris          = datasets.load_iris(return_X_y=True)
-    breast_cancer = datasets.load_breast_cancer(return_X_y=True)
-    wine          = datasets.load_wine(return_X_y=True)
+    iris                = datasets.load_iris()
+    iris.data           = StandardScaler().fit_transform(iris.data)
+    breast_cancer       = datasets.load_breast_cancer()
+    breast_cancer.data  = StandardScaler().fit_transform(breast_cancer.data)
+    wine                = datasets.load_wine()
+    wine.data           = StandardScaler().fit_transform(wine.data)
     #list_vision_best_clusters : list[int] = [2,2,9,2,4,4]
     #list_vision_worst_clusters : list[int] = [9,9,5,9,9,6]
     
@@ -468,31 +491,42 @@ def experiment_2_DBSCAN_IRIS_AND_OTHERS() -> None:
     list_k_means_rand : list[float] = []
     list_k_means_homogenity : list[float] = []
     list_k_means_completness : list[float] = []
-    list_eps : list[float] = [0.01,0.15,0.2,0.25,0.3,5,85,100,125,150] 
+    distance_avg = 0.0
+    for n in range(150):
+        for m in range(n,150):
+            distance_avg  += np.linalg.norm(iris.data[n]-iris.data[m])
+    distance_avg /= 149*150/2
+    print(f'SREDNIA DYSTANSU: {distance_avg}')
+
+    list_eps : list[float] = np.arange(distance_avg/20,distance_avg,distance_avg/20)
     for index in range(len(list_eps)):
         #K-Means cluster
-        klaster_KMeans: cluster.DBSCAN = cluster.DBSCAN(eps=list_eps[index],min_samples=10)
-        klaster_KMeans.fit(iris[0])
-        y_pred[0][index] = klaster_KMeans.labels_.astype(int)
-
-        print(f'IRIS {index} CLUSTERS: {len(set(y_pred[0][index]))}')
+        klaster_KMeans: cluster.DBSCAN = cluster.DBSCAN(eps=list_eps[index],min_samples=5)
+        klaster_KMeans.fit(iris.data)
+        y_pred[0][index] = klaster_KMeans.labels_
+        #print(f'ETYKIETY: {y_pred[0][index]}')
+        #print(f'IRIS {index} CLUSTERS: {len(set(y_pred[0][index]))}')
         
         #Rand Score
-        rand_score_kmeans : float = rand_score(np.ravel(iris[1]), np.ravel(y_pred[0][index]))
-        list_k_means_rand.append(rand_score_kmeans)
-
+        rand_score_kmeans : float = rand_score(np.ravel(iris.target), np.ravel(y_pred[0][index]))
         
         #Homogenity Score
-        homogenity_score_kmeans : float = homogeneity_score(np.ravel(iris[1]), np.ravel(y_pred[0][index]))
-        list_k_means_homogenity.append(homogenity_score_kmeans)
+        homogenity_score_kmeans : float = homogeneity_score(np.ravel(iris.target), np.ravel(y_pred[0][index]))
     
         #Completness Score
-        completeness_score_kmeans : float = completeness_score(np.ravel(iris[1]), np.ravel(y_pred[0][index]))
-        list_k_means_completness.append(completeness_score_kmeans)
+        completeness_score_kmeans : float = completeness_score(np.ravel(iris.target), np.ravel(y_pred[0][index]))
 
-        #Silhouette Score
-        #silhouette_score_kmeans : float = silhouette_score(iris[1], y_pred[0][index])
-        #list_k_means_silhouette.append(silhouette_score_kmeans)
+        #Etykiety ilosci klastrów na wykresie
+        axs[0].text(list_eps[index], 0.1, max(y_pred[0][index])+1)
+
+        if max(y_pred[0][index])+1 <= 1:
+            list_k_means_completness.append(0)
+            list_k_means_homogenity.append(0)
+            list_k_means_rand.append(0)
+        else:
+            list_k_means_completness.append(completeness_score_kmeans)
+            list_k_means_homogenity.append(homogenity_score_kmeans)
+            list_k_means_rand.append(rand_score_kmeans)
         
     
     axs[0].plot(list_eps, list_k_means_homogenity, 'o', color='green', linestyle='solid', linewidth=2, label="Homogeneity Score")
@@ -503,35 +537,51 @@ def experiment_2_DBSCAN_IRIS_AND_OTHERS() -> None:
     axs[0].set_xlabel("eps")
     
     axs[0].set_ylabel("Score") 
-    #Etykiety ilosci klastrów na wykresie
-    for eps_text in range(len(list_eps)):
-        axs[0].text(list_eps[eps_text], 0.1, len(set(y_pred[0][eps_text])))
+    
 
     #====== WINE =============================
     list_k_means_rand : list[float] = []
     list_k_means_homogenity : list[float] = []
     list_k_means_completness : list[float] = []
+
+    distance_avg = 0.0
+    for n in range(178):
+        for m in range(n,178):
+            distance_avg  += np.linalg.norm(wine.data[n]-wine.data[m])
+    distance_avg /= 178*177/2
+    print(f'SREDNIA DYSTANSU: {distance_avg}')
+
+    list_eps : list[float] = np.arange(distance_avg/10,distance_avg,distance_avg/10)
+
+
     for index in range(len(list_eps)):
         #K-Means cluster
         klaster_KMeans: cluster.DBSCAN = cluster.DBSCAN(eps=list_eps[index],min_samples=10)
-        klaster_KMeans.fit(wine[0])
-        y_pred[0][index] = klaster_KMeans.labels_.astype(int)
+        klaster_KMeans.fit(wine.data)
+        y_pred[0][index] = klaster_KMeans.labels_
 
         print(f'WINE {index} CLUSTERS: {len(set(y_pred[0][index]))}')
         
         #Rand Score
-        rand_score_kmeans : float = rand_score(np.ravel(wine[1]), np.ravel(y_pred[0][index]))
-        list_k_means_rand.append(rand_score_kmeans)
-
+        rand_score_kmeans : float = rand_score(np.ravel(wine.target), np.ravel(y_pred[0][index]))
         
         #Homogenity Score
-        homogenity_score_kmeans : float = homogeneity_score(np.ravel(wine[1]), np.ravel(y_pred[0][index]))
-        list_k_means_homogenity.append(homogenity_score_kmeans)
+        homogenity_score_kmeans : float = homogeneity_score(np.ravel(wine.target), np.ravel(y_pred[0][index]))
     
         #Completness Score
-        completeness_score_kmeans : float = completeness_score(np.ravel(wine[1]), np.ravel(y_pred[0][index]))
-        list_k_means_completness.append(completeness_score_kmeans)
+        completeness_score_kmeans : float = completeness_score(np.ravel(wine.target), np.ravel(y_pred[0][index]))
 
+         #Etykiety ilosci klastrów na wykresie
+        axs[1].text(list_eps[index], 0.1, max(y_pred[0][index])+1)
+
+        if max(y_pred[0][index])+1 <= 1:
+            list_k_means_completness.append(0)
+            list_k_means_homogenity.append(0)
+            list_k_means_rand.append(0)
+        else:
+            list_k_means_completness.append(completeness_score_kmeans)
+            list_k_means_homogenity.append(homogenity_score_kmeans)
+            list_k_means_rand.append(rand_score_kmeans)
     
     axs[1].plot(list_eps, list_k_means_homogenity, 'o', color='green', linestyle='solid', linewidth=2, label="Homogeneity Score")
     axs[1].plot(list_eps, list_k_means_rand, 'o', color='yellow', linestyle='solid', linewidth=2, label="Rand Score")
@@ -541,51 +591,66 @@ def experiment_2_DBSCAN_IRIS_AND_OTHERS() -> None:
     axs[1].set_xlabel("eps")
     
     axs[1].set_ylabel("Score")
-    #Etykiety ilosci klastrów na wykresie
-    for eps_text in range(len(list_eps)):
-        axs[1].text(list_eps[eps_text], 0.1, len(set(y_pred[1][eps_text]))) 
+   
                
     #====== BREAST CANCER ==============
     list_k_means_rand : list[float] = []
     list_k_means_homogenity : list[float] = []
     list_k_means_completness : list[float] = []
+
+    distance_avg = 0.0
+    for n in range(569):
+        for m in range(n,569):
+            distance_avg  += np.linalg.norm(breast_cancer.data[n]-breast_cancer.data[m])
+    distance_avg /= 569*568/2
+    print(f'SREDNIA DYSTANSU: {distance_avg}')
+
+    list_eps : list[float] = np.arange(distance_avg/10,distance_avg,distance_avg/10)
+    
     for index in range(len(list_eps)):
         #K-Means cluster
         klaster_KMeans: cluster.DBSCAN = cluster.DBSCAN(eps=list_eps[index],min_samples=10)
-        klaster_KMeans.fit(breast_cancer[0])
-        y_pred[0][index] = klaster_KMeans.labels_.astype(int)
+        klaster_KMeans.fit(breast_cancer.data)
+        y_pred[0][index] = klaster_KMeans.labels_
 
-        print(f'BREAST {index} CLUSTERS: {len(set(y_pred[0][index]))}')
+        print(f'BREAST {list_eps[index]} CLUSTERS: {len(set(y_pred[0][index]))}')
         
         #Rand Score
-        rand_score_kmeans : float = rand_score(np.ravel(breast_cancer[1]), np.ravel(y_pred[0][index]))
-        list_k_means_rand.append(rand_score_kmeans)
+        rand_score_kmeans : float = rand_score(np.ravel(breast_cancer.target), np.ravel(y_pred[0][index]))
 
-        
         #Homogenity Score
-        homogenity_score_kmeans : float = homogeneity_score(np.ravel(breast_cancer[1]), np.ravel(y_pred[0][index]))
-        list_k_means_homogenity.append(homogenity_score_kmeans)
-    
+        homogenity_score_kmeans : float = homogeneity_score(np.ravel(breast_cancer.target), np.ravel(y_pred[0][index]))
+
         #Completness Score
-        completeness_score_kmeans : float = completeness_score(np.ravel(breast_cancer[1]), np.ravel(y_pred[0][index]))
-        list_k_means_completness.append(completeness_score_kmeans)
+        completeness_score_kmeans : float = completeness_score(np.ravel(breast_cancer.target), np.ravel(y_pred[0][index]))
+
+        #Etykiety ilosci klastrów na wykresie
+        axs[2].text(list_eps[index], 0.1, max(y_pred[0][index])+1) 
+
+        if max(y_pred[0][index])+1 <= 1:
+            list_k_means_completness.append(0)
+            list_k_means_homogenity.append(0)
+            list_k_means_rand.append(0)
+        else:
+            list_k_means_completness.append(completeness_score_kmeans)
+            list_k_means_homogenity.append(homogenity_score_kmeans)
+            list_k_means_rand.append(rand_score_kmeans)
+
 
     
     axs[2].plot(list_eps, list_k_means_homogenity, 'o', color='green', linestyle='solid', linewidth=2, label="Homogeneity Score")
     axs[2].plot(list_eps, list_k_means_rand, 'o', color='yellow', linestyle='solid', linewidth=2, label="Rand Score")
     axs[2].plot(list_eps, list_k_means_completness, 'o', color='blue', linestyle='solid', linewidth=2, label="Completness Score")
+    
+    #axs[2].set_xscale('log')
 
     axs[2].set_title('BREAST CANCER')
     axs[2].set_xlabel("eps")
     
     axs[2].set_ylabel("Score") 
-    #Etykiety ilosci klastrów na wykresie
-    for eps_text in range(len(list_eps)):
-        axs[2].text(list_eps[eps_text], 0.1, len(set(y_pred[2][eps_text])))  
     
-    axs[0].legend()
-    axs[1].legend(loc='upper left', bbox_to_anchor=(1, 1))
-    axs[2].legend(loc='upper left', bbox_to_anchor=(1, 1))
+    
+    axs[0].legend(loc='upper left', bbox_to_anchor=(1,1))
     fig.savefig(f'experiment_2_DBSCAN_IRIS_AND_OTHERS_scores.png')
     plt.subplots_adjust(hspace=0.6,wspace=0.5)
     plt.show()

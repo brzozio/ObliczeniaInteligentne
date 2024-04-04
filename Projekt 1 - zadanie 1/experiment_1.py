@@ -56,29 +56,29 @@ def experiment_1_KMeans() -> None:
 
     fig, axs = plt.subplots(6,3)  
     
-    y_pred : list[list[list[int]]] = [[[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[]]]
+    y_pred : np.array = [[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
+                        [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
+                        [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
+                        [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
+                        [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
+                        [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]]
     
     for index in range(6):
         for n_clusters in range(2,10):
             #K-Means cluster
-            klaster_KMeans: cluster.KMeans = cluster.KMeans(n_clusters=n_clusters)
-            klaster_KMeans.fit(points[index])
-            y_pred[index][n_clusters-2] = klaster_KMeans.labels_.astype(int)
+            klaster_KMeans: cluster.KMeans = cluster.KMeans(n_clusters=n_clusters, n_init="auto")
+            klaster_KMeans.fit_predict(points[index])
+            y_pred[index][n_clusters-2] = klaster_KMeans.labels_
             
             #Silhouette Score
             sil_score_kmeans : float = silhouette_score(points[index], np.ravel(y_pred[index][n_clusters-2]))
 
             if sil_score_kmeans > list_best_silhouette_score[index].value:
                 list_best_silhouette_score[index].setVal(val=sil_score_kmeans, vindex=index, n_cluster=n_clusters)
-                print(f'CSV: {1 if index < 3 else 2}_{(index)%3+1} BEST: INDEX {list_best_silhouette_score[index].best_index} SIL {list_best_silhouette_score[index].value} NCLUST {list_best_silhouette_score[index].best_n_cluster}')
+                #print(f'CSV: {1 if index < 3 else 2}_{(index)%3+1} BEST: INDEX {list_best_silhouette_score[index].best_index} SIL {list_best_silhouette_score[index].value} NCLUST {list_best_silhouette_score[index].best_n_cluster}')
             if sil_score_kmeans < list_worst_silhouette_score[index].value:
                 list_worst_silhouette_score[index].setVal(val=sil_score_kmeans, vindex=index, n_cluster=n_clusters)
-                print(f'CSV: {1 if index < 3 else 2}_{(index)%3+1} WORST: INDEX {list_worst_silhouette_score[index].worst_index} SIL {list_worst_silhouette_score[index].value} NCLUST {list_worst_silhouette_score[index].worst_n_cluster}')
+                #print(f'CSV: {1 if index < 3 else 2}_{(index)%3+1} WORST: INDEX {list_worst_silhouette_score[index].worst_index} SIL {list_worst_silhouette_score[index].value} NCLUST {list_worst_silhouette_score[index].worst_n_cluster}')
 
             axs[index][0].plot(n_clusters, sil_score_kmeans, 'bo', label=str(y_pred[index][n_clusters-2]))
             axs[index][0].set_title(f'CSV: {1 if index < 3 else 2}_{(index)%3+1}')
@@ -87,7 +87,8 @@ def experiment_1_KMeans() -> None:
 
     #Plotowanie najlepszego i najgorszego wyniku Silhouette dla każdego CSV
     for index in range(6):
-        vor_ax_best = plot_voronoi_diagram(X=points[list_best_silhouette_score[index].best_index], y_true=None, y_pred=y_pred[index][list_best_silhouette_score[index].best_n_cluster-2])
+       # vor_ax_best = plot_voronoi_diagram(X=points[list_best_silhouette_score[index].best_index], y_true=None, y_pred=y_pred[index][list_best_silhouette_score[index].best_n_cluster-2])
+        vor_ax_best = plot_voronoi_diagram(X=points[list_best_silhouette_score[index].best_index], y_true=None, y_pred=labels[list_best_silhouette_score[index].best_index])
         vor_ax_best.savefig(f'experiment_1_k_means_vor_ax_best_{1 if index < 3 else 2}_{(index)%3+1}.png')
         vor_image_best = plt.imread(f'experiment_1_k_means_vor_ax_best_{1 if index < 3 else 2}_{(index)%3+1}.png')
         axs[index][1].imshow(vor_image_best)
@@ -96,10 +97,11 @@ def experiment_1_KMeans() -> None:
         vor_ax_worst.savefig(f'experiment_1_k_means_vor_ax_worst_{1 if index < 3 else 2}_{(index)%3+1}.png')
         vor_image_worst = plt.imread(f'experiment_1_k_means_vor_ax_worst_{1 if index < 3 else 2}_{(index)%3+1}.png')
         axs[index][2].imshow(vor_image_worst)
-        print('----------------')
-        print(f'CSV: {1 if index < 3 else 2}_{(index)%3+1} BEST: INDEX {list_best_silhouette_score[index].best_index} SIL {list_best_silhouette_score[index].value} NCLUST {list_best_silhouette_score[index].best_n_cluster} WORST: INDEX {list_worst_silhouette_score[index].worst_index} SIL {list_worst_silhouette_score[index].value} NCLUST {list_worst_silhouette_score[index].worst_n_cluster}')
+        #print('----------------')
+        #print(f'CSV: {1 if index < 3 else 2}_{(index)%3+1} BEST: INDEX {list_best_silhouette_score[index].best_index} SIL {list_best_silhouette_score[index].value} NCLUST {list_best_silhouette_score[index].best_n_cluster} WORST: INDEX {list_worst_silhouette_score[index].worst_index} SIL {list_worst_silhouette_score[index].value} NCLUST {list_worst_silhouette_score[index].worst_n_cluster}')
 
-        
+    print(f'LABELS: {y_pred[0][list_best_silhouette_score[0].best_n_cluster-2]}')
+    print(f'POINT: {points[list_best_silhouette_score[0].best_index]}')  
     #Tytuły
     axs[0][2].set_title(f'WORST SILHOUETTE CASE')
     axs[0][1].set_title(f'BEST SILHOUETTE CASE')
@@ -144,20 +146,19 @@ def experiment_1_DBSCAN() -> None:
 
     fig, axs = plt.subplots(6,3)
     
-    
-    y_pred : list[list[list[int]]] = [[[],[],[],[],[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[],[],[],[],[]],
-                                      [[],[],[],[],[],[],[],[],[],[],[],[]]]
+    y_pred : np.array = [[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
+                        [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
+                        [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
+                        [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
+                        [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
+                        [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]]
     
     for index in range(6):
         for iter_eps in range(len(list_eps)):
             #K-Means cluster
             klaster_DBSCAN: cluster.DBSCAN = cluster.DBSCAN(eps=list_eps[iter_eps],min_samples=10)
             klaster_DBSCAN.fit(points[index])
-            y_pred[index][iter_eps] = klaster_DBSCAN.labels_.astype(int)
+            y_pred[index][iter_eps] = klaster_DBSCAN.labels_
             
             #Silhouette Score
             if len(set(np.ravel(y_pred[index][iter_eps]))) is not 1: #Sprawdzenie czy ilosc labels jest wieksza od 1, set eliminuje duplikaty
@@ -173,6 +174,7 @@ def experiment_1_DBSCAN() -> None:
                 axs[index][0].set_title(f'CSV: {1 if index < 3 else 2}_{(index)%3+1}')
                 axs[index][0].set_xlabel("eps")
                 axs[index][0].set_ylabel("Silhouette Score")
+       
               
 
     #Plotowanie najlepszego i najgorszego wyniku Silhouette dla każdego CSV
