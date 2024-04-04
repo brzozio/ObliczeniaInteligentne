@@ -6,8 +6,6 @@ from sklearn.datasets import load_iris, load_wine, load_breast_cancer
 
 points          : list[np.array] = []
 labels          : list[np.array] = []
-iris            : tuple          = []
-wine            : tuple          = []
 breast_cancer   : tuple          = []
 
 
@@ -40,12 +38,6 @@ def load_lists() -> None:
     points_2_3, labels_2_3 = load_csv("C:\\Users\\Michał\\Documents\\STUDIA\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\Projekt 1 - zadanie 1\\2_3.csv")
     points_2_3 = StandardScaler().fit_transform(points_2_3)
     points.append(points_2_3)
-    labels.append(labels_2_3)
-
-
-    iris          = load_iris(return_X_y=True)
-    breast_cancer = load_breast_cancer(return_X_y=True)
-    wine          = load_wine(return_X_y=True)
-    
+    labels.append(labels_2_3) 
 
 load_lists()
