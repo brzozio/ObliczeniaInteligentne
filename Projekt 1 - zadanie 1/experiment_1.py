@@ -163,14 +163,18 @@ def experiment_1_DBSCAN() -> None:
             if len(set(np.ravel(y_pred[index][iter_eps]))) is not 1: #Sprawdzenie czy ilosc labels jest wieksza od 1, set eliminuje duplikaty
                 sil_score_kmeans : float = silhouette_score(points, np.ravel(y_pred[index][iter_eps]))
                 sil_score_dbscan_plot.append(sil_score_kmeans)
-                eps_plot.append(iter_eps)
+                eps_plot.append(list_eps[iter_eps])
                 if sil_score_kmeans > list_best_silhouette_score[index].value:
                     list_best_silhouette_score[index].setVal(val=sil_score_kmeans, vindex=index, eps=iter_eps)
                     print(f'CSV: {1 if index < 3 else 2}_{(index)%3+1} BEST: INDEX {list_best_silhouette_score[index].best_index} SIL {list_best_silhouette_score[index].value} EPS {list_eps[list_best_silhouette_score[index].best_eps]}')
                 if sil_score_kmeans < list_worst_silhouette_score[index].value:
                     list_worst_silhouette_score[index].setVal(val=sil_score_kmeans, vindex=index, eps=iter_eps)
                     print(f'CSV: {1 if index < 3 else 2}_{(index)%3+1} WORST: INDEX {list_worst_silhouette_score[index].worst_index} SIL {list_worst_silhouette_score[index].value} EPS {list_eps[list_worst_silhouette_score[index].worst_eps]}')
-
+            else: 
+                eps_plot.append(list_eps[iter_eps])
+                sil_score_dbscan_plot.append(0)
+        axs[index].text(list_eps[index], 0.1, max(y_pred[index][iter_eps])+1) 
+        
         axs[index].plot(eps_plot, sil_score_dbscan_plot, 'o', color="blue", linewidth=2, linestyle='-', label=str(y_pred[index][iter_eps]))
         axs[index].set_title(f'CSV: {1 if index < 3 else 2}_{(index)%3+1}')
         axs[index].set_xlabel("eps")

@@ -272,7 +272,7 @@ def experiment_2_DBSCAN() -> None:
 
             for iter_eps in range(len(list_eps)):
                 #K-Means cluster
-                klaster_KMeans: cluster.DBSCAN = cluster.DBSCAN(eps=list_eps[iter_eps],min_samples=10)
+                klaster_KMeans: cluster.DBSCAN = cluster.DBSCAN(eps=list_eps[iter_eps])
                 klaster_KMeans.fit(points)
                 y_pred[index][iter_eps] = klaster_KMeans.labels_
                 
@@ -286,25 +286,25 @@ def experiment_2_DBSCAN() -> None:
                 completeness_score_kmeans : float = completeness_score(np.ravel(labels), np.ravel(y_pred[index][iter_eps]))
             
                 #V-Measure Score
-                v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels), np.ravel(y_pred[index][iter_eps]), beta=0.5)
+                v_mneasure_score_kmeans_05 : float = v_measure_score(np.ravel(labels), np.ravel(y_pred[index][iter_eps]), beta=0.5)
 
-                v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels), np.ravel(y_pred[index][iter_eps]), beta=1.5)
-                v_mneasure_score_kmeans : float = v_measure_score(np.ravel(labels), np.ravel(y_pred[index][iter_eps]), beta=2.0)
+                v_mneasure_score_kmeans_15 : float = v_measure_score(np.ravel(labels), np.ravel(y_pred[index][iter_eps]), beta=1.5)
+                v_mneasure_score_kmeans_2 : float = v_measure_score(np.ravel(labels), np.ravel(y_pred[index][iter_eps]), beta=2.0)
 
                 if max(y_pred[0][index])+1 <= 1:
                     list_k_means_completness.append(0)
                     list_k_means_homogenity.append(0)
                     list_k_means_rand.append(0)
-                    list_k_means_v_measure_05.append(v_mneasure_score_kmeans)
-                    list_k_means_v_measure_1.append(v_mneasure_score_kmeans)
-                    list_k_means_v_measure_2.append(v_mneasure_score_kmeans)
+                    list_k_means_v_measure_05.append(0)
+                    list_k_means_v_measure_1.append(0)
+                    list_k_means_v_measure_2.append(0)
                 else:
                     list_k_means_completness.append(completeness_score_kmeans)
                     list_k_means_homogenity.append(homogenity_score_kmeans)
                     list_k_means_rand.append(rand_score_kmeans)
-                    list_k_means_v_measure_05.append(v_mneasure_score_kmeans)
-                    list_k_means_v_measure_1.append(v_mneasure_score_kmeans)
-                    list_k_means_v_measure_2.append(v_mneasure_score_kmeans)
+                    list_k_means_v_measure_05.append(v_mneasure_score_kmeans_05)
+                    list_k_means_v_measure_1.append(v_mneasure_score_kmeans_15)
+                    list_k_means_v_measure_2.append(v_mneasure_score_kmeans_2)
 
             
             axs[index].plot(list_eps, list_k_means_homogenity, 'o', color='green', linestyle='solid', linewidth=2, label="Homogeneity Score")
@@ -510,14 +510,15 @@ def experiment_2_DBSCAN_IRIS_AND_OTHERS() -> None:
     list_k_means_rand : list[float] = []
     list_k_means_homogenity : list[float] = []
     list_k_means_completness : list[float] = []
-    distance_avg = 0.0
-    for n in range(150):
-        for m in range(n,150):
-            distance_avg  += np.linalg.norm(iris.data[n]-iris.data[m])
-    distance_avg /= 149*150/2
-    print(f'SREDNIA DYSTANSU: {distance_avg}')
+    #distance_avg = 0.0
+    #for n in range(150):
+    #    for m in range(n,150):
+    #        distance_avg  += np.linalg.norm(iris.data[n]-iris.data[m])
+    #distance_avg /= 149*150/2
+    #print(f'SREDNIA DYSTANSU: {distance_avg}')
 
-    list_eps : list[float] = np.arange(distance_avg/20,distance_avg,distance_avg/20)
+    #list_eps : list[float] = np.arange(distance_avg/20,distance_avg,distance_avg/20)
+    list_eps : list[float] = [0.1,0.2,0.3,0.32,0.35,0.4,0.45,1.0,1.2,1.5,2.0]
     for index in range(len(list_eps)):
         #K-Means cluster
         klaster_KMeans: cluster.DBSCAN = cluster.DBSCAN(eps=list_eps[index],min_samples=5)
@@ -563,19 +564,20 @@ def experiment_2_DBSCAN_IRIS_AND_OTHERS() -> None:
     list_k_means_homogenity : list[float] = []
     list_k_means_completness : list[float] = []
 
-    distance_avg = 0.0
-    for n in range(178):
-        for m in range(n,178):
-            distance_avg  += np.linalg.norm(wine.data[n]-wine.data[m])
-    distance_avg /= 178*177/2
-    print(f'SREDNIA DYSTANSU: {distance_avg}')
+    #distance_avg = 0.0
+    #for n in range(178):
+    #    for m in range(n,178):
+    #        distance_avg  += np.linalg.norm(wine.data[n]-wine.data[m])
+    #distance_avg /= 178*177/2
+    #print(f'SREDNIA DYSTANSU: {distance_avg}')
 
-    list_eps : list[float] = np.arange(distance_avg/10,distance_avg,distance_avg/10)
+    #list_eps : list[float] = np.arange(distance_avg/10,distance_avg,distance_avg/10)
+    list_eps : list[float] = [1.5,2.0,2.01,2.02,2.03,2.05,2.08,2.1,2.2,2.5,2.7,3.0,3.2]
 
 
     for index in range(len(list_eps)):
         #K-Means cluster
-        klaster_KMeans: cluster.DBSCAN = cluster.DBSCAN(eps=list_eps[index],min_samples=10)
+        klaster_KMeans: cluster.DBSCAN = cluster.DBSCAN(eps=list_eps[index])
         klaster_KMeans.fit(wine.data)
         y_pred[0][index] = klaster_KMeans.labels_
 
@@ -617,7 +619,7 @@ def experiment_2_DBSCAN_IRIS_AND_OTHERS() -> None:
     list_k_means_homogenity : list[float] = []
     list_k_means_completness : list[float] = []
 
-    list_eps : list[float] = [0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,5.5,7.0,8.5]
+    list_eps : list[float] = [1.5,2.0,2.2,2.4,2.5,2.6,2.8,3.0,3.5,4.0]
     
     for index in range(len(list_eps)):
         #K-Means cluster
