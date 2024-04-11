@@ -120,7 +120,7 @@ def plot_decision_boundary_ax(X, axes_dec, func, y_true=None)-> None:
     # Obliczamy etykiety dla każdego punktu w siatce
     Z = func(np.c_[xx.ravel(), yy.ravel()])
     Z = Z.reshape(xx.shape)
-    print(Z)
+    #print(Z)
 
     #Predykcja etykiet dla danych testowych podanych w funkcji
     if y_true is None:
