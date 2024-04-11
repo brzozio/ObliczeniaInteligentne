@@ -76,7 +76,8 @@ def plot_voronoi_diagram(X, y_true, y_pred) -> plt.Figure:
     return fig
 
 
-def plot_decision_boundary(X, y_true, func)-> None:
+def plot_decision_boundary(X, func, y_true=None)-> plt.figure:
+    fig, ax = plt.subplots()
      # Definiujemy zakres dla osi x i y
     x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
     y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
@@ -88,19 +89,49 @@ def plot_decision_boundary(X, y_true, func)-> None:
     # Obliczamy etykiety dla każdego punktu w siatce
     Z = func(np.c_[xx.ravel(), yy.ravel()])
     Z = Z.reshape(xx.shape)
-    
+    print(Z)
+
+    #Predykcja etykiet dla danych testowych podanych w funkcji
+    if y_true is None:
+        y_tested = func(X)
+    else: y_tested=y_true
+
     # Rysujemy kontury granicy decyzyjnej
-    plt.contourf(xx, yy, Z, alpha=0.4)
+    ax.contourf(xx, yy, Z, alpha=0.4)
     
     # Rysujemy punkty treningowe
-    plt.scatter(X[:, 0], X[:, 1], c=y_true, s=20, edgecolors='k')
+    ax.scatter(X[:, 0], X[:, 1], c=y_tested, s=20, edgecolors='k')
     
     plt.xlabel('Feature 1')
     plt.ylabel('Feature 2')
     plt.title('Decision Boundary')
     plt.show()
+    return fig
 
+def plot_decision_boundary_ax(X, axes_dec, func, y_true=None)-> None:
+     # Definiujemy zakres dla osi x i y
+    x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+    y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+    
+    # Tworzymy siatkę punktów w celu wygenerowania granicy decyzyjnej
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.1),
+                         np.arange(y_min, y_max, 0.1))
+    
+    # Obliczamy etykiety dla każdego punktu w siatce
+    Z = func(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+    print(Z)
 
+    #Predykcja etykiet dla danych testowych podanych w funkcji
+    if y_true is None:
+        y_tested = func(X)
+    else: y_tested=y_true
+
+    # Rysujemy kontury granicy decyzyjnej
+    axes_dec.contourf(xx, yy, Z, alpha=0.4)
+    
+    # Rysujemy punkty treningowe
+    axes_dec.scatter(X[:, 0], X[:, 1], c=y_tested, s=20, edgecolors='k')
 
 if __name__ == "__main__":
     X, y_true = load("C:\\Users\\Michał\\Documents\\STUDIA\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\Zadanie rozgrzewkowe\\warmup.csv")
