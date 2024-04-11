@@ -77,17 +77,6 @@ def plot_voronoi_diagram(X, y_true, y_pred) -> plt.Figure:
 
 
 def plot_decision_boundary(X, y_true, func)-> None:
-    """
-    Funkcja rysująca granicę decyzyjną wyznaczaną przez funkcję klasyfikując func. Funkcja ta
-    przyjmuje tablicę obiektów X o rozmiarze Nx2 (N to liczba obiektów) i zwraca tablicę liczb
-    całkowitych o rozmiarze N zawierającą etykiety tych obiektów. W tym wypadku N może być
-    dowolne. Argumenty X i y_true to tablice zawierające dane związane z tym samym problemem
-    klasyfikacji (na przykład treningowe czy testowe). Pierwsza z nich ma rozmiar Nx2 i zawiera
-    cechy N obiektów, druga zawiera N liczb całkowitych oznaczających prawdziwe etykiety tych
-    obiektów. Rysując diagram należy zadbać, aby wszystkie obiekty były widoczne. Wszystkie
-    rozważane tablice są tablicami NumPy.
-    """
-
      # Definiujemy zakres dla osi x i y
     x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
     y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
@@ -109,7 +98,7 @@ def plot_decision_boundary(X, y_true, func)-> None:
     plt.xlabel('Feature 1')
     plt.ylabel('Feature 2')
     plt.title('Decision Boundary')
-    #plt.show()
+    plt.show()
 
 
 
