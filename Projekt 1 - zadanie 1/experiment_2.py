@@ -73,7 +73,7 @@ def experiment_2_KMeans() -> None:
                                       [[],[],[],[],[],[],[],[]],
                                       [[],[],[],[],[],[],[],[]],
                                       [[],[],[],[],[],[],[],[]]]
-    list_n_clusters : list[int] = [2,3,4,5,6,9,13,50]
+    list_n_clusters : list[int] = [2,3,4,5,6,7,8,9]
     list_vision_best_clusters : list[int] = [2,2,9,2,4,4]
     list_vision_worst_clusters : list[int] = [9,9,5,9,9,6]
     
