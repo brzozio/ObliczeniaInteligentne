@@ -136,24 +136,6 @@ def voronoi(vor, etykiety, radius=None):
 
     plt.show()
 
-def voronoi_fig(vor, etykiety, radius=plt.figure):
-    fig, ax = plt.subplots()
-    regions, vertices = voronoi_finite_polygons_2d(vor)
-
-
-    norm = mpl.colors.Normalize(vmin=-1, vmax=max(etykiety)+1, clip=True)
-    mapper = mpl.cm.ScalarMappable(norm=norm, cmap=mpl.cm.Blues_r)
-
-    voronoi_plot_2d(vor, show_points=True, show_vertices=False, s=1)
-    #for r in range(len(vor.point_region)):
-    #print(f"POINT REGION: {vor.point_region}")
-    for r in range(len(regions)):
-        region = regions[r]
-        if not -1 in region:
-            polygon = [vertices[i] for i in region]
-            plt.fill(*zip(*polygon), color=mapper.to_rgba(etykiety[r]))
-    
-    return fig
 
 
 
