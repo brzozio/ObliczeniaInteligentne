@@ -96,7 +96,25 @@ def granica_decyzyjna_MLP():
             if accuracy > max_accuracy_identity:
                 max_accuracy_identity                  = accuracy
                 hidden_n_layers_best_accuracy_identity = hidden_neurons_param
-
+            
+            temp_labels = mlp_classifier_logistic.predict(Data_train[:,0:2])
+            accuracy = accuracy_score(temp_labels, Data_train[:,2])
+            if accuracy > max_accuracy_logistic:
+                max_accuracy_logistic                  = accuracy
+                hidden_n_layers_best_accuracy_logistic = hidden_neurons_param
+            
+            temp_labels = mlp_classifier_tanh.predict(Data_train[:,0:2])
+            accuracy = accuracy_score(temp_labels, Data_train[:,2])
+            if accuracy > max_accuracy_tanh:
+                max_accuracy_tanh                  = accuracy
+                hidden_n_layers_best_accuracy_tanh = hidden_neurons_param
+            
+            temp_labels = mlp_classifier_relu.predict(Data_train[:,0:2])
+            accuracy = accuracy_score(temp_labels, Data_train[:,2])
+            if accuracy > max_accuracy_relu:
+                max_accuracy_relu                  = accuracy
+                hidden_n_layers_best_accuracy_relu = hidden_neurons_param
+           
 
 
         #Plotowanie granicy decyzyjnej
@@ -108,22 +126,22 @@ def granica_decyzyjna_MLP():
         mlp_classifier_logistic = MLP(hidden_layer_sizes=hidden_n_layers_best_accuracy_logistic, max_iter=100000, n_iter_no_change=100000, tol=0, solver='sgd', activation='logistic')   #zgodnie z wymaganiami projektowymi ustawione parametry
         mlp_classifier_logistic.fit(Data_train[:, 0:2], Data_train[:, 2])
         plot_decision_boundary_ax(Data_train[:,0:2], axes_dec=svm_ax[1,index], func=lambda X: mlp_classifier_logistic.predict(X))
-        svm_ax[1,index].set_title(f"LOGISTIC MLP (CSV: 2_{index+1})(Neurons={hidden_n_layers_best_accuracy_logistic})")
+        svm_ax[1,index].set_title(f"LOGISTIC MLP (CSV: 2_{index+1})(Neurons={hidden_n_layers_best_accuracy_logistic}) (Acc={max_accuracy_logistic}")
             
 
         mlp_classifier_tanh = MLP(hidden_layer_sizes=hidden_n_layers_best_accuracy_tanh, max_iter=100000, n_iter_no_change=100000, tol=0, solver='sgd', activation='tanh')   #zgodnie z wymaganiami projektowymi ustawione parametry
         mlp_classifier_tanh.fit(Data_train[:, 0:2], Data_train[:, 2])    
         plot_decision_boundary_ax(Data_train[:,0:2], axes_dec=svm_ax[2,index], func=lambda X: mlp_classifier_tanh.predict(X))
-        svm_ax[2,index].set_title(f"TANH MLP (CSV: 2_{index+1})(Neurons={hidden_n_layers_best_accuracy_tanh})")
+        svm_ax[2,index].set_title(f"TANH MLP (CSV: 2_{index+1})(Neurons={hidden_n_layers_best_accuracy_tanh}) (Acc={max_accuracy_tanh}")
             
 
         mlp_classifier_relu = MLP(hidden_layer_sizes=hidden_n_layers_best_accuracy_relu, max_iter=100000, n_iter_no_change=100000, tol=0, solver='sgd', activation='relu')   #zgodnie z wymaganiami projektowymi ustawione parametry
         mlp_classifier_relu.fit(Data_train[:, 0:2], Data_train[:, 2])
         plot_decision_boundary_ax(Data_train[:,0:2], axes_dec=svm_ax[3,index], func=lambda X: mlp_classifier_relu.predict(X))
-        svm_ax[3,index].set_title(f"RELU MLP (CSV: 2_{index+1})(Neurons={hidden_n_layers_best_accuracy_relu})")
+        svm_ax[3,index].set_title(f"RELU MLP (CSV: 2_{index+1})(Neurons={hidden_n_layers_best_accuracy_relu}) (Acc={max_accuracy_relu}")
 
-        plt.subplots_adjust(hspace=0.6, wspace=0.5)
-        plt.show()
+    plt.subplots_adjust(hspace=0.6, wspace=0.5)
+    plt.show()
 
 if __name__ == "__main__":
     #granica_decyzyjna_SVM()
