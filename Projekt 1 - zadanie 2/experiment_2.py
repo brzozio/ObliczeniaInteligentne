@@ -126,7 +126,7 @@ def SVM_granica_decyzyjna_accuracy():
         Data = np.genfromtxt(f"C:\\Users\\Michał\\Documents\\STUDIA\\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\Projekt 1 - zadanie 2\\2_{index+2}.csv", delimiter=';')
         Data_train = Data[0:260,:]
         Data_test  = Data[260:300,:]
-        X_train, X_test, y_train, y_test = train_test_split(Data[:,0:2], Data[:,2], test_size=0.2, random_state=42)
+        X_train, X_test, y_train, y_test = train_test_split(Data[:,0:2], Data[:,2], test_size=0.2, train_size=0.2, random_state=42)
         
         #Zbior testowy
         best_accuracy_test       : float = 0.0
@@ -212,9 +212,7 @@ def SVM_granica_decyzyjna_accuracy():
         acc_ax.legend()
         
         plt.subplots_adjust(hspace=0.6, wspace=0.5)
-        plt.show()
         
-
         plt.figure(figsize=(10, 7))        
         sb.heatmap(confusion_matrix(y_train,svc_classifier_granica_BEST.predict(X_train)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[0,0])
         sb.heatmap(confusion_matrix(y_train,svc_classifier_granica_WORST.predict(X_train)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[1,0])
@@ -227,6 +225,7 @@ def SVM_granica_decyzyjna_accuracy():
         plt.xlabel('Predicted labels')
         plt.ylabel('True labels')
         plt.show()
+        
 
         
 
@@ -347,6 +346,6 @@ def MLP_granica_decyzyjna_accuracy():
 
 if __name__ == "__main__":
     #KNN_granica_decyzyjna_accuracy()
-    #SVM_granica_decyzyjna_accuracy()
-    MLP_granica_decyzyjna_accuracy()
+    SVM_granica_decyzyjna_accuracy()
+    #MLP_granica_decyzyjna_accuracy()
     

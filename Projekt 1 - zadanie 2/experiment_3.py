@@ -10,7 +10,7 @@ import seaborn as sb
 
 
 knn_n_neighbours: np.array = [1,2,3,4,5,6,7,8,9,10,11,12,13,14]
-c_parameter_SVM   : np.array = [0.001,0.01,0.1,1,10,100,1000,10000]
+c_parameter_SVM   : np.array = [0.05,0.08,0.1,0.2,0.5,1,10,100,1000,1000,100000]
 hidden_neurons_MLP: np.array = [2,6,10,30]
 
 
@@ -63,6 +63,15 @@ def KNN_granica_decyzyjna_accuracy():
         conf_matrix_fig, conf_ax = plt.subplots(3, 2, figsize=(10, 20)) #Train 0, Test 1
         acc_fig, acc_ax = plt.subplots()
 
+
+        knn_ax[0, 0].set_title(f"KNN train-set BEST (CSV: 2_{index+2}) (Neighbours={best_acc_n_neighb_test})")
+        knn_ax[1, 0].set_title(f"KNN train-set MIN (CSV: 2_{index+2}) (Neighbours={knn_n_neighbours[0]})")
+        knn_ax[2, 0].set_title(f"KNN train-set MAX (CSV: 2_{index+2}) (Neighbours={knn_n_neighbours[13]})")
+        knn_ax[0, 1].set_title(f"KNN test-set BEST (CSV: 2_{index+2}) (Neighbours={best_acc_n_neighb_test})")
+        knn_ax[1, 1].set_title(f"KNN test-set MIN (CSV: 2_{index+2}) (Neighbours={knn_n_neighbours[0]})")
+        knn_ax[2, 1].set_title(f"KNN test-set MAX (CSV: 2_{index+2}) (Neighbours={knn_n_neighbours[13]})")
+
+        
 #Granice decyzyjne
         
         #Train
@@ -119,6 +128,7 @@ def KNN_granica_decyzyjna_accuracy():
         plt.xlabel('Predicted labels')
         plt.ylabel('True labels')
         plt.show()
+        
 
 def SVM_granica_decyzyjna_accuracy():
     """
@@ -340,6 +350,6 @@ def MLP_granica_decyzyjna_accuracy():
 
 if __name__ == "__main__":
     #KNN_granica_decyzyjna_accuracy()
-    #SVM_granica_decyzyjna_accuracy()
-    MLP_granica_decyzyjna_accuracy()
+    SVM_granica_decyzyjna_accuracy()
+    #MLP_granica_decyzyjna_accuracy()
     

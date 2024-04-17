@@ -2,48 +2,50 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.neural_network import MLPClassifier as MLP
+from sklearn.neighbors import KNeighborsClassifier as knn
 from voronoi import plot_decision_boundary, plot_decision_boundary_ax
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.model_selection import train_test_split
+from sklearn import datasets
+from sklearn.preprocessing import StandardScaler
 from joblib import dump as model_dump
 from joblib import load as model_load
-
-hidden_neurons = [2,10]
+import seaborn as sb
 
 train_accuracies_all = []
 test_accuracies_all  = []
+knn_n_neighbours: np.array = [1,2,3,4,5,6,7,8,9,10,11,12,13,14]
 
 
-
-def train_and_evaluate(X_train, X_test, y_train, y_test, hidden_neurons, exp, random_state=None) -> tuple[list, list, float, int, float, float]:
-    model = MLP(hidden_layer_sizes=hidden_neurons[exp], max_iter=100000, random_state=random_state, solver='sgd', tol=0, n_iter_no_change=100000, activation='identity')
+def train_and_evaluate(X_train, X_test, y_train, y_test, name, random_state=None) -> tuple[list, list, float, int, float, float]:
+    model = MLP(hidden_layer_sizes=4, max_iter=100000, random_state=random_state, solver='sgd', tol=0, n_iter_no_change=2000, activation='relu')
     train_accuracies = []
     test_accuracies  = []
     best_epoch_num : int   = 0
     best_epoch_acc : float = 0.0
 
-    for epoch in range(100000):  
+    for epoch in range(10000):  
         model.partial_fit(X_train, y_train, classes=np.unique(y_train))
         train_accuracy = accuracy_score(y_train, model.predict(X_train))
         test_accuracy  = accuracy_score(y_test, model.predict(X_test))
         if epoch is 0: 
-            model_dump(model, f'mlp_moodel_exp_{exp+2}_EPOCH_0.joblib')
+            model_dump(model, f'mlp_moodel_exp_{name}_EPOCH_0.joblib')
             start_acc_test  = test_accuracy
             start_acc_train = train_accuracy
         if test_accuracy > best_epoch_acc:
             best_epoch_acc = test_accuracy
             best_epoch_num = epoch
-            model_dump(model, f'mlp_model_exp_{exp+2}_BEST.joblib')
+            model_dump(model, f'mlp_model_exp_{name}_BEST.joblib')
         train_accuracies.append(train_accuracy)
         test_accuracies.append(test_accuracy)
-        print(f"Epoch: {epoch}, Test Accuracy={test_accuracy}, Train Accuracy={train_accuracy}")
-    model_dump(model, f'mlp_moodel_exp_{exp+2}_EPOCH_LAST.joblib')
+        print(f"Epoch: {epoch}, Test Accuracy={test_accuracy}, Train Accuracy={train_accuracy} --> {name}")
+    model_dump(model, f'mlp_moodel_exp_{name}_EPOCH_LAST.joblib')
     end_acc_test  = test_accuracy
     end_acc_train = train_accuracy
 
     return train_accuracies, test_accuracies, best_epoch_acc, best_epoch_num, start_acc_test, start_acc_train, end_acc_test, end_acc_train
 
-def run_random_state(num_runs, X_train, y_train, X_test, y_test, experiment)->None:
+def run_random_state(num_runs, X_train, y_train, X_test, y_test, name)->None:
     df_test = pd.DataFrame({
         'Run': [],
         'AccStart': [],
@@ -59,20 +61,20 @@ def run_random_state(num_runs, X_train, y_train, X_test, y_test, experiment)->No
         'AccEnd': []
     })
     for run in range(num_runs):
-        train_accuracies, test_accuracies, best_epoch_acc, best_epoch_num, start_acc_test, start_acc_train, end_acc_test, end_acc_train = train_and_evaluate(X_train, X_test, y_train, y_test, hidden_neurons, exp=experiment, random_state=run)
+        train_accuracies, test_accuracies, best_epoch_acc, best_epoch_num, start_acc_test, start_acc_train, end_acc_test, end_acc_train = train_and_evaluate(X_train, X_test, y_train, y_test, name=name, random_state=run)
         train_accuracies_all.append(train_accuracies)
         test_accuracies_all.append(test_accuracies)
 
-        plt.figure(figsize=(10, 6))
-        plt.plot(range(1, len(train_accuracies_all[run]) + 1), train_accuracies_all[run], label=f"Run {run+1} Train")
-        plt.plot(range(1, len(test_accuracies_all[run]) + 1), test_accuracies_all[run], label=f"Run {run+1} Test")
-        plt.title(f'Acc. Changes Over Epochs - Exp. {experiment+2} Data, Run={run+1}')
-        plt.xlabel('Epoch')
-        plt.ylabel('Accuracy')
-        plt.legend()
-        #plt.show()
+        if run is 9:
+            plt.figure(figsize=(10, 6))
+            plt.plot(range(1, len(train_accuracies_all[run]) + 1), train_accuracies_all[run], label=f"Run {run+1} Train")
+            plt.plot(range(1, len(test_accuracies_all[run]) + 1), test_accuracies_all[run], label=f"Run {run+1} Test")
+            plt.title(f'Acc. Changes Over Epochs - Exp. {name} Data, Run={run+1}')
+            plt.xlabel('Epoch')
+            plt.ylabel('Accuracy')
+            plt.legend()
+            plt.show()
         
-        #decision_boundary(exp=experiment, best_epoch_num=best_epoch_num, accuracy=best_epoch_acc, num_run=run, data_train=Data_train, start_acc_test =start_acc_test,  end_acc_test =end_acc_test, start_acc_train=start_acc_train, end_acc_train=end_acc_train)
         new_row_test = {'Run': run+1, 'AccStart': start_acc_test, 'AccBest': best_epoch_acc, 'AccBestEpochNr': best_epoch_num, 'AccEnd': end_acc_test}
         df_test = df_test._append(new_row_test, ignore_index=True)
         print(df_test)
@@ -80,49 +82,99 @@ def run_random_state(num_runs, X_train, y_train, X_test, y_test, experiment)->No
         new_row_train = {'Run': run+1, 'AccStart': start_acc_train, 'AccBest': best_epoch_acc, 'AccBestEpochNr': best_epoch_num, 'AccEnd': end_acc_train}
         df_train = df_test._append(new_row_train, ignore_index=True)
         
-    df_test.to_csv(f"test_exp_4_table_exp_{experiment+2}_data.csv",   index=False)
-    df_train.to_csv(f"train_exp_4_table_exp_{experiment+2}_data.csv", index=False)
+    df_test.to_csv(f"test_exp_4_table_exp_{name}_data.csv",   index=False)
+    df_train.to_csv(f"train_exp_4_table_exp_{name}_data.csv", index=False)
 
-
-def decision_boundary(exp, best_epoch_num, accuracy, num_run, data_train, start_acc_test=None, start_acc_train=None, end_acc_train=None, end_acc_test=None)->None:
-    fig, ax = plt.subplots(3, 2, figsize=(10, 20)) #Train 0, Test 1
-    model_start_epoch = model_load(f'mlp_moodel_exp_{exp+2}_EPOCH_0.joblib')
-    model_last_epoch  = model_load(f'mlp_moodel_exp_{exp+2}_EPOCH_LAST.joblib')
-    model_best_epoch  = model_load(f'mlp_model_exp_{exp+2}_BEST.joblib')
+def KNN_accuracy( X_train, y_train, X_test, y_test):
+    #Zbior testowy
+    best_accuracy_test       : float = 0.0
+    best_acc_n_neighb_test   : int   = 0
     
-    plot_decision_boundary_ax(Data_test[:,0:2], axes_dec=ax[0, 0], func=lambda X: model_best_epoch.predict(X))
-    ax[0, 0].set_title(f"(Run={num_run}, Test exp={exp+2}) Best (Acc={accuracy}, Epoch={best_epoch_num})")
-    plot_decision_boundary_ax(Data_test[:,0:2], axes_dec=ax[1, 0], func=lambda X: model_start_epoch.predict(X))
-    ax[1, 0].set_title(f"(Run={num_run}, Test exp={exp+2}) Start (Acc={start_acc_test})")
-    plot_decision_boundary_ax(Data_test[:,0:2], axes_dec=ax[2, 0], func=lambda X: model_last_epoch.predict(X))
-    ax[2, 0].set_title(f"(Run={num_run}, Test exp={exp+2}) Last (Acc={end_acc_test})")
+    accuracy_plot_acc_test          = []
+    accuracy_plot_n_neighbour_test  = []
 
-    plot_decision_boundary_ax(data_train[:,0:2], axes_dec=ax[0, 1], func=lambda X: model_best_epoch.predict(X))
-    ax[0, 1].set_title(f"(Run={num_run}, Train exp={exp+2}) Best (Acc={accuracy}, Epoch={best_epoch_num})")
-    plot_decision_boundary_ax(data_train[:,0:2], axes_dec=ax[1, 1], func=lambda X: model_start_epoch.predict(X))
-    ax[1, 1].set_title(f"(Run={num_run}, Train exp={exp+2}) Start (Acc={start_acc_train})")
-    plot_decision_boundary_ax(data_train[:,0:2], axes_dec=ax[2, 1], func=lambda X: model_last_epoch.predict(X))
-    ax[2, 1].set_title(f"(Run={num_run}, Train exp={exp+2}) Last (Acc={end_acc_train})")
+
+    accuracy_plot_acc_train          = []
+    accuracy_plot_n_neighbour_train  = []
+
+
+    for i, n_neighbours_param in enumerate(knn_n_neighbours):
+        knn_classifier = knn(n_neighbors=n_neighbours_param)
+
+        knn_classifier.fit(X_train, y_train)
+
+    #Wyliczanie accuracy
+        #Test
+        temp_labels_test = knn_classifier.predict(X_test)
+        accuracy_test = accuracy_score(temp_labels_test, y_test)
+
+        accuracy_plot_acc_test.append(accuracy_test)
+        accuracy_plot_n_neighbour_test.append(n_neighbours_param)
+        
+        #Train
+        temp_labels_train = knn_classifier.predict(X_train)
+        accuracy_train = accuracy_score(temp_labels_train, y_train)
+
+        accuracy_plot_acc_train.append(accuracy_train)
+        accuracy_plot_n_neighbour_train.append(n_neighbours_param)
+
+        #Wyznaczanie najlepszego i najgorszego accuracy
+        if accuracy_test > best_accuracy_test:
+            best_accuracy_test = accuracy_test
+            best_acc_n_neighb_test = n_neighbours_param
+            
+    conf_matrix_fig, conf_ax = plt.subplots(3, 2, figsize=(10, 20)) #Train 0, Test 1
+    acc_fig, acc_ax = plt.subplots()
+
+    acc_ax.plot(accuracy_plot_n_neighbour_train, accuracy_plot_acc_train, 'o', color='green', linestyle='solid', linewidth=2, label="Train Data")
+    acc_ax.plot(accuracy_plot_n_neighbour_test, accuracy_plot_acc_test,   'o', color='red',   linestyle='solid', linewidth=2, label="Test Data")
+    acc_ax.set_xlabel("n_neighbours")
+    acc_ax.legend()
+
+    plt.subplots_adjust(hspace=0.6, wspace=0.5)
+    knn_classifier_granica_BEST  = knn(n_neighbors=best_acc_n_neighb_test) #zgodnie z wymaganiami najlepszy n-neighbour na podstawie acc ze zbioru testowego
+    knn_classifier_granica_BEST.fit(X_train, y_train)
+    
+    knn_classifier_granica_WORST = knn(n_neighbors=knn_n_neighbours[0])
+    knn_classifier_granica_WORST.fit(X_train, y_train)
+    
+    knn_classifier_granica_MAX = knn(n_neighbors=knn_n_neighbours[13])
+    knn_classifier_granica_MAX.fit(X_train, y_train)
+    plt.figure(figsize=(10, 7))        
+    sb.heatmap(confusion_matrix(y_train,knn_classifier_granica_BEST.predict(X_train)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[0,0])
+    sb.heatmap(confusion_matrix(y_train,knn_classifier_granica_WORST.predict(X_train)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[1,0])
+    sb.heatmap(confusion_matrix(y_train,knn_classifier_granica_MAX.predict(X_train)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[2,0])
+    
+    
+    sb.heatmap(confusion_matrix(y_train,knn_classifier_granica_BEST.predict(X_train)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[0,1])
+    sb.heatmap(confusion_matrix(y_train,knn_classifier_granica_WORST.predict(X_train)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[1,1])
+    sb.heatmap(confusion_matrix(y_train,knn_classifier_granica_MAX.predict(X_train)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[2,1])
+    plt.xlabel('Predicted labels')
+    plt.ylabel('True labels')
     plt.show()
 
 if __name__ == "__main__":
-    
     Data = np.genfromtxt(f"C:\\Users\\Michał\\Documents\\STUDIA\\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\Projekt 1 - zadanie 2\\2_3.csv", delimiter=';')
-    Data_test  = Data[260:300,:]
-    Data_train_exp2 = Data[0:260,:]
-    Data_train_exp3 = Data[0:60,:]
-    
-    X_train_2, X_test_2, y_train_2, y_test_2 = train_test_split(Data[:,0:2], Data[:,2], test_size=0.2, train_size=0.2, random_state=42)
-    X_train_3, X_test_3, y_train_3, y_test_3 = train_test_split(Data[:,0:2], Data[:,2], test_size=0.2, random_state=42)
 
-    Data_train_exp2 = [X_train_2[0], X_train_2[1], y_train_2]
-    Data_train_exp3 = [X_train_3[0], X_train_3[1], y_train_3]
+#Iris
+    iris                = datasets.load_iris()
+    iris.data           = StandardScaler().fit_transform(iris.data)
+    X_train, X_test, y_train, y_test = train_test_split(iris.data, iris.target, test_size=0.2, random_state=42)
+    #run_random_state(num_runs=10, name='iris', X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
+    KNN_accuracy(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
+#Wine
+    wine                = datasets.load_wine()
+    wine.data           = StandardScaler().fit_transform(wine.data)
+    X_train, X_test, y_train, y_test = train_test_split(wine.data,wine.target, test_size=0.2, random_state=42)
+    #run_random_state(num_runs=10, name='wine', X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
+    KNN_accuracy(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
+#Breast
+    breast_cancer       = datasets.load_breast_cancer()
+    breast_cancer.data  = StandardScaler().fit_transform(breast_cancer.data)
+    X_train, X_test, y_train, y_test = train_test_split(breast_cancer.data, breast_cancer.target, test_size=0.2, random_state=42)
+    #run_random_state(num_runs=10, name='breast', X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
+    KNN_accuracy(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
 
-#Przypadek z eksperymentu 2
-    run_random_state(num_runs=10, experiment=0, X_train=X_train_2, y_train=y_train_2, X_test=X_test_2, y_test=y_test_2)
-
-#Przypadek z eksperymentu 3
-    run_random_state(num_runs=10, experiment=1, X_train=X_train_3, y_train=y_train_3, X_test=X_test_3, y_test=y_test_3)
 
     
     
