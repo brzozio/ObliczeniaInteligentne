@@ -21,17 +21,12 @@ def KNN_granica_decyzyjna_accuracy():
         #Zbior testowy
         best_accuracy_test       : float = 0.0
         best_acc_n_neighb_test   : int   = 0
-        worst_accuracy_test      : float = 1.0
-        worst_acc_n_neighb_test  : int   = 1
-        max_accuracy_test        : float = 0.0
+        
+       
 
         accuracy_plot_acc_test          = []
         accuracy_plot_n_neighbour_test  = []
-        
-        #Zbior treningowy
-        worst_accuracy_train      : float = 1.0
-        worst_acc_n_neighb_train  : int   = 1
-        max_accuracy_train        : float = 0.0
+    
 
         accuracy_plot_acc_train          = []
         accuracy_plot_n_neighbour_train  = []
@@ -62,24 +57,11 @@ def KNN_granica_decyzyjna_accuracy():
                 best_accuracy_test = accuracy_test
                 best_acc_n_neighb_test = n_neighbours_param
                
-            if accuracy_train < worst_accuracy_train:
-                worst_accuracy_train = accuracy_test
-                worst_acc_n_neighb_train = n_neighbours_param
-            
-            if accuracy_test < worst_accuracy_test:
-                worst_accuracy_test = accuracy_test
-                worst_acc_n_neighb_test = n_neighbours_param
             
         knn_fig, knn_ax = plt.subplots(3, 2, figsize=(10, 20)) #Train 0, Test 1
         acc_fig, acc_ax = plt.subplots()
 
 #Granice decyzyjne
-        
-        max_accuracy_test  = max(accuracy_plot_acc_test)
-        max_acc_n_neighb_test = knn_n_neighbours[accuracy_plot_acc_test.index(max_accuracy_test)]
-        max_accuracy_train = max(accuracy_plot_acc_train)
-        max_acc_n_neighb_train = knn_n_neighbours[accuracy_plot_acc_train.index(max_accuracy_train)]
-
         #Train
         knn_classifier_granica_TRAIN_BEST  = knn(n_neighbors=best_acc_n_neighb_test) #zgodnie z wymaganiami najlepszy n-neighbour na podstawie acc ze zbioru testowego
         knn_classifier_granica_TRAIN_BEST.fit(Data_train[:, 0:2], Data_train[:, 2])
@@ -87,16 +69,16 @@ def KNN_granica_decyzyjna_accuracy():
         knn_ax[0, 0].set_title(f"KNN train-set BEST (CSV: 2_{index+2}) (Neighbours={best_acc_n_neighb_test})")
         print(f'KNN train-set BEST (CSV: 2_{index+2}) Confusion matrix: {confusion_matrix(Data_train[:, 2],knn_classifier_granica_TRAIN_BEST.predict(Data_train[:, 0:2]))}')
         
-        knn_classifier_granica_TRAIN_WORST = knn(n_neighbors=worst_acc_n_neighb_train)
+        knn_classifier_granica_TRAIN_WORST = knn(n_neighbors=knn_n_neighbours[0])
         knn_classifier_granica_TRAIN_WORST.fit(Data_train[:, 0:2], Data_train[:, 2])
         plot_decision_boundary_ax(Data_train[:,0:2], axes_dec=knn_ax[1, 0], func=lambda X: knn_classifier_granica_TRAIN_WORST.predict(X))
-        knn_ax[1, 0].set_title(f"KNN train-set WORST (CSV: 2_{index+2}) (Neighbours={worst_acc_n_neighb_train})")
+        knn_ax[1, 0].set_title(f"KNN train-set MIN (CSV: 2_{index+2}) (Neighbours={knn_n_neighbours[0]})")
         print(f'KNN train-set WORST (CSV: 2_{index+2}) Confusion matrix: {confusion_matrix(Data_train[:, 2],knn_classifier_granica_TRAIN_WORST.predict(Data_train[:, 0:2]))}')
         
-        knn_classifier_granica_TRAIN_MAX = knn(n_neighbors=max_acc_n_neighb_train)
+        knn_classifier_granica_TRAIN_MAX = knn(n_neighbors=knn_n_neighbours[13])
         knn_classifier_granica_TRAIN_MAX.fit(Data_train[:, 0:2], Data_train[:, 2])
         plot_decision_boundary_ax(Data_train[:,0:2], axes_dec=knn_ax[2, 0], func=lambda X: knn_classifier_granica_TRAIN_MAX.predict(X))
-        knn_ax[2, 0].set_title(f"KNN train-set MAX (CSV: 2_{index+2}) (Neighbours={max_acc_n_neighb_train})")
+        knn_ax[2, 0].set_title(f"KNN train-set MAX (CSV: 2_{index+2}) (Neighbours={knn_n_neighbours[13]})")
         print(f'KNN train-set MAX (CSV: 2_{index+2}) Confusion matrix: {confusion_matrix(Data_train[:, 2],knn_classifier_granica_TRAIN_MAX.predict(Data_train[:, 0:2]))}')
          
         #Test
@@ -106,16 +88,16 @@ def KNN_granica_decyzyjna_accuracy():
         knn_ax[0, 1].set_title(f"KNN test-set BEST (CSV: 2_{index+2}) (Neighbours={best_acc_n_neighb_test})")
         print(f'KNN test-set BEST (CSV: 2_{index+2}) Confusion matrix: {confusion_matrix(Data_train[:, 2],knn_classifier_granica_TEST_BEST.predict(Data_train[:, 0:2]))}')
          
-        knn_classifier_granica_TEST_WORST = knn(n_neighbors=worst_acc_n_neighb_test)
+        knn_classifier_granica_TEST_WORST = knn(n_neighbors=knn_n_neighbours[0])
         knn_classifier_granica_TEST_WORST.fit(Data_train[:, 0:2], Data_train[:, 2])
         plot_decision_boundary_ax(Data_train[:,0:2], axes_dec=knn_ax[1, 1], func=lambda X: knn_classifier_granica_TEST_WORST.predict(X))
-        knn_ax[1, 1].set_title(f"KNN test-set WORST (CSV: 2_{index+2}) (Neighbours={worst_acc_n_neighb_test})")
+        knn_ax[1, 1].set_title(f"KNN test-set MIN (CSV: 2_{index+2}) (Neighbours={knn_n_neighbours[0]})")
         print(f'KNN test-set WORST (CSV: 2_{index+2}) Confusion matrix: {confusion_matrix(Data_train[:, 2],knn_classifier_granica_TEST_WORST.predict(Data_train[:, 0:2]))}')
         
-        knn_classifier_granica_TEST_MAX = knn(n_neighbors=max_acc_n_neighb_test)
+        knn_classifier_granica_TEST_MAX = knn(n_neighbors=knn_n_neighbours[13])
         knn_classifier_granica_TEST_MAX.fit(Data_train[:, 0:2], Data_train[:, 2])
         plot_decision_boundary_ax(Data_train[:,0:2], axes_dec=knn_ax[2, 1], func=lambda X: knn_classifier_granica_TRAIN_MAX.predict(X))
-        knn_ax[2, 1].set_title(f"KNN test-set MAX (CSV: 2_{index+2}) (Neighbours={max_acc_n_neighb_test})")
+        knn_ax[2, 1].set_title(f"KNN test-set MAX (CSV: 2_{index+2}) (Neighbours={knn_n_neighbours[13]})")
         print(f'KNN test-set MAX (CSV: 2_{index+2}) Confusion matrix: {confusion_matrix(Data_train[:, 2],knn_classifier_granica_TRAIN_MAX.predict(Data_train[:, 0:2]))}')
          
         acc_ax.plot(accuracy_plot_n_neighbour_train, accuracy_plot_acc_train, 'o', color='green', linestyle='solid', linewidth=2, label="Train Data")
@@ -138,17 +120,9 @@ def SVM_granica_decyzyjna_accuracy():
         #Zbior testowy
         best_accuracy_test       : float = 0.0
         best_acc_c_test          : int   = 0
-        worst_accuracy_test      : float = 1.0
-        worst_acc_c_test         : int   = 1
-        max_accuracy_test        : float = 0.0
-
         accuracy_plot_acc_test = []
         accuracy_plot_c_test   = []
-        
-        #Zbior treningowy
-        worst_accuracy_train      : float = 1.0
-        worst_acc_c_train         : int   = 1
-        max_accuracy_train        : float = 0.0
+    
 
         accuracy_plot_acc_train  = []
         accuracy_plot_c_train    = []
@@ -179,25 +153,11 @@ def SVM_granica_decyzyjna_accuracy():
                 best_accuracy_test = accuracy_test
                 best_acc_c_test = c_param
                
-            if accuracy_train < worst_accuracy_train:
-                worst_accuracy_train = accuracy_test
-                worst_acc_c_train = c_param
-            
-            if accuracy_test < worst_accuracy_test:
-                worst_accuracy_test = accuracy_test
-                worst_acc_c_test = c_param
             
         svm_fig, svm_ax = plt.subplots(3, 2, figsize=(10, 20)) #Train 0, Test 1
         acc_fig, acc_ax = plt.subplots()
 
 #Granice decyzyjne
-        
-        max_accuracy_test  = max(accuracy_plot_acc_test)
-        max_acc_c_test = c_parameter_SVM[accuracy_plot_acc_test.index(max_accuracy_test)]
-        
-        max_accuracy_train = max(accuracy_plot_acc_train)
-        max_acc_c_train = c_parameter_SVM[accuracy_plot_acc_train.index(max_accuracy_train)]
-
         #Train
         svc_classifier_granica_TRAIN_BEST = SVC(kernel='linear', C=best_acc_c_test)
         svc_classifier_granica_TRAIN_BEST.fit(Data_train[:, 0:2], Data_train[:, 2])
@@ -208,13 +168,13 @@ def SVM_granica_decyzyjna_accuracy():
         svc_classifier_granica_TRAIN_WORST = SVC(kernel='linear', C=worst_acc_c_train)
         svc_classifier_granica_TRAIN_WORST.fit(Data_train[:, 0:2], Data_train[:, 2])
         plot_decision_boundary_ax(Data_train[:,0:2], axes_dec=svm_ax[1, 0], func=lambda X: svc_classifier_granica_TRAIN_WORST.predict(X))
-        svm_ax[1, 0].set_title(f"SVM train-set WORST (CSV: 2_{index+2}) (C={worst_acc_c_train})")
+        svm_ax[1, 0].set_title(f"SVM train-set MIN (CSV: 2_{index+2}) (C={c_parameter_SVM[0]})")
         print(f'SVM train-set WORST (CSV: 2_{index+2}) Confusion matrix: {confusion_matrix(Data_train[:, 2],svc_classifier_granica_TRAIN_WORST.predict(Data_train[:, 0:2]))}')
         
-        svc_classifier_granica_TRAIN_MAX = SVC(kernel='linear', C=max_accuracy_train)
+        svc_classifier_granica_TRAIN_MAX = SVC(kernel='linear', C=c_parameter_SVM[7])
         svc_classifier_granica_TRAIN_MAX.fit(Data_train[:, 0:2], Data_train[:, 2])
         plot_decision_boundary_ax(Data_train[:,0:2], axes_dec=svm_ax[2, 0], func=lambda X: svc_classifier_granica_TRAIN_MAX.predict(X))
-        svm_ax[2, 0].set_title(f"SVM train-set MAX (CSV: 2_{index+2}) (C={max_acc_c_train})")
+        svm_ax[2, 0].set_title(f"SVM train-set MAX (CSV: 2_{index+2}) (C={c_parameter_SVM[7]})")
         print(f'SVM train-set MAX (CSV: 2_{index+2}) Confusion matrix: {confusion_matrix(Data_train[:, 2],svc_classifier_granica_TRAIN_MAX.predict(Data_train[:, 0:2]))}')
          
         #Test
@@ -227,13 +187,13 @@ def SVM_granica_decyzyjna_accuracy():
         svc_classifier_granica_TEST_WORST = SVC(kernel='linear', C=worst_acc_c_test)
         svc_classifier_granica_TEST_WORST.fit(Data_train[:, 0:2], Data_train[:, 2])
         plot_decision_boundary_ax(Data_train[:,0:2], axes_dec=svm_ax[1, 1], func=lambda X: svc_classifier_granica_TEST_WORST.predict(X))
-        svm_ax[1, 1].set_title(f"SVM test-set WORST (CSV: 2_{index+2}) (C={worst_acc_c_test})")
+        svm_ax[1, 1].set_title(f"SVM test-set MIN (CSV: 2_{index+2}) (C={c_parameter_SVM[0]})")
         print(f'SVM test-set WORST (CSV: 2_{index+2}) Confusion matrix: {confusion_matrix(Data_train[:, 2],svc_classifier_granica_TEST_WORST.predict(Data_train[:, 0:2]))}')
         
-        svc_classifier_granica_TEST_MAX = SVC(kernel='linear', C=max_accuracy_test)
+        svc_classifier_granica_TEST_MAX = SVC(kernel='linear', C=c_parameter_SVM[7])
         svc_classifier_granica_TEST_MAX.fit(Data_train[:, 0:2], Data_train[:, 2])
         plot_decision_boundary_ax(Data_train[:,0:2], axes_dec=svm_ax[2, 1], func=lambda X: svc_classifier_granica_TEST_MAX.predict(X))
-        svm_ax[2, 1].set_title(f"SVM test-set MAX (CSV: 2_{index+2}) (C={max_acc_c_test})")
+        svm_ax[2, 1].set_title(f"SVM test-set MAX (CSV: 2_{index+2}) (C={c_parameter_SVM[7]})")
         print(f'SVM test-set MAX (CSV: 2_{index+2}) Confusion matrix: {confusion_matrix(Data_train[:, 2],svc_classifier_granica_TEST_MAX.predict(Data_train[:, 0:2]))}')
          
         acc_ax.semilogx(accuracy_plot_c_train, accuracy_plot_acc_train, 'o', color='green', linestyle='solid', linewidth=2, label="Train Data")
@@ -257,17 +217,10 @@ def MLP_granica_decyzyjna_accuracy():
         #Zbior testowy
         best_accuracy_test       : float = 0.0
         best_acc_c_test          : int   = 0
-        worst_accuracy_test      : float = 1.0
-        worst_acc_c_test         : int   = 1
-        max_accuracy_test        : float = 0.0
 
         accuracy_plot_acc_test = []
         accuracy_plot_c_test   = []
-        
-        #Zbior treningowy
-        worst_accuracy_train      : float = 1.0
-        worst_acc_c_train         : int   = 1
-        max_accuracy_train        : float = 0.0
+
 
         accuracy_plot_acc_train  = []
         accuracy_plot_c_train    = []
@@ -296,25 +249,11 @@ def MLP_granica_decyzyjna_accuracy():
             if accuracy_test > best_accuracy_test:
                 best_accuracy_test = accuracy_test
                 best_acc_c_test = hidden_neurons_param
-               
-            if accuracy_train < worst_accuracy_train:
-                worst_accuracy_train = accuracy_test
-                worst_acc_c_train = hidden_neurons_param
-            
-            if accuracy_test < worst_accuracy_test:
-                worst_accuracy_test = accuracy_test
-                worst_acc_c_test = hidden_neurons_param
             
         svm_fig, svm_ax = plt.subplots(3, 2, figsize=(10, 20)) #Train 0, Test 1
         acc_fig, acc_ax = plt.subplots()
 
 #Granice decyzyjne
-        
-        max_accuracy_test  = max(accuracy_plot_acc_test)
-        max_acc_c_test = hidden_neurons_MLP[accuracy_plot_acc_test.index(max_accuracy_test)]
-        
-        max_accuracy_train = max(accuracy_plot_acc_train)
-        max_acc_c_train = hidden_neurons_MLP[accuracy_plot_acc_train.index(max_accuracy_train)]
 
         #Train
         mlp_classifier_TRAIN_BEST = MLP(hidden_layer_sizes=best_acc_c_test, max_iter=100000, n_iter_no_change=100000, tol=0, solver='sgd', activation='identity')
@@ -323,16 +262,16 @@ def MLP_granica_decyzyjna_accuracy():
         svm_ax[0, 0].set_title(f"MLP train-set BEST (CSV: 2_{index+2}) (hidden_layers={best_acc_c_test})")
         print(f'MLP train-set BEST (CSV: 2_{index+2}) Confusion matrix: {confusion_matrix(Data_train[:, 2],mlp_classifier_TRAIN_BEST.predict(Data_train[:, 0:2]))}')
         
-        mlp_classifier_TRAIN_WORST = MLP(hidden_layer_sizes=worst_acc_c_test, max_iter=100000, n_iter_no_change=100000, tol=0, solver='sgd', activation='identity')
+        mlp_classifier_TRAIN_WORST = MLP(hidden_layer_sizes=hidden_neurons_MLP[0], max_iter=100000, n_iter_no_change=100000, tol=0, solver='sgd', activation='identity')
         mlp_classifier_TRAIN_WORST.fit(Data_train[:, 0:2], Data_train[:, 2])
         plot_decision_boundary_ax(Data_train[:,0:2], axes_dec=svm_ax[1, 0], func=lambda X: mlp_classifier_TRAIN_WORST.predict(X))
-        svm_ax[1, 0].set_title(f"MLP train-set WORST (CSV: 2_{index+2}) (hidden_layers={worst_acc_c_train})")
+        svm_ax[1, 0].set_title(f"MLP train-set MIN (CSV: 2_{index+2}) (hidden_layers={hidden_neurons_MLP[0]})")
         print(f'MLP train-set WORST (CSV: 2_{index+2}) Confusion matrix: {confusion_matrix(Data_train[:, 2],mlp_classifier_TRAIN_WORST.predict(Data_train[:, 0:2]))}')
         
-        mlp_classifier_TRAIN_MAX = MLP(hidden_layer_sizes=max_acc_c_train, max_iter=100000, n_iter_no_change=100000, tol=0, solver='sgd', activation='identity')
+        mlp_classifier_TRAIN_MAX = MLP(hidden_layer_sizes=hidden_neurons_MLP[3], max_iter=100000, n_iter_no_change=100000, tol=0, solver='sgd', activation='identity')
         mlp_classifier_TRAIN_MAX.fit(Data_train[:, 0:2], Data_train[:, 2])
         plot_decision_boundary_ax(Data_train[:,0:2], axes_dec=svm_ax[2, 0], func=lambda X: mlp_classifier_TRAIN_MAX.predict(X))
-        svm_ax[2, 0].set_title(f"MLP train-set MAX (CSV: 2_{index+2}) (hidden_layers={max_acc_c_train})")
+        svm_ax[2, 0].set_title(f"MLP train-set MAX (CSV: 2_{index+2}) (hidden_layers={hidden_neurons_MLP[3]})")
         print(f'MLP train-set MAX (CSV: 2_{index+2}) Confusion matrix: {confusion_matrix(Data_train[:, 2],mlp_classifier_TRAIN_MAX.predict(Data_train[:, 0:2]))}')
          
         #Test
@@ -342,16 +281,16 @@ def MLP_granica_decyzyjna_accuracy():
         svm_ax[0, 1].set_title(f"MLP test-set BEST (CSV: 2_{index+2}) (hidden_layers={best_acc_c_test})")
         print(f'MLP test-set BEST (CSV: 2_{index+2}) Confusion matrix: {confusion_matrix(Data_train[:, 2],mlp_classifier_TEST_BEST.predict(Data_train[:, 0:2]))}')
          
-        mlp_classifier_TEST_WORST = MLP(hidden_layer_sizes=worst_acc_c_test, max_iter=100000, n_iter_no_change=100000, tol=0, solver='sgd', activation='identity')
+        mlp_classifier_TEST_WORST = MLP(hidden_layer_sizes=hidden_neurons_MLP[0], max_iter=100000, n_iter_no_change=100000, tol=0, solver='sgd', activation='identity')
         mlp_classifier_TEST_WORST.fit(Data_train[:, 0:2], Data_train[:, 2])
         plot_decision_boundary_ax(Data_train[:,0:2], axes_dec=svm_ax[1, 1], func=lambda X: mlp_classifier_TEST_WORST.predict(X))
-        svm_ax[1, 1].set_title(f"MLP test-set WORST (CSV: 2_{index+2}) (hidden_layers={worst_acc_c_test})")
+        svm_ax[1, 1].set_title(f"MLP test-set MIN (CSV: 2_{index+2}) (hidden_layers={hidden_neurons_MLP[0]})")
         print(f'MLP test-set WORST (CSV: 2_{index+2}) Confusion matrix: {confusion_matrix(Data_train[:, 2],mlp_classifier_TEST_WORST.predict(Data_train[:, 0:2]))}')
         
-        mlp_classifier_TRAIN_MAX = MLP(hidden_layer_sizes=max_acc_c_test, max_iter=100000, n_iter_no_change=100000, tol=0, solver='sgd', activation='identity')
+        mlp_classifier_TRAIN_MAX = MLP(hidden_layer_sizes=hidden_neurons_MLP[3], max_iter=100000, n_iter_no_change=100000, tol=0, solver='sgd', activation='identity')
         mlp_classifier_TRAIN_MAX.fit(Data_train[:, 0:2], Data_train[:, 2])
         plot_decision_boundary_ax(Data_train[:,0:2], axes_dec=svm_ax[2, 1], func=lambda X: mlp_classifier_TRAIN_MAX.predict(X))
-        svm_ax[2, 1].set_title(f"MLP test-set MAX (CSV: 2_{index+2}) (hidden_layers={max_acc_c_test})")
+        svm_ax[2, 1].set_title(f"MLP test-set MAX (CSV: 2_{index+2}) (hidden_layers={hidden_neurons_MLP[3]})")
         print(f'MLP test-set MAX (CSV: 2_{index+2}) Confusion matrix: {confusion_matrix(Data_train[:, 2],mlp_classifier_TRAIN_MAX.predict(Data_train[:, 0:2]))}')
          
         acc_ax.plot(accuracy_plot_c_train, accuracy_plot_acc_train, 'o', color='green', linestyle='solid', linewidth=2, label="Train Data")
