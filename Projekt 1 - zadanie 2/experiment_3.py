@@ -154,7 +154,7 @@ def SVM_granica_decyzyjna_accuracy():
         for i, c_param in enumerate(c_parameter_SVM):
             svc_linear_classifier = SVC(kernel='linear', C=c_param)
 
-            svc_linear_classifier.fit(X_train, Data_train[:, 2])
+            svc_linear_classifier.fit(X_train, y_train)
 
         #Wyliczanie accuracy
             #Test
