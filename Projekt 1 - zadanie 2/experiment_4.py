@@ -43,7 +43,7 @@ def train_and_evaluate(X_train, X_test, y_train, y_test, hidden_neurons, exp, ra
 
     return train_accuracies, test_accuracies, best_epoch_acc, best_epoch_num, start_acc_test, start_acc_train, end_acc_test, end_acc_train
 
-def run_random_state(num_runs, Data_train, experiment)->None:
+def run_random_state(num_runs, X_train, y_train, X_test, y_test, experiment)->None:
     df_test = pd.DataFrame({
         'Run': [],
         'AccStart': [],
@@ -59,7 +59,7 @@ def run_random_state(num_runs, Data_train, experiment)->None:
         'AccEnd': []
     })
     for run in range(num_runs):
-        train_accuracies, test_accuracies, best_epoch_acc, best_epoch_num, start_acc_test, start_acc_train, end_acc_test, end_acc_train = train_and_evaluate(Data_train[:, 0:2], Data_test[:,0:2], Data_train[:, 2], Data_test[:,2], hidden_neurons, exp=experiment, random_state=run)
+        train_accuracies, test_accuracies, best_epoch_acc, best_epoch_num, start_acc_test, start_acc_train, end_acc_test, end_acc_train = train_and_evaluate(X_train, X_test, y_train, y_test, hidden_neurons, exp=experiment, random_state=run)
         train_accuracies_all.append(train_accuracies)
         test_accuracies_all.append(test_accuracies)
 
@@ -111,12 +111,18 @@ if __name__ == "__main__":
     Data_test  = Data[260:300,:]
     Data_train_exp2 = Data[0:260,:]
     Data_train_exp3 = Data[0:60,:]
+    
+    X_train_2, X_test_2, y_train_2, y_test_2 = train_test_split(Data[:,0:2], Data[:,2], test_size=0.2, train_size=0.2, random_state=42)
+    X_train_3, X_test_3, y_train_3, y_test_3 = train_test_split(Data[:,0:2], Data[:,2], test_size=0.2, random_state=42)
+
+    Data_train_exp2 = [X_train_2[0], X_train_2[1], y_train_2]
+    Data_train_exp3 = [X_train_3[0], X_train_3[1], y_train_3]
 
 #Przypadek z eksperymentu 2
-    run_random_state(num_runs=10, Data_train=Data_train_exp2, experiment=0)
+    run_random_state(num_runs=10, experiment=0, X_train=X_train_2, y_train=y_train_2, X_test=X_test_2, y_test=y_test_2)
 
 #Przypadek z eksperymentu 3
-    run_random_state(num_runs=10, Data_train=Data_train_exp3, experiment=1)
+    run_random_state(num_runs=10, experiment=1, X_train=X_train_3, y_train=y_train_3, X_test=X_test_3, y_test=y_test_3)
 
     
     
