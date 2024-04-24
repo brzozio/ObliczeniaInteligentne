@@ -67,7 +67,7 @@ def experiment_1_KMeans() -> None:
         list_worst_silhouette_score.append(worst_silhouette_score(index,0,1.0))
         list_best_silhouette_score.append(best_silhouette_score(index,0,-1.0))
 
-    fig, axs = plt.subplots(6,1)  
+    fig, axs = plt.subplots(6,1,sharey=True)  
     
     y_pred : np.array = [[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
                         [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
@@ -140,7 +140,7 @@ def experiment_1_DBSCAN() -> None:
         list_worst_silhouette_score.append(worst_silhouette_score(index,0,1.0))
         list_best_silhouette_score.append(best_silhouette_score(index,0,-1.0))
 
-    fig, axs = plt.subplots(6,1)
+    fig, axs = plt.subplots(6,1, sharey=True)
     
     y_pred : np.array = [[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
                         [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
@@ -155,7 +155,7 @@ def experiment_1_DBSCAN() -> None:
         eps_plot = []
         for iter_eps in range(len(list_eps)):
             #K-Means cluster
-            klaster_DBSCAN: cluster.DBSCAN = cluster.DBSCAN(eps=list_eps[iter_eps],min_samples=10)
+            klaster_DBSCAN: cluster.DBSCAN = cluster.DBSCAN(eps=list_eps[iter_eps],min_samples=1)
             klaster_DBSCAN.fit_predict(points)
             y_pred[index][iter_eps] = klaster_DBSCAN.labels_
             

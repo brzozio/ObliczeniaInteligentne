@@ -64,8 +64,8 @@ def experiment_2_KMeans() -> None:
         list_best_v_measure_score.append(score(index,0,1.0))
         list_worst_v_measure_score.append(score(index,0,1.0))
 
-    fig, axs = plt.subplots(6,1)  
-    fig_vor, ax_vor = plt.subplots(6,2)
+    fig, axs = plt.subplots(6,1,sharey=True)  
+    fig_vor, ax_vor = plt.subplots(6,2,sharey=True)
     
     y_pred : list[list[list[int]]] = [[[],[],[],[],[],[],[],[]],
                                       [[],[],[],[],[],[],[],[]],
@@ -245,8 +245,8 @@ def experiment_2_DBSCAN() -> None:
         list_best_v_measure_score.append(score(index,0,1.0))
         list_worst_v_measure_score.append(score(index,0,1.0))
 
-    fig, axs = plt.subplots(6,1)  
-    fig_vor, ax_vor = plt.subplots(6,2)
+    fig, axs = plt.subplots(6,1,sharey=True)  
+    fig_vor, ax_vor = plt.subplots(6,2,sharey=True)
     
     y_pred : np.array = [[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
                         [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
@@ -272,7 +272,7 @@ def experiment_2_DBSCAN() -> None:
 
             for iter_eps in range(len(list_eps)):
                 #K-Means cluster
-                klaster_KMeans: cluster.DBSCAN = cluster.DBSCAN(eps=list_eps[iter_eps])
+                klaster_KMeans: cluster.DBSCAN = cluster.DBSCAN(eps=list_eps[iter_eps], min_samples=1)
                 klaster_KMeans.fit(points)
                 y_pred[index][iter_eps] = klaster_KMeans.labels_
                 
@@ -349,7 +349,7 @@ def experiment_2_DBSCAN() -> None:
 
 
 def experiment_2_KMeans_IRIS_AND_OTHERS() -> None:
-    fig, axs = plt.subplots(3,1)  
+    fig, axs = plt.subplots(3,1,sharey=True)  
     
     y_pred : np.array = [[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
                         [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
@@ -395,13 +395,14 @@ def experiment_2_KMeans_IRIS_AND_OTHERS() -> None:
         list_k_means_completness.append(completeness_score_kmeans)
 
         #Silhouette Score
-        #silhouette_score_kmeans : float = silhouette_score(iris.target, y_pred[0][index])
-        #list_k_means_silhouette.append(silhouette_score_kmeans)
+        silhouette_score_kmeans : float = silhouette_score(np.ravel(iris.target), np.ravel(y_pred[0][index]))
+        list_k_means_silhouette.append(silhouette_score_kmeans)
         
     
     axs[0].plot(list_n_clusters, list_k_means_homogenity, 'o', color='green', linestyle='solid', linewidth=2, label="Homogeneity Score")
     axs[0].plot(list_n_clusters, list_k_means_rand, 'o', color='yellow', linestyle='solid', linewidth=2, label="Rand Score")
     axs[0].plot(list_n_clusters, list_k_means_completness, 'o', color='blue', linestyle='solid', linewidth=2, label="Completness Score")
+    axs[0].plot(list_n_clusters, list_k_means_completness, 'o', color='blue', linestyle='solid', linewidth=2, label="Silhouette Score")
 
     axs[0].set_title('IRIS')
     axs[0].set_xlabel("n-clusters")
@@ -412,6 +413,7 @@ def experiment_2_KMeans_IRIS_AND_OTHERS() -> None:
     list_k_means_rand : list[float] = []
     list_k_means_homogenity : list[float] = []
     list_k_means_completness : list[float] = []
+    list_k_means_silhouette : list[float] = []
     for index in range(len(list_n_clusters)):
         #K-Means cluster
         klaster_KMeans: cluster.KMeans = cluster.KMeans(n_clusters=list_n_clusters[index])
@@ -433,10 +435,15 @@ def experiment_2_KMeans_IRIS_AND_OTHERS() -> None:
         completeness_score_kmeans : float = completeness_score(np.ravel(wine.target), np.ravel(y_pred[0][index]))
         list_k_means_completness.append(completeness_score_kmeans)
 
+        #Silhouette Score
+        silhouette_score_kmeans : float = silhouette_score(np.ravel(wine.target), np.ravel(y_pred[0][index]))
+        list_k_means_silhouette.append(silhouette_score_kmeans)
+
     
     axs[1].plot(list_n_clusters, list_k_means_homogenity, 'o', color='green', linestyle='solid', linewidth=2, label="Homogeneity Score")
     axs[1].plot(list_n_clusters, list_k_means_rand, 'o', color='yellow', linestyle='solid', linewidth=2, label="Rand Score")
     axs[1].plot(list_n_clusters, list_k_means_completness, 'o', color='blue', linestyle='solid', linewidth=2, label="Completness Score")
+    axs[0].plot(list_n_clusters, list_k_means_completness, 'o', color='blue', linestyle='solid', linewidth=2, label="Silhouette Score")
 
     axs[1].set_title('WINE')
     axs[1].set_xlabel("n-clusters")
@@ -447,6 +454,7 @@ def experiment_2_KMeans_IRIS_AND_OTHERS() -> None:
     list_k_means_rand : list[float] = []
     list_k_means_homogenity : list[float] = []
     list_k_means_completness : list[float] = []
+    list_k_means_silhouette : list[float] = []
     for index in range(len(list_n_clusters)):
         #K-Means cluster
         klaster_KMeans: cluster.KMeans = cluster.KMeans(n_clusters=list_n_clusters[index])
@@ -467,12 +475,16 @@ def experiment_2_KMeans_IRIS_AND_OTHERS() -> None:
         #Completness Score
         completeness_score_kmeans : float = completeness_score(np.ravel(breast_cancer.target), np.ravel(y_pred[0][index]))
         list_k_means_completness.append(completeness_score_kmeans)
-        
+      
+        #Silhouette Score
+        silhouette_score_kmeans : float = silhouette_score(np.ravel(breast_cancer.target), np.ravel(y_pred[0][index]))
+        list_k_means_silhouette.append(silhouette_score_kmeans)
 
     
     axs[2].plot(list_n_clusters, list_k_means_homogenity, 'o', color='green', linestyle='solid', linewidth=2, label="Homogeneity Score")
     axs[2].plot(list_n_clusters, list_k_means_rand, 'o', color='yellow', linestyle='solid', linewidth=2, label="Rand Score")
     axs[2].plot(list_n_clusters, list_k_means_completness, 'o', color='blue', linestyle='solid', linewidth=2, label="Completness Score")
+    axs[0].plot(list_n_clusters, list_k_means_completness, 'o', color='blue', linestyle='solid', linewidth=2, label="Silhouette Score")
 
     axs[2].set_title('BREAST CANCER')
     axs[2].set_xlabel("n-clusters")
@@ -488,7 +500,7 @@ def experiment_2_KMeans_IRIS_AND_OTHERS() -> None:
     plt.show()
 
 def experiment_2_DBSCAN_IRIS_AND_OTHERS() -> None:
-    fig, axs = plt.subplots(3,1)  
+    fig, axs = plt.subplots(3,1,sharey=True)  
     
     y_pred : np.array = [[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
                         [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
@@ -507,9 +519,10 @@ def experiment_2_DBSCAN_IRIS_AND_OTHERS() -> None:
     #list_vision_worst_clusters : list[int] = [9,9,5,9,9,6]
     
     #============== IRIS ==============================================================
-    list_k_means_rand : list[float] = []
-    list_k_means_homogenity : list[float] = []
+    list_k_means_rand        : list[float] = []
+    list_k_means_homogenity  : list[float] = []
     list_k_means_completness : list[float] = []
+    list_k_means_silhouette    : list[float] = []
     #distance_avg = 0.0
     #for n in range(150):
     #    for m in range(n,150):
@@ -521,7 +534,7 @@ def experiment_2_DBSCAN_IRIS_AND_OTHERS() -> None:
     list_eps : list[float] = [0.1,0.2,0.3,0.32,0.35,0.4,0.45,1.0,1.2,1.5,2.0]
     for index in range(len(list_eps)):
         #K-Means cluster
-        klaster_KMeans: cluster.DBSCAN = cluster.DBSCAN(eps=list_eps[index],min_samples=5)
+        klaster_KMeans: cluster.DBSCAN = cluster.DBSCAN(eps=list_eps[index],min_samples=1)
         klaster_KMeans.fit(iris.data)
         y_pred[0][index] = klaster_KMeans.labels_
         #print(f'ETYKIETY: {y_pred[0][index]}')
@@ -535,6 +548,9 @@ def experiment_2_DBSCAN_IRIS_AND_OTHERS() -> None:
     
         #Completness Score
         completeness_score_kmeans : float = completeness_score(np.ravel(iris.target), np.ravel(y_pred[0][index]))
+    
+        #Silhouette Score
+        silhouette_score_kmeans : float = silhouette_score(np.ravel(iris.target), np.ravel(y_pred[0][index]))
 
         #Etykiety ilosci klastrów na wykresie
         axs[0].text(list_eps[index], 0.1, max(y_pred[0][index])+1)
@@ -543,15 +559,18 @@ def experiment_2_DBSCAN_IRIS_AND_OTHERS() -> None:
             list_k_means_completness.append(0)
             list_k_means_homogenity.append(0)
             list_k_means_rand.append(0)
+            list_k_means_silhouette.append(0)
         else:
             list_k_means_completness.append(completeness_score_kmeans)
             list_k_means_homogenity.append(homogenity_score_kmeans)
             list_k_means_rand.append(rand_score_kmeans)
+            list_k_means_silhouette.append(silhouette_score_kmeans)
         
     
     axs[0].plot(list_eps, list_k_means_homogenity, 'o', color='green', linestyle='solid', linewidth=2, label="Homogeneity Score")
     axs[0].plot(list_eps, list_k_means_rand, 'o', color='yellow', linestyle='solid', linewidth=2, label="Rand Score")
     axs[0].plot(list_eps, list_k_means_completness, 'o', color='blue', linestyle='solid', linewidth=2, label="Completness Score")
+    axs[0].plot(list_eps, list_k_means_silhouette, 'o', color='red', linestyle='solid', linewidth=2, label="Silhouette Score")
 
     axs[0].set_title('IRIS')
     axs[0].set_xlabel("eps")
@@ -560,9 +579,10 @@ def experiment_2_DBSCAN_IRIS_AND_OTHERS() -> None:
     
 
     #====== WINE =============================
-    list_k_means_rand : list[float] = []
-    list_k_means_homogenity : list[float] = []
+    list_k_means_rand        : list[float] = []
+    list_k_means_homogenity  : list[float] = []
     list_k_means_completness : list[float] = []
+    list_k_means_silhouette    : list[float] = []
 
     #distance_avg = 0.0
     #for n in range(178):
@@ -577,7 +597,7 @@ def experiment_2_DBSCAN_IRIS_AND_OTHERS() -> None:
 
     for index in range(len(list_eps)):
         #K-Means cluster
-        klaster_KMeans: cluster.DBSCAN = cluster.DBSCAN(eps=list_eps[index])
+        klaster_KMeans: cluster.DBSCAN = cluster.DBSCAN(eps=list_eps[index], min_samples=1)
         klaster_KMeans.fit(wine.data)
         y_pred[0][index] = klaster_KMeans.labels_
 
@@ -592,6 +612,9 @@ def experiment_2_DBSCAN_IRIS_AND_OTHERS() -> None:
         #Completness Score
         completeness_score_kmeans : float = completeness_score(np.ravel(wine.target), np.ravel(y_pred[0][index]))
 
+        #Silhouette Score
+        silhouette_score_kmeans : float = silhouette_score(np.ravel(wine.target), np.ravel(y_pred[0][index]))
+
          #Etykiety ilosci klastrów na wykresie
         axs[1].text(list_eps[index], 0.1, max(y_pred[0][index])+1)
 
@@ -599,14 +622,17 @@ def experiment_2_DBSCAN_IRIS_AND_OTHERS() -> None:
             list_k_means_completness.append(0)
             list_k_means_homogenity.append(0)
             list_k_means_rand.append(0)
+            list_k_means_silhouette.append(0)
         else:
             list_k_means_completness.append(completeness_score_kmeans)
             list_k_means_homogenity.append(homogenity_score_kmeans)
             list_k_means_rand.append(rand_score_kmeans)
+            list_k_means_silhouette.append(silhouette_score_kmeans)
     
     axs[1].plot(list_eps, list_k_means_homogenity, 'o', color='green', linestyle='solid', linewidth=2, label="Homogeneity Score")
     axs[1].plot(list_eps, list_k_means_rand, 'o', color='yellow', linestyle='solid', linewidth=2, label="Rand Score")
     axs[1].plot(list_eps, list_k_means_completness, 'o', color='blue', linestyle='solid', linewidth=2, label="Completness Score")
+    axs[0].plot(list_eps, list_k_means_silhouette, 'o', color='red', linestyle='solid', linewidth=2, label="Silhouette Score")
 
     axs[1].set_title('WINE')
     axs[1].set_xlabel("eps")
@@ -638,6 +664,9 @@ def experiment_2_DBSCAN_IRIS_AND_OTHERS() -> None:
         #Completness Score
         completeness_score_kmeans : float = completeness_score(np.ravel(breast_cancer.target), np.ravel(y_pred[0][index]))
 
+        #Silhouette Score
+        silhouette_score_kmeans : float = silhouette_score(np.ravel(breast_cancer.target), np.ravel(y_pred[0][index]))
+
         #Etykiety ilosci klastrów na wykresie
         axs[2].text(list_eps[index], 0.1, max(y_pred[0][index])+1) 
 
@@ -645,16 +674,19 @@ def experiment_2_DBSCAN_IRIS_AND_OTHERS() -> None:
             list_k_means_completness.append(0)
             list_k_means_homogenity.append(0)
             list_k_means_rand.append(0)
+            list_k_means_silhouette.append(0)
         else:
             list_k_means_completness.append(completeness_score_kmeans)
             list_k_means_homogenity.append(homogenity_score_kmeans)
             list_k_means_rand.append(rand_score_kmeans)
+            list_k_means_silhouette.append(silhouette_score_kmeans)
 
 
     
     axs[2].plot(list_eps, list_k_means_homogenity, 'o', color='green', linestyle='solid', linewidth=2, label="Homogeneity Score")
     axs[2].plot(list_eps, list_k_means_rand, 'o', color='yellow', linestyle='solid', linewidth=2, label="Rand Score")
     axs[2].plot(list_eps, list_k_means_completness, 'o', color='blue', linestyle='solid', linewidth=2, label="Completness Score")
+    axs[0].plot(list_eps, list_k_means_silhouette, 'o', color='red', linestyle='solid', linewidth=2, label="Silhouette Score")
     
     #axs[2].set_xscale('log')
 

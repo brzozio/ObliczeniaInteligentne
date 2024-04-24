@@ -122,9 +122,9 @@ def KNN_granica_decyzyjna_accuracy():
         sb.heatmap(confusion_matrix(y_train,knn_classifier_granica_MAX.predict(X_train)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[2,0])
         
         
-        sb.heatmap(confusion_matrix(y_train,knn_classifier_granica_BEST.predict(X_train)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[0,1])
-        sb.heatmap(confusion_matrix(y_train,knn_classifier_granica_WORST.predict(X_train)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[1,1])
-        sb.heatmap(confusion_matrix(y_train,knn_classifier_granica_MAX.predict(X_train)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[2,1])
+        sb.heatmap(confusion_matrix(y_test,knn_classifier_granica_BEST.predict(X_test)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[0,1])
+        sb.heatmap(confusion_matrix(y_test,knn_classifier_granica_WORST.predict(X_test)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[1,1])
+        sb.heatmap(confusion_matrix(y_test,knn_classifier_granica_MAX.predict(X_test)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[2,1])
         plt.xlabel('Predicted labels')
         plt.ylabel('True labels')
         plt.show()
@@ -152,7 +152,7 @@ def SVM_granica_decyzyjna_accuracy():
 
 
         for i, c_param in enumerate(c_parameter_SVM):
-            svc_linear_classifier = SVC(kernel='linear', C=c_param)
+            svc_linear_classifier = SVC(kernel='rbf', C=c_param)
 
             svc_linear_classifier.fit(X_train, y_train)
 
@@ -184,13 +184,13 @@ def SVM_granica_decyzyjna_accuracy():
 #Granice decyzyjne
         
         #Train
-        svc_classifier_granica_BEST = SVC(kernel='linear', C=best_acc_c_test)
+        svc_classifier_granica_BEST = SVC(kernel='rbf', C=best_acc_c_test)
         svc_classifier_granica_BEST.fit(X_train, y_train)
        
-        svc_classifier_granica_WORST = SVC(kernel='linear', C=c_parameter_SVM[0])
+        svc_classifier_granica_WORST = SVC(kernel='rbf', C=c_parameter_SVM[0])
         svc_classifier_granica_WORST.fit(X_train, y_train)
        
-        svc_classifier_granica_MAX = SVC(kernel='linear', C=c_parameter_SVM[7])
+        svc_classifier_granica_MAX = SVC(kernel='rbf', C=c_parameter_SVM[7])
         svc_classifier_granica_MAX.fit(X_train, y_train)
        
        
@@ -232,9 +232,9 @@ def SVM_granica_decyzyjna_accuracy():
         sb.heatmap(confusion_matrix(y_train,svc_classifier_granica_MAX.predict(X_train)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[2,0])
         
         
-        sb.heatmap(confusion_matrix(y_train,svc_classifier_granica_BEST.predict(X_train)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[0,1])
-        sb.heatmap(confusion_matrix(y_train,svc_classifier_granica_WORST.predict(X_train)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[1,1])
-        sb.heatmap(confusion_matrix(y_train,svc_classifier_granica_MAX.predict(X_train)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[2,1])
+        sb.heatmap(confusion_matrix(y_test,svc_classifier_granica_BEST.predict(X_test)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[0,1])
+        sb.heatmap(confusion_matrix(y_test,svc_classifier_granica_WORST.predict(X_test)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[1,1])
+        sb.heatmap(confusion_matrix(y_test,svc_classifier_granica_MAX.predict(X_test)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[2,1])
         plt.xlabel('Predicted labels')
         plt.ylabel('True labels')
         plt.show()
@@ -261,7 +261,7 @@ def MLP_granica_decyzyjna_accuracy():
 
 
         for i, hidden_neurons_param in enumerate(hidden_neurons_MLP):
-            mlp_classifier = MLP(hidden_layer_sizes=hidden_neurons_param, max_iter=100000, n_iter_no_change=100000, tol=0, solver='sgd', activation='identity')
+            mlp_classifier = MLP(hidden_layer_sizes=hidden_neurons_param, max_iter=100000, n_iter_no_change=100000, tol=0, solver='sgd', activation='relu')
             mlp_classifier.fit(X_train, Data_train[:, 2])
 
         #Wyliczanie accuracy
@@ -291,13 +291,13 @@ def MLP_granica_decyzyjna_accuracy():
 #Granice decyzyjne
         
         #Train
-        mlp_classifier_BEST = MLP(hidden_layer_sizes=best_acc_c_test, max_iter=100000, n_iter_no_change=100000, tol=0, solver='sgd', activation='identity')
+        mlp_classifier_BEST = MLP(hidden_layer_sizes=best_acc_c_test, max_iter=100000, n_iter_no_change=100000, tol=0, solver='sgd', activation='relu')
         mlp_classifier_BEST.fit(X_train, y_train)
         
-        mlp_classifier_WORST = MLP(hidden_layer_sizes=hidden_neurons_MLP[3], max_iter=100000, n_iter_no_change=100000, tol=0, solver='sgd', activation='identity')
+        mlp_classifier_WORST = MLP(hidden_layer_sizes=hidden_neurons_MLP[3], max_iter=100000, n_iter_no_change=100000, tol=0, solver='sgd', activation='relu')
         mlp_classifier_WORST.fit(X_train, y_train)
         
-        mlp_classifier_MAX = MLP(hidden_layer_sizes=hidden_neurons_MLP[3], max_iter=100000, n_iter_no_change=100000, tol=0, solver='sgd', activation='identity')
+        mlp_classifier_MAX = MLP(hidden_layer_sizes=hidden_neurons_MLP[3], max_iter=100000, n_iter_no_change=100000, tol=0, solver='sgd', activation='relu')
         mlp_classifier_MAX.fit(X_train, y_train)
         
         
@@ -339,9 +339,9 @@ def MLP_granica_decyzyjna_accuracy():
         sb.heatmap(confusion_matrix(y_train,mlp_classifier_WORST.predict(X_train)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[1,0])
         sb.heatmap(confusion_matrix(y_train,mlp_classifier_MAX.predict(X_train)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[2,0])
         
-        sb.heatmap(confusion_matrix(y_train,mlp_classifier_BEST.predict(X_train)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[0,1])
-        sb.heatmap(confusion_matrix(y_train,mlp_classifier_WORST.predict(X_train)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[1,1])
-        sb.heatmap(confusion_matrix(y_train,mlp_classifier_MAX.predict(X_train)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[2,1])
+        sb.heatmap(confusion_matrix(y_test,mlp_classifier_BEST.predict(X_test)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[0,1])
+        sb.heatmap(confusion_matrix(y_test,mlp_classifier_WORST.predict(X_test)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[1,1])
+        sb.heatmap(confusion_matrix(y_test,mlp_classifier_MAX.predict(X_test)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[2,1])
         plt.xlabel('Predicted labels')
         plt.ylabel('True labels')
         plt.show()
@@ -350,6 +350,6 @@ def MLP_granica_decyzyjna_accuracy():
 
 if __name__ == "__main__":
     #KNN_granica_decyzyjna_accuracy()
-    SVM_granica_decyzyjna_accuracy()
-    #MLP_granica_decyzyjna_accuracy()
+    #SVM_granica_decyzyjna_accuracy()
+    MLP_granica_decyzyjna_accuracy()
     

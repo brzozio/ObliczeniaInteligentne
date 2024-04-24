@@ -146,9 +146,9 @@ def KNN_accuracy( X_train, y_train, X_test, y_test):
     sb.heatmap(confusion_matrix(y_train,knn_classifier_granica_MAX.predict(X_train)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[2,0])
     
     
-    sb.heatmap(confusion_matrix(y_train,knn_classifier_granica_BEST.predict(X_train)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[0,1])
-    sb.heatmap(confusion_matrix(y_train,knn_classifier_granica_WORST.predict(X_train)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[1,1])
-    sb.heatmap(confusion_matrix(y_train,knn_classifier_granica_MAX.predict(X_train)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[2,1])
+    sb.heatmap(confusion_matrix(y_test,knn_classifier_granica_BEST.predict(X_test)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[0,1])
+    sb.heatmap(confusion_matrix(y_test,knn_classifier_granica_WORST.predict(X_test)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[1,1])
+    sb.heatmap(confusion_matrix(y_test,knn_classifier_granica_MAX.predict(X_test)), annot=True, cmap='Blues', fmt='g', ax=conf_ax[2,1])
     plt.xlabel('Predicted labels')
     plt.ylabel('True labels')
     plt.show()
