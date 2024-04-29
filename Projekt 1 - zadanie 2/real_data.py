@@ -18,13 +18,13 @@ knn_n_neighbours: np.array = [1,2,3,4,5,6,7,8,9,10,11,12,13,14]
 
 
 def train_and_evaluate(X_train, X_test, y_train, y_test, name, random_state=None) -> tuple[list, list, float, int, float, float]:
-    model = MLP(hidden_layer_sizes=4, max_iter=100000, random_state=random_state, solver='sgd', tol=0, n_iter_no_change=2000, activation='relu')
+    model = MLP(hidden_layer_sizes=10, max_iter=100000, random_state=random_state, solver='sgd', tol=0, n_iter_no_change=100000, activation='relu')
     train_accuracies = []
     test_accuracies  = []
     best_epoch_num : int   = 0
     best_epoch_acc : float = 0.0
 
-    for epoch in range(10000):  
+    for epoch in range(100000):  
         model.partial_fit(X_train, y_train, classes=np.unique(y_train))
         train_accuracy = accuracy_score(y_train, model.predict(X_train))
         test_accuracy  = accuracy_score(y_test, model.predict(X_test))
@@ -156,24 +156,25 @@ def KNN_accuracy( X_train, y_train, X_test, y_test):
 if __name__ == "__main__":
     Data = np.genfromtxt(f"C:\\Users\\Michał\\Documents\\STUDIA\\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\Projekt 1 - zadanie 2\\2_3.csv", delimiter=';')
 
+    num_runs = 1
 #Iris
     iris                = datasets.load_iris()
     iris.data           = StandardScaler().fit_transform(iris.data)
-    X_train, X_test, y_train, y_test = train_test_split(iris.data, iris.target, test_size=0.2, random_state=42)
-    #run_random_state(num_runs=10, name='iris', X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
-    KNN_accuracy(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
+    X_train, X_test, y_train, y_test = train_test_split(iris.data, iris.target, test_size=0.2, train_size=0.8, random_state=42)
+    run_random_state(num_runs=num_runs, name='iris', X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
+    #KNN_accuracy(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
 #Wine
     wine                = datasets.load_wine()
     wine.data           = StandardScaler().fit_transform(wine.data)
-    X_train, X_test, y_train, y_test = train_test_split(wine.data,wine.target, test_size=0.2, random_state=42)
-    #run_random_state(num_runs=10, name='wine', X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
-    KNN_accuracy(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
+    X_train, X_test, y_train, y_test = train_test_split(wine.data,wine.target, test_size=0.2, train_size=0.8, random_state=42)
+    run_random_state(num_runs=num_runs, name='wine', X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
+    #KNN_accuracy(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
 #Breast
     breast_cancer       = datasets.load_breast_cancer()
     breast_cancer.data  = StandardScaler().fit_transform(breast_cancer.data)
-    X_train, X_test, y_train, y_test = train_test_split(breast_cancer.data, breast_cancer.target, test_size=0.2, random_state=42)
-    #run_random_state(num_runs=10, name='breast', X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
-    KNN_accuracy(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
+    X_train, X_test, y_train, y_test = train_test_split(breast_cancer.data, breast_cancer.target, test_size=0.2, train_size=0.8, random_state=42)
+    run_random_state(num_runs=num_runs, name='breast', X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
+    #KNN_accuracy(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
 
 
     

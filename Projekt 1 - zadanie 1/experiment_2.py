@@ -395,14 +395,14 @@ def experiment_2_KMeans_IRIS_AND_OTHERS() -> None:
         list_k_means_completness.append(completeness_score_kmeans)
 
         #Silhouette Score
-        silhouette_score_kmeans : float = silhouette_score(np.ravel(iris.target), np.ravel(y_pred[0][index]))
+        silhouette_score_kmeans : float = silhouette_score(iris.data, y_pred[0][index])
         list_k_means_silhouette.append(silhouette_score_kmeans)
         
     
     axs[0].plot(list_n_clusters, list_k_means_homogenity, 'o', color='green', linestyle='solid', linewidth=2, label="Homogeneity Score")
     axs[0].plot(list_n_clusters, list_k_means_rand, 'o', color='yellow', linestyle='solid', linewidth=2, label="Rand Score")
     axs[0].plot(list_n_clusters, list_k_means_completness, 'o', color='blue', linestyle='solid', linewidth=2, label="Completness Score")
-    axs[0].plot(list_n_clusters, list_k_means_completness, 'o', color='blue', linestyle='solid', linewidth=2, label="Silhouette Score")
+    axs[0].plot(list_n_clusters, list_k_means_completness, 'o', color='red', linestyle='solid', linewidth=2, label="Silhouette Score")
 
     axs[0].set_title('IRIS')
     axs[0].set_xlabel("n-clusters")
@@ -436,14 +436,14 @@ def experiment_2_KMeans_IRIS_AND_OTHERS() -> None:
         list_k_means_completness.append(completeness_score_kmeans)
 
         #Silhouette Score
-        silhouette_score_kmeans : float = silhouette_score(np.ravel(wine.target), np.ravel(y_pred[0][index]))
+        silhouette_score_kmeans : float = silhouette_score(wine.data, y_pred[0][index])
         list_k_means_silhouette.append(silhouette_score_kmeans)
 
     
     axs[1].plot(list_n_clusters, list_k_means_homogenity, 'o', color='green', linestyle='solid', linewidth=2, label="Homogeneity Score")
     axs[1].plot(list_n_clusters, list_k_means_rand, 'o', color='yellow', linestyle='solid', linewidth=2, label="Rand Score")
     axs[1].plot(list_n_clusters, list_k_means_completness, 'o', color='blue', linestyle='solid', linewidth=2, label="Completness Score")
-    axs[0].plot(list_n_clusters, list_k_means_completness, 'o', color='blue', linestyle='solid', linewidth=2, label="Silhouette Score")
+    axs[1].plot(list_n_clusters, list_k_means_completness, 'o', color='red', linestyle='solid', linewidth=2, label="Silhouette Score")
 
     axs[1].set_title('WINE')
     axs[1].set_xlabel("n-clusters")
@@ -477,14 +477,14 @@ def experiment_2_KMeans_IRIS_AND_OTHERS() -> None:
         list_k_means_completness.append(completeness_score_kmeans)
       
         #Silhouette Score
-        silhouette_score_kmeans : float = silhouette_score(np.ravel(breast_cancer.target), np.ravel(y_pred[0][index]))
+        silhouette_score_kmeans : float = silhouette_score(breast_cancer.data, y_pred[0][index])
         list_k_means_silhouette.append(silhouette_score_kmeans)
 
     
     axs[2].plot(list_n_clusters, list_k_means_homogenity, 'o', color='green', linestyle='solid', linewidth=2, label="Homogeneity Score")
     axs[2].plot(list_n_clusters, list_k_means_rand, 'o', color='yellow', linestyle='solid', linewidth=2, label="Rand Score")
     axs[2].plot(list_n_clusters, list_k_means_completness, 'o', color='blue', linestyle='solid', linewidth=2, label="Completness Score")
-    axs[0].plot(list_n_clusters, list_k_means_completness, 'o', color='blue', linestyle='solid', linewidth=2, label="Silhouette Score")
+    axs[2].plot(list_n_clusters, list_k_means_completness, 'o', color='red', linestyle='solid', linewidth=2, label="Silhouette Score")
 
     axs[2].set_title('BREAST CANCER')
     axs[2].set_xlabel("n-clusters")
@@ -550,7 +550,9 @@ def experiment_2_DBSCAN_IRIS_AND_OTHERS() -> None:
         completeness_score_kmeans : float = completeness_score(np.ravel(iris.target), np.ravel(y_pred[0][index]))
     
         #Silhouette Score
-        silhouette_score_kmeans : float = silhouette_score(np.ravel(iris.target), np.ravel(y_pred[0][index]))
+        if len(set(np.ravel(y_pred[0][index]))) < 2:
+            silhouette_score_kmeans = 0
+        else: silhouette_score_kmeans : float = silhouette_score(iris.data, y_pred[0][index]) 
 
         #Etykiety ilosci klastrów na wykresie
         axs[0].text(list_eps[index], 0.1, max(y_pred[0][index])+1)
@@ -613,7 +615,9 @@ def experiment_2_DBSCAN_IRIS_AND_OTHERS() -> None:
         completeness_score_kmeans : float = completeness_score(np.ravel(wine.target), np.ravel(y_pred[0][index]))
 
         #Silhouette Score
-        silhouette_score_kmeans : float = silhouette_score(np.ravel(wine.target), np.ravel(y_pred[0][index]))
+        if len(set(np.ravel(y_pred[0][index]))) < 2:
+            silhouette_score_kmeans = 0
+        else: silhouette_score_kmeans : float = silhouette_score(wine.data, y_pred[0][index]) 
 
          #Etykiety ilosci klastrów na wykresie
         axs[1].text(list_eps[index], 0.1, max(y_pred[0][index])+1)
@@ -632,7 +636,7 @@ def experiment_2_DBSCAN_IRIS_AND_OTHERS() -> None:
     axs[1].plot(list_eps, list_k_means_homogenity, 'o', color='green', linestyle='solid', linewidth=2, label="Homogeneity Score")
     axs[1].plot(list_eps, list_k_means_rand, 'o', color='yellow', linestyle='solid', linewidth=2, label="Rand Score")
     axs[1].plot(list_eps, list_k_means_completness, 'o', color='blue', linestyle='solid', linewidth=2, label="Completness Score")
-    axs[0].plot(list_eps, list_k_means_silhouette, 'o', color='red', linestyle='solid', linewidth=2, label="Silhouette Score")
+    axs[1].plot(list_eps, list_k_means_silhouette, 'o', color='red', linestyle='solid', linewidth=2, label="Silhouette Score")
 
     axs[1].set_title('WINE')
     axs[1].set_xlabel("eps")
@@ -641,9 +645,10 @@ def experiment_2_DBSCAN_IRIS_AND_OTHERS() -> None:
    
                
     #====== BREAST CANCER ==============
-    list_k_means_rand : list[float] = []
-    list_k_means_homogenity : list[float] = []
-    list_k_means_completness : list[float] = []
+    list_k_means_rand          : list[float] = []
+    list_k_means_homogenity    : list[float] = []
+    list_k_means_completness   : list[float] = []
+    list_k_means_silhouette    : list[float] = []
 
     list_eps : list[float] = [1.5,2.0,2.2,2.4,2.5,2.6,2.8,3.0,3.5,4.0]
     
@@ -665,7 +670,9 @@ def experiment_2_DBSCAN_IRIS_AND_OTHERS() -> None:
         completeness_score_kmeans : float = completeness_score(np.ravel(breast_cancer.target), np.ravel(y_pred[0][index]))
 
         #Silhouette Score
-        silhouette_score_kmeans : float = silhouette_score(np.ravel(breast_cancer.target), np.ravel(y_pred[0][index]))
+        if len(set(np.ravel(y_pred[0][index]))) < 2:
+            silhouette_score_kmeans = 0
+        else: silhouette_score_kmeans : float = silhouette_score(breast_cancer.data, y_pred[0][index]) 
 
         #Etykiety ilosci klastrów na wykresie
         axs[2].text(list_eps[index], 0.1, max(y_pred[0][index])+1) 
@@ -686,7 +693,7 @@ def experiment_2_DBSCAN_IRIS_AND_OTHERS() -> None:
     axs[2].plot(list_eps, list_k_means_homogenity, 'o', color='green', linestyle='solid', linewidth=2, label="Homogeneity Score")
     axs[2].plot(list_eps, list_k_means_rand, 'o', color='yellow', linestyle='solid', linewidth=2, label="Rand Score")
     axs[2].plot(list_eps, list_k_means_completness, 'o', color='blue', linestyle='solid', linewidth=2, label="Completness Score")
-    axs[0].plot(list_eps, list_k_means_silhouette, 'o', color='red', linestyle='solid', linewidth=2, label="Silhouette Score")
+    axs[2].plot(list_eps, list_k_means_silhouette, 'o', color='red', linestyle='solid', linewidth=2, label="Silhouette Score")
     
     #axs[2].set_xscale('log')
 

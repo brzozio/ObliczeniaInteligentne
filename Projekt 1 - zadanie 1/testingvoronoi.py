@@ -121,13 +121,12 @@ def voronoi(vor, etykiety, radius=None):
     regions, vertices = voronoi_finite_polygons_2d(vor)
 
 
-    norm = mpl.colors.Normalize(vmax=max(etykiety)+2, clip=True)
+    norm = mpl.colors.Normalize(vmax=max(etykiety)+1, clip=True)
     mapper = mpl.cm.ScalarMappable(norm=norm, cmap=mpl.cm.RdYlGn)
     
 
     voronoi_plot_2d(vor, show_points=True, show_vertices=False, s=1)
-    #for r in range(len(vor.point_region)):
-    #print(f"POINT REGION: {vor.point_region}")
+    
     for r in range(len(regions)):
         region = regions[r]
         if not -1 in region:
