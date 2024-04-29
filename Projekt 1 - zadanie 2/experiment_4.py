@@ -16,7 +16,7 @@ activation : str = 'relu'
 
 
 
-def train_and_evaluate(X_train, X_test, y_train, y_test, hidden_neurons, exp, random_state=None) -> tuple[list, list, float, int, float, float]:
+def train_and_evaluate(X_train, X_test, y_train, y_test, hidden_neurons, exp, run, random_state=None) -> tuple[list, list, float, int, float, float]:
     model = MLP(hidden_layer_sizes=hidden_neurons[exp], max_iter=100000, random_state=random_state, solver='sgd', tol=0, n_iter_no_change=100000, activation=activation)
     train_accuracies = []
     test_accuracies  = []
@@ -37,7 +37,7 @@ def train_and_evaluate(X_train, X_test, y_train, y_test, hidden_neurons, exp, ra
             model_dump(model, f'mlp_model_exp_{exp+2}_BEST.joblib')
         train_accuracies.append(train_accuracy)
         test_accuracies.append(test_accuracy)
-        print(f"Epoch: {epoch}, Test Accuracy={test_accuracy}, Train Accuracy={train_accuracy}")
+        print(f"Epoch: {epoch}, Test Accuracy={test_accuracy}, Train Accuracy={train_accuracy} --> RUN [{run+1}]")
     model_dump(model, f'mlp_moodel_exp_{exp+2}_EPOCH_LAST.joblib')
     end_acc_test  = test_accuracy
     end_acc_train = train_accuracy
@@ -60,26 +60,30 @@ def run_random_state(num_runs, X_train, y_train, X_test, y_test, experiment)->No
         'AccEnd': []
     })
     for run in range(num_runs):
-        train_accuracies, test_accuracies, best_epoch_acc, best_epoch_num, start_acc_test, start_acc_train, end_acc_test, end_acc_train = train_and_evaluate(X_train, X_test, y_train, y_test, hidden_neurons, exp=experiment, random_state=run)
+        train_accuracies, test_accuracies, best_epoch_acc, best_epoch_num, start_acc_test, start_acc_train, end_acc_test, end_acc_train = train_and_evaluate(X_train, X_test, y_train, y_test, hidden_neurons, exp=experiment, run=run, random_state=run)
+        print(f"TEST ACC: {test_accuracies}")
+        print(f"TRAIN ACC: {train_accuracies}")
         train_accuracies_all.append(train_accuracies)
         test_accuracies_all.append(test_accuracies)
-
+        """
         plt.figure(figsize=(10, 6))
-        plt.plot(range(1, len(train_accuracies_all[run]) + 1), train_accuracies_all[run], label=f"Run {run+1} Train")
-        plt.plot(range(1, len(test_accuracies_all[run]) + 1), test_accuracies_all[run], label=f"Run {run+1} Test")
+        #plt.plot(range(1, len(train_accuracies_all[run]) + 1), train_accuracies_all[run], label=f"Run {run+1} Train")
+        #plt.plot(range(1, len(test_accuracies_all[run]) + 1), test_accuracies_all[run], label=f"Run {run+1} Test")
+        plt.plot(range(1, len(train_accuracies_all[run]) + 1), train_accuracies, label=f"Run {run+1} Train")
+        plt.plot(range(1, len(test_accuracies_all[run]) + 1), test_accuracies, label=f"Run {run+1} Test")
         plt.title(f'Acc. Changes Over Epochs - Exp. {experiment+2} Data, Run={run+1}, Act={activation}')
         plt.xlabel('Epoch')
         plt.ylabel('Accuracy')
         plt.legend()
-        #plt.show()
-        
+        plt.show()
+        """
         #decision_boundary(exp=experiment, best_epoch_num=best_epoch_num, accuracy=best_epoch_acc, num_run=run, data_train=X_train, data_test=X_test, start_acc_test =start_acc_test,  end_acc_test =end_acc_test, start_acc_train=start_acc_train, end_acc_train=end_acc_train)
         new_row_test = {'Run': run+1, 'AccStart': start_acc_test, 'AccBest': best_epoch_acc, 'AccBestEpochNr': best_epoch_num, 'AccEnd': end_acc_test}
         df_test = df_test._append(new_row_test, ignore_index=True)
         print(df_test)
         
         new_row_train = {'Run': run+1, 'AccStart': start_acc_train, 'AccBest': best_epoch_acc, 'AccBestEpochNr': best_epoch_num, 'AccEnd': end_acc_train}
-        df_train = df_test._append(new_row_train, ignore_index=True)
+        df_train = df_train._append(new_row_train, ignore_index=True)
         
     df_test.to_csv(f"test_exp_4_table_exp_{experiment+2}_data.csv",   index=False)
     df_train.to_csv(f"train_exp_4_table_exp_{experiment+2}_data.csv", index=False)
@@ -109,18 +113,16 @@ def decision_boundary(exp, best_epoch_num, accuracy, num_run, data_train, data_t
 if __name__ == "__main__":
     
     Data = np.genfromtxt(f"C:\\Users\\Michał\\Documents\\STUDIA\\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\Projekt 1 - zadanie 2\\2_3.csv", delimiter=';')
-    
+    num_runs = 10
     X_train_2, X_test_2, y_train_2, y_test_2 = train_test_split(Data[:,0:2], Data[:,2], test_size=0.2,  random_state=42)
     X_train_3, X_test_3, y_train_3, y_test_3 = train_test_split(Data[:,0:2], Data[:,2], test_size=0.2, train_size=0.2, random_state=42)
 
-    Data_train_exp2 = [X_train_2[0], X_train_2[1], y_train_2]
-    Data_train_exp3 = [X_train_3[0], X_train_3[1], y_train_3]
 
 #Przypadek z eksperymentu 2
-    run_random_state(num_runs=10, experiment=0, X_train=X_train_2, y_train=y_train_2, X_test=X_test_2, y_test=y_test_2)
+    run_random_state(num_runs=num_runs, experiment=0, X_train=X_train_2, y_train=y_train_2, X_test=X_test_2, y_test=y_test_2)
 
 #Przypadek z eksperymentu 3
-    run_random_state(num_runs=10, experiment=1, X_train=X_train_3, y_train=y_train_3, X_test=X_test_3, y_test=y_test_3)
+    run_random_state(num_runs=num_runs, experiment=1, X_train=X_train_3, y_train=y_train_3, X_test=X_test_3, y_test=y_test_3)
 
     
     

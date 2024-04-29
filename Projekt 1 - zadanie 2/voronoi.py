@@ -4,76 +4,91 @@ import pandas as pd
 from sklearn import cluster
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
+import matplotlib as mpl
 
 import matplotlib.pyplot as plt
 from scipy.spatial import Voronoi, voronoi_plot_2d
 
 
-def load(path) -> np.array:
-    """
-    Funkcja powinna wczytywać plik CSV, którego lokalizacja wskazywana jest przez argument
-    oraz zwracać dwie tablice NumPy o rozmiarach Nxn oraz N, gdzie N to liczba obiektów,
-    a n to liczba wymiarów. Tablice te odpowiadają cechom N obiektów w n-wymiarowej przestrzeni
-    (liczby rzeczywiste) oraz ich etyketom (liczby całkowite od 0 do L-1 gdzie L to liczba
-    etykiet). Zakładamy, że w pliku CSV jest N linii odpowiadających obiektom, a każda linia
-    zaweira n+1 liczb odpowiadających wpierw kolejnym cechom obiektu (n wartości) i jego
-    etykiecie (1 wartość). Liczby w każdej linii pliku CSV oddzielone są średnikami.
-    """
+def voronoi_finite_polygons_2d(vor, radius=None):
 
-    X = pd.read_csv(path, sep = ";", usecols=[0,1])
-    Labels = pd.read_csv(path, sep = ";", usecols=[2])
+    if vor.points.shape[1] != 2:
+        raise ValueError("Requires 2D input")
 
-    cechy = np.array(X)
-    etykiety = np.array(Labels)
-     
-    return cechy, etykiety
+    new_regions = []
+    new_vertices = vor.vertices.tolist()
+
+    center = vor.points.mean(axis=0)
+    if radius is None:
+        radius = vor.points.ptp().max()
+
+    # Construct a map containing all ridges for a given point
+    all_ridges = {}
+    for (p1, p2), (v1, v2) in zip(vor.ridge_points, vor.ridge_vertices):
+        all_ridges.setdefault(p1, []).append((p2, v1, v2))
+        all_ridges.setdefault(p2, []).append((p1, v1, v2))
+
+    # Reconstruct infinite regions
+    for p1, region in enumerate(vor.point_region):
+        vertices = vor.regions[region]
+
+        if all(v >= 0 for v in vertices):
+            # finite region
+            new_regions.append(vertices)
+            continue
+
+        # reconstruct a non-finite region
+        ridges = all_ridges[p1]
+        new_region = [v for v in vertices if v >= 0]
+
+        for p2, v1, v2 in ridges:
+            if v2 < 0:
+                v1, v2 = v2, v1
+            if v1 >= 0:
+                # finite ridge: already in the region
+                continue
+
+            # Compute the missing endpoint of an infinite ridge
+
+            t = vor.points[p2] - vor.points[p1] # tangent
+            t /= np.linalg.norm(t)
+            n = np.array([-t[1], t[0]])  # normal
+
+            midpoint = vor.points[[p1, p2]].mean(axis=0)
+            direction = np.sign(np.dot(midpoint - center, n)) * n
+            far_point = vor.vertices[v2] + direction * radius
+
+            new_region.append(len(new_vertices))
+            new_vertices.append(far_point.tolist())
+
+        # sort region counterclockwise
+        vs = np.asarray([new_vertices[v] for v in new_region])
+        c = vs.mean(axis=0)
+        angles = np.arctan2(vs[:,1] - c[1], vs[:,0] - c[0])
+        new_region = np.array(new_region)[np.argsort(angles)]
+
+        # finish
+        new_regions.append(new_region.tolist())
+
+    return new_regions, np.asarray(new_vertices)
+
+def voronoi(vor, etykiety, radius=None):
+    regions, vertices = voronoi_finite_polygons_2d(vor)
 
 
-def plot_voronoi_diagram(X, y_true, y_pred) -> plt.Figure:
-    """
-    Funkcja rysująca diagram Voronoia dla obiektów opisanych tablicą X rozmiaru Nx2 (N to liczba
-    obiektów) pogrupowanych za pomocą etykiet y_pred (tablica liczby całkowitych o rozmiarze N).
-    Parametr y_true może być równy None, i wtedy nie znamy prawdziwych etykiet, lub być tablicą
-    N elementową z prawdziwymi etykietami. Rysując diagram należy zadbać, aby wszystkie obiekty
-    były widoczne. Wszystkie rozważane tablice są tablicami NumPy.
-    """
-   
-    # Tworzenie diagramu Voronoi na podstawie punktów X
-    vor = Voronoi(X)
+    norm = mpl.colors.Normalize(vmin=0, vmax=max(etykiety)+1, clip=True)
+    mapper = mpl.cm.ScalarMappable(norm=norm, cmap=mpl.cm.RdYlGn)
+    
 
-    # Tworzenie wykresu
-    fig, ax = plt.subplots()
-    voronoi_plot_2d(vor, ax=ax, show_vertices=False)
-
-    # Kolorowanie obszarów Voronoi na podstawie przypisanych etykiet
-    if y_true is None:
-        colors = plt.cm.tab10(np.linspace(0, 1, 10))
-    else:
-        unique_labels = np.unique(y_true)
-        colors = plt.cm.tab10(np.linspace(0, 1, len(unique_labels)))  # Kolorowanie według unikalnych etykiet
-
-    for region, label in zip(vor.regions, y_pred):
-        if not -1 in region and label != -1:
-            polygon = [vor.vertices[i] for i in region]
-            ax.fill(*zip(*polygon), color=colors[label % len(colors)], alpha=0.4)
-
-    # Dodanie punktów danych do wykresu
-    ax.plot(X[:, 0], X[:, 1], 'ko', markersize=3)
-
-    # Dodanie legendy dla etykiet prawdziwych (jeśli dostępne)
-    if y_true is not None:
-        unique_labels = np.unique(y_true)
-        for label, color in zip(unique_labels, colors):
-            ax.plot([], [], 'o', label=str(label), markersize=8, color=color)
-
-        ax.legend(title='True Labels')
-
-    # Ustawienie tytułu i etykiet osi
-    ax.set_title('Diagram Voronoi')
-    ax.set_xlabel('X1')
-    ax.set_ylabel('X2')
-
-    return fig
+    voronoi_plot_2d(vor, show_points=True, show_vertices=False, s=1)
+    
+    for r in range(len(regions)):
+        region = regions[r]
+        if not -1 in region:
+            polygon = [vertices[i] for i in region]
+            plt.fill(*zip(*polygon), color=mapper.to_rgba(etykiety[r]))
+            
+    plt.show()
 
 
 def plot_decision_boundary(X, func, y_true=None)-> plt.figure:

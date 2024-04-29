@@ -121,7 +121,7 @@ def voronoi(vor, etykiety, radius=None):
     regions, vertices = voronoi_finite_polygons_2d(vor)
 
 
-    norm = mpl.colors.Normalize(vmax=max(etykiety)+1, clip=True)
+    norm = mpl.colors.Normalize(vmin=0, vmax=max(etykiety)+1, clip=True)
     mapper = mpl.cm.ScalarMappable(norm=norm, cmap=mpl.cm.RdYlGn)
     
 
@@ -140,7 +140,7 @@ def voronoi(vor, etykiety, radius=None):
 
 
 if __name__ == "__main__":
-    choice = True
+    choice = False
     if choice is True:
 
         kluster_KMeans_1_BEST = KMeans(n_clusters=2)
@@ -231,13 +231,13 @@ if __name__ == "__main__":
         etykiety_1_WORST = eps_DBSCAN_1_WORST.labels_
         voronoi(vor_1,etykiety_1_WORST)
 
-        eps_DBSCAN_2_BEST = DBSCAN(eps=0.75, min_samples=1)
+        eps_DBSCAN_2_BEST = DBSCAN(eps=0.36, min_samples=1)
         eps_DBSCAN_2_BEST.fit_predict(temp_X_2)
         vor_2 = Voronoi(temp_X_2)
         etykiety_2_BEST  = eps_DBSCAN_2_BEST.labels_
         voronoi(vor_2,etykiety_2_BEST)
         
-        eps_DBSCAN_2_WORST = DBSCAN(eps=0.5, min_samples=1)
+        eps_DBSCAN_2_WORST = DBSCAN(eps=0.6, min_samples=1)
         eps_DBSCAN_2_WORST.fit_predict(temp_X_2)
         vor_2 = Voronoi(temp_X_2)
         etykiety_2_WORST = eps_DBSCAN_2_WORST.labels_
@@ -271,25 +271,25 @@ if __name__ == "__main__":
         etykiety_21_WORST = eps_DBSCAN_21_WORST.labels_
         voronoi(vor_21,etykiety_21_WORST)
 
-        eps_DBSCAN_22_BEST = DBSCAN(eps=0.2, min_samples=1)
+        eps_DBSCAN_22_BEST = DBSCAN(eps=0.18, min_samples=1)
         eps_DBSCAN_22_BEST.fit_predict(temp_X_22)
         vor_22 = Voronoi(temp_X_22)
         etykiety_22_BEST  = eps_DBSCAN_22_BEST.labels_
         voronoi(vor_22,etykiety_22_BEST)
 
-        eps_DBSCAN_22_WORST = DBSCAN(eps=0.15, min_samples=1)
+        eps_DBSCAN_22_WORST = DBSCAN(eps=0.2, min_samples=1)
         eps_DBSCAN_22_WORST.fit_predict(temp_X_22)
         vor_22 = Voronoi(temp_X_22)
         etykiety_22_WORST = eps_DBSCAN_22_WORST.labels_
         voronoi(vor_22,etykiety_22_WORST)
 
-        eps_DBSCAN_23_BEST = DBSCAN(eps=0.05, min_samples=1)
+        eps_DBSCAN_23_BEST = DBSCAN(eps=0.18, min_samples=1)
         eps_DBSCAN_23_BEST.fit_predict(temp_X_23)
         vor_23 = Voronoi(temp_X_23)
         etykiety_23_BEST  = eps_DBSCAN_23_BEST.labels_
         voronoi(vor_23,etykiety_23_BEST)
 
-        eps_DBSCAN_23_WORST = DBSCAN(eps=0.17, min_samples=1)
+        eps_DBSCAN_23_WORST = DBSCAN(eps=0.15, min_samples=1)
         eps_DBSCAN_23_WORST.fit_predict(temp_X_23)
         vor_23 = Voronoi(temp_X_23)
         etykiety_23_WORST = eps_DBSCAN_23_WORST.labels_

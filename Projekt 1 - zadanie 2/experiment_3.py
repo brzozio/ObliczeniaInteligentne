@@ -241,15 +241,9 @@ def SVM_granica_decyzyjna_accuracy():
 
 
 def MLP_granica_decyzyjna_accuracy():
-    """
-    Wartości parametru C powinny się zmieniać wykładniczo, a na wykresie dobrze jest zastosować skalę logarytmiczną
-    """
     for index in range(2):
         Data = np.genfromtxt(f"C:\\Users\\Michał\\Documents\\STUDIA\\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\Projekt 1 - zadanie 2\\2_{index+2}.csv", delimiter=';')
-        Data_train = Data[0:60,:]
-        Data_test  = Data[260:300,:]
         X_train, X_test, y_train, y_test = train_test_split(Data[:,0:2], Data[:,2], test_size=0.2, train_size=0.2, random_state=42)
-        
         #Zbior testowy
         best_accuracy_test       : float = 0.0
         best_acc_c_test          : int   = 0
@@ -259,23 +253,20 @@ def MLP_granica_decyzyjna_accuracy():
         accuracy_plot_acc_train  = []
         accuracy_plot_c_train    = []
 
-
         for i, hidden_neurons_param in enumerate(hidden_neurons_MLP):
             mlp_classifier = MLP(hidden_layer_sizes=hidden_neurons_param, max_iter=100000, n_iter_no_change=100000, tol=0, solver='sgd', activation='relu')
-            mlp_classifier.fit(X_train, Data_train[:, 2])
+            mlp_classifier.fit(X_train, y_train)
 
         #Wyliczanie accuracy
             #Test
             temp_labels_test = mlp_classifier.predict(X_test)
             accuracy_test = accuracy_score(temp_labels_test, y_test)
-
             accuracy_plot_acc_test.append(accuracy_test)
             accuracy_plot_c_test.append(hidden_neurons_param)
             
             #Train
             temp_labels_train = mlp_classifier.predict(X_train)
             accuracy_train = accuracy_score(temp_labels_train, y_train)
-
             accuracy_plot_acc_train.append(accuracy_train)
             accuracy_plot_c_train.append(hidden_neurons_param)
 

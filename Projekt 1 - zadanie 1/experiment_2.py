@@ -225,7 +225,7 @@ def experiment_2_DBSCAN() -> None:
             self.value = val
 
 
-    list_eps : list[float] = [0.1,0.15,0.2,0.25,0.3,0.5,0.75,1.0,1.25,1.5]
+    list_eps    : list[float] = [0.1,0.15,0.2,0.25,0.3,0.5,0.75,1.0,1.25,1.5]
     list_best_rand_score_score : list[score] = []
     list_worst_rand_score_score : list[score] = []
     list_best_homogenity_score : list[score] = []
@@ -255,8 +255,6 @@ def experiment_2_DBSCAN() -> None:
                         [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]],
                         [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]]
     
-    list_vision_best_clusters : list[int] = [3,4,3,2,3,4]
-    list_vision_worst_clusters : list[int] = [0,1,2,0,1,1]
     
     for index in range(6):
         if True:
@@ -271,10 +269,11 @@ def experiment_2_DBSCAN() -> None:
             labels = Data[index,:,2]
 
             for iter_eps in range(len(list_eps)):
-                #K-Means cluster
+              
                 klaster_KMeans: cluster.DBSCAN = cluster.DBSCAN(eps=list_eps[iter_eps], min_samples=1)
                 klaster_KMeans.fit(points)
                 y_pred[index][iter_eps] = klaster_KMeans.labels_
+                
                 
                 #Rand Score
                 rand_score_kmeans : float = rand_score(np.ravel(labels), np.ravel(y_pred[index][iter_eps]))
