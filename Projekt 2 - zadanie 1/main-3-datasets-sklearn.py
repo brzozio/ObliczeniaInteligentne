@@ -16,12 +16,12 @@ from sklearn.metrics import confusion_matrix
 
 if __name__ == "__main__":
     train: bool   = False
-    num_epochs    = 3000
+    num_epochs    = 100000
     print(torch.version.cuda)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.iris(device)
+    #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.iris(device)
     #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.wine(device)
-    #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.breast_cancer(device)
+    data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.breast_cancer(device)
 
     X_train, X_test, y_train, y_test = train_test_split(data_set.data, data_set.targets, test_size=0.2,  random_state=42)
 
@@ -38,23 +38,18 @@ if __name__ == "__main__":
         model.train()
         model.double()
         for epoch in range(num_epochs):
-            data_loader = DataLoader(data_set, batch_size=10, shuffle=True)
-            for batch in data_loader:
-                data, target = batch['data'].to(device), batch['target'].to(device)
-                #print(f"BATCH DATA  : {batch['data']}")
-                #print(f"BATCH TARGET: {batch['target']}")
-                outputs = model(batch['data'])
-                loss = criteria(outputs, batch['target'])
-                optimizer.zero_grad()   # Zerowanie gradientów, aby uniknąć akumulacji w kolejnych krokach
-                loss.backward()         # Backpropagation: Obliczenie gradientów
-                optimizer.step()        # Aktualizacja wag
-            #print('Epoch [{}/{}], Loss: {:.4f}'.format(epoch+1, num_epochs, loss.item())) 
-            print(f"Epoch [{epoch+1}/{num_epochs}]  Loss: {loss.item():.4f}   - {data_name}")
+            outputs = model(data_set.data)
+            loss = criteria(outputs, data_set.targets)
+            optimizer.zero_grad()   # Zerowanie gradientów, aby uniknąć akumulacji w kolejnych krokach
+            loss.backward()         # Backpropagation: Obliczenie gradientów
+            optimizer.step()        # Aktualizacja wag
+            #print(f"Epoch [{epoch+1}/{num_epochs}]  Loss: {loss.item():.4f}   - {data_name}")
+        print(f"Epoch [{epoch+1}/{num_epochs}]  Loss: {loss.item():.4f}   - {data_name}")
 
         save_model(model.state_dict(), f'model_{data_name}.pth')
     else:
         #Klasyfikowanie danych
-        model = MLP(input_size=features_size, hidden_layer_size=20, classes=class_size)
+        model = MLP(input_size=features_size, hidden_layer_size=hidden_neurons, classes=class_size)
         model.load_state_dict(load_model(f'model_{data_name}.pth'))
         model.eval()
         model.double()
@@ -66,7 +61,7 @@ if __name__ == "__main__":
         print(f"OUTPUS: {outputs}")
         softmax = torch.nn.Softmax(dim=1)
         probabilities = softmax(outputs)
-
+        print(f"PROBS: {probabilities}")
         predicted_classes = torch.argmax(probabilities, dim=1)
 
         print(f'PREDICTED CLASSES: {predicted_classes}')
