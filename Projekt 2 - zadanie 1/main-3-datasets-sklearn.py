@@ -15,13 +15,14 @@ from sklearn.metrics import confusion_matrix
 
 
 if __name__ == "__main__":
-    train: bool   = False
+    train: bool   = True
     num_epochs    = 100000
     print(torch.version.cuda)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.iris(device)
     #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.wine(device)
-    data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.breast_cancer(device)
+    #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.breast_cancer(device)
+    data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_flatten(device, train)
 
     X_train, X_test, y_train, y_test = train_test_split(data_set.data, data_set.targets, test_size=0.2,  random_state=42)
 
@@ -43,7 +44,7 @@ if __name__ == "__main__":
             optimizer.zero_grad()   # Zerowanie gradientów, aby uniknąć akumulacji w kolejnych krokach
             loss.backward()         # Backpropagation: Obliczenie gradientów
             optimizer.step()        # Aktualizacja wag
-            #print(f"Epoch [{epoch+1}/{num_epochs}]  Loss: {loss.item():.4f}   - {data_name}")
+            print(f"Epoch [{epoch+1}/{num_epochs}]  Loss: {loss.item():.4f}   - {data_name}")
         print(f"Epoch [{epoch+1}/{num_epochs}]  Loss: {loss.item():.4f}   - {data_name}")
 
         save_model(model.state_dict(), f'model_{data_name}.pth')

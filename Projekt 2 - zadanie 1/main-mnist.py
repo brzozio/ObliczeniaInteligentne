@@ -15,11 +15,12 @@ from sklearn.metrics import confusion_matrix
 
 
 if __name__ == "__main__":
-    train: bool   = True
-    num_epochs    = 100000
+    train: bool   = False
+    num_epochs    = 1000
     print(torch.version.cuda)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.iris(device)
+    #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_flatten(device, train)
+    data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_PCA(device, train)
 
     X_train, X_test, y_train, y_test = train_test_split(data_set.data, data_set.targets, test_size=0.2,  random_state=42)
 
@@ -35,13 +36,11 @@ if __name__ == "__main__":
         data_set.targets = y_train
         model.train()
         model.double()
-        #data_loader = DataLoader(data_set, batch_size=64, shuffle=True)
+        data_loader = DataLoader(data_set, batch_size=1024, shuffle=True) 
+
         for epoch in range(num_epochs):
-            data_loader = DataLoader(data_set, batch_size=len(X_train), shuffle=True)   
             for batch in data_loader:
                 data, target = batch['data'].to(device), batch['target'].to(device)
-                #print(f"BATCH DATA  : {batch['data']}")
-                #print(f"BATCH TARGET: {batch['target']}")
                 outputs = model(batch['data'])
                 loss = criteria(outputs, batch['target'])
                 optimizer.zero_grad()   # Zerowanie gradientów, aby uniknąć akumulacji w kolejnych krokach

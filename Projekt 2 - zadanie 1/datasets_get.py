@@ -2,6 +2,8 @@ import torch
 from sklearn import datasets
 from torch.utils.data import Dataset
 from sklearn.preprocessing import StandardScaler
+from torchvision import datasets, transforms
+from sklearn.decomposition import PCA
 
 class CustomDataset(Dataset):
     def __init__(self, data, targets, device):
@@ -29,3 +31,36 @@ def breast_cancer(device):
     breast_cancer          = datasets.load_breast_cancer()
     breast_cancer_dataset  = CustomDataset(data=StandardScaler().fit_transform(breast_cancer.data), targets=breast_cancer.target, device=device)
     return breast_cancer_dataset, 30, 2, 'breast_cancer', 15
+
+def mnist_flatten(device, train):
+    transform = transforms.Compose([
+        transforms.ToTensor()
+    ])
+
+    mnist           = datasets.MNIST(root='data', train=train, download=True, transform=transform)
+    flattened_mnist = mnist.data.flatten(start_dim=1)
+    mnists          = CustomDataset(data=StandardScaler().fit_transform(flattened_mnist), targets=mnist.targets, device=device)
+    return mnists, 28*28, 10, 'mnist_flatten', 120
+
+def mnist_extr_PCA(device, train):
+    transform = transforms.Compose([
+        transforms.ToTensor()
+    ])
+
+    mnist           = datasets.MNIST(root='data', train=train, download=True, transform=transform)
+    flattened_mnist = mnist.data.flatten(start_dim=1)
+    #Ekstrakcja na dwie cechy
+    pca = PCA(n_components=2)
+    flattened_mnist_pca = pca.fit_transform(flattened_mnist)
+    mnists              = CustomDataset(data=StandardScaler().fit_transform(flattened_mnist_pca), targets=mnist.targets, device=device)
+    return mnists, 2, 10, 'mnist_2_features_PCA', 120
+
+
+def mnist_extr_2(device, train):
+    pass
+
+def mnist_extr_3(device, train):
+    pass
+
+def mnist_extr_4(device, train):
+    pass
