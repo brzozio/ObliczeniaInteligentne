@@ -36,7 +36,7 @@ def precompute_masks():
             mask[13, position] = ty * mask[10, position]
             mask[14, position] = tx * mask[10, position]
 
-    np.savetxt("masks.csv", mask, delimiter=";")
+    np.savetxt("masks_snake.csv", mask, delimiter=";")
 
 
 def extract_labels(data_point: np.array, masks: np.array) -> np.array:

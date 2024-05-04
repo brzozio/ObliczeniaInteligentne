@@ -5,35 +5,31 @@ from torch import nn
 from torch.utils.data import DataLoader
 from torchvision import datasets
 from torchvision.transforms import ToTensor
-import classes_Model as nn_cls
+import classes_Model as cls
+import matplotlib.pyplot as plt
+import itertools
 
 if __name__ == "__main__":
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    # Download training data from open datasets.
-    training_data = datasets.MNIST(
-        root="data",
-        train=True,
-        download=True,
-        transform=ToTensor(),
-    )
+    """
+    data = cls.DataMnist(batch_size=64)
+    #cls.precompute_masks(data.training_data)
 
-    # Download test data from open datasets.
-    test_data = datasets.MNIST(
-        root="data",
-        train=False,
-        download=True,
-        transform=ToTensor(),
-    )
+    model: cls.LinearModel = cls.LinearModel(dim_data=28*28, dim_target=10, dim_mid_layer=10)
+    """
 
-    batch_size = 64
+    data = np.genfromtxt("masks_snake.csv", delimiter=";")
+    figure = plt.figure(figsize=(28, 28))
+    dejta = np.zeros((28,28))
+    for y in range(28):
+        for x in range(28):
+            dejta[y][x] = data[9][28*y+x]
+    plt.imshow(dejta,cmap='grey')
+    plt.show()
 
-    # Create data loaders.
-    train_dataloader = DataLoader(training_data, batch_size=batch_size)
-    test_dataloader = DataLoader(test_data, batch_size=batch_size)
 
-    #transforms.precompute_masks()
-    model: nn_cls.model_2Lin_ReLU = nn_cls.model_2Lin_ReLU([28*28, 10, 10])
+
 
 
 
