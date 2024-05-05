@@ -93,7 +93,7 @@ if __name__ == "__main__":
         print(f'ACCURACY SCORE FOR {data_name}: {accuracy:.4f}')
 
         #Diagram Voronoi'a oraz granice decyzyjne dla ekstrakcji do 2 cech
-        if data_name is 'mnist_2_features_TSNE' or 'mnist_2_features_PCA': 
+        if data_name is 'mnist_2_features_TSNE' or data_name is 'mnist_2_features_PCA': 
             model.to('cpu')
             #plot_decision_boundary(X=data_set.data.cpu(), func=lambda X: model(X), y_true=data_set.targets.cpu())
             #plot_decision_boundary(X=data_set.data.cpu(), func=lambda X: model(X))
