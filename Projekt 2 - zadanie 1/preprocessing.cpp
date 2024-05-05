@@ -2,47 +2,119 @@
 #include <fstream>
 #include <vector>
 
-
 int main() {
 
-	//	generating masks
+	constexpr int size_target_header = 8;
+	constexpr int size_data_header = 16;
+	constexpr int size_target = 10;
 
-	int masks_i64[10][784] = { 0 };
-	int masks_max[10] = { 0 };
-	float masks_f32[10][784] = { 0.0 };
+	// loading data
 
-	std::ifstream input_data("train-images-idx3-ubyte", std::ios::binary);
-	std::vector<unsigned char> data(std::istreambuf_iterator<char>(input_data), {});
-	input_data.close();
+	std::ifstream input_train_data("train-images-idx3-ubyte", std::ios::binary);
+	if (!input_train_data.is_open()) {
+		std::cout << "unable to open source file";
+		return -1;
+	}
+	std::vector<unsigned char> train_data(std::istreambuf_iterator<char>(input_train_data), {});
+	input_train_data.close();
+	train_data.erase(train_data.begin(), std::next(train_data.begin(), size_data_header));
+
+	std::ifstream input_test_data("t10k-images-idx3-ubyte", std::ios::binary);
+	if (!input_test_data.is_open()) {
+		std::cout << "unable to open source file";
+		return -1;
+	}
+	std::vector<unsigned char> test_data(std::istreambuf_iterator<char>(input_test_data), {});
+	input_test_data.close();
+	test_data.erase(test_data.begin(), std::next(test_data.begin(), size_data_header));
 
 	std::ifstream input_labels("train-labels-idx1-ubyte", std::ios::binary);
-	std::vector<unsigned char> labels(std::istreambuf_iterator<char>(input_data), {});
-	input_data.close();
+	if (!input_labels.is_open()) {
+		std::cout << "unable to open source file";
+		return -1;
+	}
+	std::vector<unsigned char> target(std::istreambuf_iterator<char>(input_labels), {});
+	input_labels.close();
+	target.erase(target.begin(), std::next(target.begin(), size_target_header));
 
-	for (int i = 8; i < 60008; i++) {		// offset by 8 for labels, by 16 for images
-		for (int p = 0; p < 784; p++) {
-			masks_i64[labels[i]][p] += data[8 + p + i * 784];
-			if (masks_max[labels[i]] < masks_i64[labels[i]][p]) {
-				masks_max[labels[i]] = masks_i64[labels[i]][p];
+	int dim_data = train_data.size() / target.size();
+	std::vector<std::vector<int>> masks_int(size_target, std::vector<int>(dim_data));
+	std::vector<std::vector<float>> masks_float(size_target, std::vector<float>(dim_data));
+	int masks_max[size_target] = { 0 };
+
+	// mask generation
+
+	int current_label = 0;
+	int data_iterator = 0;
+	for (int _data_point = 0; _data_point < target.size(); _data_point++) {
+		current_label = target[_data_point];
+		for (int _component = 0; _component < dim_data; _component++) {
+			masks_int[current_label][_component] += train_data[data_iterator];
+			if (masks_max[current_label] < masks_int[current_label][_component]) {
+				masks_max[current_label] = masks_int[current_label][_component];
 			}
+			data_iterator++;
 		}
 	}
 
-	for (int i = 0; i < 10; i++) {
-		for (int p = 0; p < 784; p++) {
-			masks_f32[i][p] = (float)masks_i64[i][p] / (float)masks_max[i];
+	for (int _data_point = 0; _data_point < size_target; _data_point++) {
+		for (int _component = 0; _component < dim_data; _component++) {
+			masks_float[_data_point][_component] =
+				(float)masks_int[_data_point][_component] / (float)masks_max[_data_point];
 		}
 	}
 
-	std::ofstream myfile;
-	myfile.open("masks.txt");
-	for (int d = 0; d < 10; d++) {
-		for (int p = 0; p < 784; p++) {
-			myfile << masks_f32[d][p] << "; ";
+	std::ofstream out_masks;
+	out_masks.open("masks.txt");
+	for (int _mask = 0; _mask < size_target; _mask++) {
+		for (int _component = 0; _component < dim_data; _component++) {
+			out_masks << masks_float[_mask][_component] << "; ";
 		}
-		myfile << "\n";
+		out_masks << "\n";
 	}
-	myfile.close();
+	out_masks.close();
+
+	// data processing
+
+	std::ofstream output_data("mean_digit_convolution_train_data.txt");
+
+	data_iterator = 0;
+	float current_sum = 0.0;
+	for (int _data_point = 0; _data_point < target.size(); _data_point++) {
+		for (int _mask_no = 0; _mask_no < masks_float.size(); _mask_no++) {
+			current_sum = 0;
+			for (int _component = 0; _component < dim_data; _component++) {
+				current_sum += (float)train_data[data_iterator] * masks_float[_mask_no][_component];
+				data_iterator++;
+			}
+			output_data << current_sum << ";";
+			data_iterator -= dim_data;
+		}
+		output_data << "\n";
+		data_iterator += dim_data;
+	}
+
+	output_data.close();
+
+	std::ofstream output_test_data("mean_digit_convolution_test_data.txt");
+
+	data_iterator = 0;
+	current_sum = 0.0;
+	for (int _data_point = 0; _data_point < test_data.size() / dim_data; _data_point++) {
+		for (int _mask_no = 0; _mask_no < masks_float.size(); _mask_no++) {
+			current_sum = 0;
+			for (int _component = 0; _component < dim_data; _component++) {
+				current_sum += (float)test_data[data_iterator] * masks_float[_mask_no][_component];
+				data_iterator++;
+			}
+			output_test_data << current_sum << ";";
+			data_iterator -= dim_data;
+		}
+		output_test_data << "\n";
+		data_iterator += dim_data;
+	}
+
+	output_test_data.close();
 
 	return 0;
 }
