@@ -18,7 +18,7 @@ from scipy.spatial import Voronoi
 
 if __name__ == "__main__":
     train: bool           = False
-    num_epochs            = 2000
+    num_epochs            = 10000
     continue_train: bool = False
     print(torch.version.cuda)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
