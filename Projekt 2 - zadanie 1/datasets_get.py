@@ -22,6 +22,10 @@ class CustomDataset(Dataset):
         sample = {'data': self.data[idx], 'target': self.targets[idx]}
         return sample
 
+transform = transforms.Compose([
+        transforms.ToTensor()
+    ])
+
 
 def iris(device):
     iris          = datasets.load_iris()
@@ -42,10 +46,6 @@ def breast_cancer(device):
 
 
 def mnist_flatten(device, train):
-    transform = transforms.Compose([
-        transforms.ToTensor()
-    ])
-
     mnist           = datasets.MNIST(root='data', train=train, download=True, transform=transform)
     flattened_mnist = mnist.data.flatten(start_dim=1)
     mnists          = CustomDataset(data=StandardScaler().fit_transform(flattened_mnist), targets=mnist.targets, device=device)
@@ -53,10 +53,6 @@ def mnist_flatten(device, train):
 
 
 def mnist_extr_PCA(device, train):
-    transform = transforms.Compose([
-        transforms.ToTensor()
-    ])
-
     mnist           = datasets.MNIST(root='data', train=train, download=True, transform=transform)
     flattened_mnist = mnist.data.flatten(start_dim=1)
     #Ekstrakcja na dwie cechy
@@ -68,9 +64,6 @@ def mnist_extr_PCA(device, train):
 
 
 def mnist_extr_TSNE(device, train, testtrain):
-    transform = transforms.Compose([
-        transforms.ToTensor()
-    ])
     file_path = f'flattened_mnist_tsne_afterTransform_{testtrain}.joblib'
     if os.path.exists(file_path):
         mnist                = datasets.MNIST(root='data', train=train, download=True, transform=transform)
@@ -89,9 +82,6 @@ def mnist_extr_TSNE(device, train, testtrain):
 
 
 def mnist_extr_3(device, train, testtrain):
-    transform = transforms.Compose([
-            transforms.ToTensor()
-        ])
     #Getting data from .txt file
     mnist  = datasets.MNIST(root='data', train=train, download=True, transform=transform)
     data = np.genfromtxt(f"C:\\Users\\Michał\\Documents\\STUDIA\\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\Projekt 2 - zadanie 1\\mean_digit_convolution_{testtrain}_data.txt", delimiter=";")

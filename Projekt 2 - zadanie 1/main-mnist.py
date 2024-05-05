@@ -11,7 +11,9 @@ from torch import save as save_model
 from model import MLP
 from torch.utils.data import DataLoader
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, accuracy_score
+from voronoi import plot_decision_boundary, voronoi
+from scipy.spatial import Voronoi
 
 
 if __name__ == "__main__":
@@ -84,5 +86,12 @@ if __name__ == "__main__":
         plt.xlabel('Predicted labels')
         plt.ylabel('True labels')
         plt.show()
+        accuracy = accuracy_score(predicted_classes_cpu, targets_cpu)
+        print(f'ACCURACY SCORE FOR {data_name}: {accuracy_score:.4f}')
 
-
+        #Diagram Voronoi'a oraz granice decyzyjne dla ekstrakcji do 2 cech
+        if data_name is 'mnist_2_features_TSNE' or 'mnist_2_features_PCA': 
+            model.to('cpu')
+            plot_decision_boundary(X=data_set.data.cpu(), func=model(), y_true=data_set.targets.cpu())
+            vor = Voronoi(data_set.data)
+            voronoi(vor=vor, etykiety=predicted_classes_cpu)
