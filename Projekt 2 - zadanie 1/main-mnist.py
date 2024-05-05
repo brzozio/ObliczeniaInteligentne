@@ -16,7 +16,7 @@ from sklearn.metrics import confusion_matrix
 
 if __name__ == "__main__":
     train: bool   = True
-    num_epochs    = 1000
+    num_epochs    = 5000
     print(torch.version.cuda)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f'DEVICE RUNING: {device}')
