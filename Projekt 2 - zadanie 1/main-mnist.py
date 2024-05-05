@@ -16,13 +16,13 @@ from sklearn.metrics import confusion_matrix
 
 if __name__ == "__main__":
     train: bool   = False
-    num_epochs    = 5
+    num_epochs    = 1000
     print(torch.version.cuda)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f'DEVICE RUNING: {device}')
     #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_flatten(device, train)
     #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_PCA(device, train)
-    #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_TSNE(device, train)
+    #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_TSNE(device, train, 'train' if train is True else 'test')
     data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_3(device, train, 'train' if train is True else 'test')
 
     X_train, X_test, y_train, y_test = train_test_split(data_set.data, data_set.targets, test_size=0.2,  random_state=42)
@@ -46,7 +46,7 @@ if __name__ == "__main__":
                 data, target = batch['data'].to(device), batch['target'].to(device)
                 outputs = model(batch['data'])
                 loss = criteria(outputs, batch['target'])
-                optimizer.zero_grad()   # Zerowanie gradientów, aby uniknąć akumulacji w kolejnych krokach
+                optimizer.zero_grad()   # Zerowanie gradientów, aby git auniknąć akumulacji w kolejnych krokach
                 loss.backward()         # Backpropagation: Obliczenie gradientów
                 optimizer.step()        # Aktualizacja wag
             print(f"Epoch [{epoch+1}/{num_epochs}]  Loss: {loss.item():.4f}   - {data_name}")

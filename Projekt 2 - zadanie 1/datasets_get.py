@@ -67,26 +67,24 @@ def mnist_extr_PCA(device, train):
 
 
 
-def mnist_extr_TSNE(device, train):
-    file_path = 'flattened_mnist_tsne_afterTransform.joblib'
+def mnist_extr_TSNE(device, train, testtrain):
+    transform = transforms.Compose([
+        transforms.ToTensor()
+    ])
+    file_path = f'flattened_mnist_tsne_afterTransform_{testtrain}.joblib'
     if os.path.exists(file_path):
-        transform = transforms.Compose([
-            transforms.ToTensor()
-        ])
-        mnist           = datasets.MNIST(root='data', train=train, download=True, transform=transform)
-        flattened_mnist_tsne = load('flattened_mnist_tsne_afterTransform.joblib') 
+        mnist                = datasets.MNIST(root='data', train=train, download=True, transform=transform)
+        flattened_mnist_tsne = load(f'flattened_mnist_tsne_afterTransform_{testtrain}.joblib') 
         mnists               = CustomDataset(data=StandardScaler().fit_transform(flattened_mnist_tsne), targets=mnist.targets, device=device)
     else:
-        transform = transforms.Compose([
-            transforms.ToTensor()
-        ])
         mnist           = datasets.MNIST(root='data', train=train, download=True, transform=transform)
         flattened_mnist = mnist.data.flatten(start_dim=1)
         #Ekstrakcja na dwie cechy
         tsne = TSNE(n_components=2, random_state=42)
         flattened_mnist_tsne = tsne.fit_transform(flattened_mnist)
-        dump(flattened_mnist_tsne, 'flattened_mnist_tsne_afterTransform.joblib') 
+        dump(flattened_mnist_tsne, f'flattened_mnist_tsne_afterTransform_{testtrain}.joblib') 
         mnists               = CustomDataset(data=StandardScaler().fit_transform(flattened_mnist_tsne), targets=mnist.targets, device=device)
+
     return mnists, 2, 10, 'mnist_2_features_TSNE', 120
 
 
@@ -94,10 +92,15 @@ def mnist_extr_3(device, train, testtrain):
     transform = transforms.Compose([
             transforms.ToTensor()
         ])
-    mnist           = datasets.MNIST(root='data', train=train, download=True, transform=transform)
     #Getting data from .txt file
+    mnist  = datasets.MNIST(root='data', train=train, download=True, transform=transform)
     data = np.genfromtxt(f"C:\\Users\\Michał\\Documents\\STUDIA\\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\Projekt 2 - zadanie 1\\mean_digit_convolution_{testtrain}_data.txt", delimiter=";")
-    mnists               = CustomDataset(data=data, targets=mnist.targets[0:60000], device=device)
+    ##if train is True:
+    #    mnists = CustomDataset(data=data, targets=mnist.targets[0:60000], device=device)
+    #else:
+    #    mnists = CustomDataset(data=data, targets=mnist.targets[0:10000], device=device)
+    mnists = CustomDataset(data=data, targets=mnist.targets, device=device)
+
     #mnists               = CustomDataset(data=StandardScaler().fit_transform(data[0:10000]), targets=mnist.targets[0:10000], device=device)
     return mnists, 10, 10, 'mnist_extr_3', 120
 
