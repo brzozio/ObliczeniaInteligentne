@@ -97,7 +97,7 @@ def mnist_extr_4(device, train, testtrain):
     #Getting data from .txt file
     mnist  = datasets.MNIST(root='data', train=train, download=True, transform=transform)
     data = pd.read_csv(f"C:\\Users\\Michał\\Documents\\STUDIA\\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\extraction_4_{testtrain}.csv", delimiter=",")
-    #print(data)
+    print(data)
     data_numeric = data.apply(pd.to_numeric)
     #print(f"TESTTRAIN: {testtrain}")
     #print(f"MNIST TARGET SIZE: {mnist.targets.size()}")
@@ -106,4 +106,4 @@ def mnist_extr_4(device, train, testtrain):
     else:
         mnists = CustomDataset(data=StandardScaler().fit_transform(data_numeric), targets=mnist.targets[1:10000], device=device)
 
-    return mnists, 2, 10, 'mnist_extr_4', 10
+    return mnists, 6, 10, 'mnist_extr_4', 10
