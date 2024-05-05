@@ -62,6 +62,10 @@ def mnist_extr_PCA(device, train):
 def mnist_extr_TSNE(device, train):
     file_path = 'flattened_mnist_tsne_afterTransform.joblib'
     if os.path.exists(file_path):
+        transform = transforms.Compose([
+            transforms.ToTensor()
+        ])
+        mnist           = datasets.MNIST(root='data', train=train, download=True, transform=transform)
         flattened_mnist_tsne = load('flattened_mnist_tsne_afterTransform.joblib') 
         mnists               = CustomDataset(data=StandardScaler().fit_transform(flattened_mnist_tsne), targets=mnist.targets, device=device)
     else:
