@@ -2,6 +2,44 @@
 #include <fstream>
 #include <vector>
 
+void process_data(std::ofstream* file_output, std::vector<unsigned char>* data,
+	std::vector<std::vector<float>>* masks, std::vector<float>* masks_id_sum,
+	int dim_data, int size_target) {
+
+	int data_iterator = 0;
+	int current_id_sum_int = 0;
+	float current_convolve = 0.0;
+	float current_id_sum_float = 0.0;
+
+	for (int _data_point = 0; _data_point < data->size() / dim_data; _data_point++) {
+
+		current_id_sum_int = 0;
+		for (int _component = 0; _component < dim_data; _component++) {
+			current_id_sum_int += (*data)[data_iterator];
+			data_iterator++;
+		}
+		data_iterator -= dim_data;
+		current_id_sum_float = (float)current_id_sum_int;
+
+		for (int _mask = 0; _mask < size_target - 1; _mask++) {
+			current_convolve = 0.0;
+			for (int _component = 0; _component < dim_data; _component++) {
+				current_convolve += (float)(*data)[data_iterator] * (*masks)[_mask][_component];
+				data_iterator++;
+			}
+			*file_output << current_convolve / current_id_sum_float / (*masks_id_sum)[_mask] << ";";
+			data_iterator -= dim_data;
+		}
+
+		current_convolve = 0.0;
+		for (int _component = 0; _component < dim_data; _component++) {
+			current_convolve += (float)(*data)[data_iterator] * (*masks)[size_target - 1][_component];
+			data_iterator++;
+		}
+		*file_output << current_convolve / current_id_sum_float / (*masks_id_sum)[size_target - 1] << "\n";
+	}
+}
+
 int main() {
 
 	constexpr int size_target_header = 8;
@@ -38,9 +76,7 @@ int main() {
 	target.erase(target.begin(), std::next(target.begin(), size_target_header));
 
 	int dim_data = train_data.size() / target.size();
-	std::vector<std::vector<int>> masks_int(size_target, std::vector<int>(dim_data));
-	std::vector<std::vector<float>> masks_float(size_target, std::vector<float>(dim_data));
-	int masks_max[size_target] = { 0 };
+	std::vector<std::vector<float>> masks(size_target, std::vector<float>(dim_data));
 
 	// mask generation
 
@@ -49,26 +85,19 @@ int main() {
 	for (int _data_point = 0; _data_point < target.size(); _data_point++) {
 		current_label = target[_data_point];
 		for (int _component = 0; _component < dim_data; _component++) {
-			masks_int[current_label][_component] += train_data[data_iterator];
-			if (masks_max[current_label] < masks_int[current_label][_component]) {
-				masks_max[current_label] = masks_int[current_label][_component];
-			}
+			masks[current_label][_component] += (float)train_data[data_iterator];
 			data_iterator++;
 		}
 	}
 
-	for (int _data_point = 0; _data_point < size_target; _data_point++) {
-		for (int _component = 0; _component < dim_data; _component++) {
-			masks_float[_data_point][_component] =
-				(float)masks_int[_data_point][_component] / (float)masks_max[_data_point];
-		}
-	}
-
+	std::vector<float> masks_id_sum(size_target, 0.0);
 	std::ofstream out_masks;
 	out_masks.open("masks.txt");
+
 	for (int _mask = 0; _mask < size_target; _mask++) {
 		for (int _component = 0; _component < dim_data; _component++) {
-			out_masks << masks_float[_mask][_component] << "; ";
+			out_masks << masks[_mask][_component] << ";";
+			masks_id_sum[_mask] += masks[_mask][_component];
 		}
 		out_masks << "\n";
 	}
@@ -77,74 +106,11 @@ int main() {
 	// data processing
 
 	std::ofstream output_train_data("mean_digit_convolution_train_data.txt");
-
-	data_iterator = 0;
-	int current_id_sum_int = 0;
-	float current_convolve = 0.0;
-	float current_id_sum_float = 0.0;
-
-	for (int _data_point = 0; _data_point < train_data.size() / dim_data; _data_point++) {
-
-		current_id_sum_int = 0;
-		for (int _component = 0; _component < dim_data; _component++) {
-			current_id_sum_int += train_data[data_iterator];
-			data_iterator++;
-		}
-		data_iterator -= dim_data;
-		current_id_sum_float = (float)current_id_sum_int;
-
-		for (int _mask_no = 0; _mask_no < masks_float.size() - 1; _mask_no++) {
-			current_convolve = 0.0;
-			for (int _component = 0; _component < dim_data; _component++) {
-				current_convolve += (float)train_data[data_iterator] * masks_float[_mask_no][_component];
-				data_iterator++;
-			}
-			output_train_data << current_convolve / current_id_sum_float << ";";
-			data_iterator -= dim_data;
-		}
-
-		current_convolve = 0.0;
-		for (int _component = 0; _component < dim_data; _component++) {
-			current_convolve += (float)train_data[data_iterator] * masks_float[masks_float.size() - 1][_component];
-			data_iterator++;
-		}
-		output_train_data << current_convolve / current_id_sum_float << "\n";
-	}
-
+	process_data(&output_train_data, &train_data, &masks, &masks_id_sum, dim_data, size_target);
 	output_train_data.close();
 
 	std::ofstream output_test_data("mean_digit_convolution_test_data.txt");
-
-	data_iterator = 0;
-	current_id_sum_float = 0.0;
-	for (int _data_point = 0; _data_point < test_data.size() / dim_data; _data_point++) {
-
-		current_id_sum_int = 0;
-		for (int _component = 0; _component < dim_data; _component++) {
-			current_id_sum_int += test_data[data_iterator];
-			data_iterator++;
-		}
-		data_iterator -= dim_data;
-		current_id_sum_float = (float)current_id_sum_int;
-
-		for (int _mask_no = 0; _mask_no < masks_float.size() - 1; _mask_no++) {
-			current_convolve = 0.0;
-			for (int _component = 0; _component < dim_data; _component++) {
-				current_convolve += (float)test_data[data_iterator] * masks_float[_mask_no][_component];
-				data_iterator++;
-			}
-			output_test_data << current_convolve / current_id_sum_float << ";";
-			data_iterator -= dim_data;
-		}
-
-		current_convolve = 0.0;
-		for (int _component = 0; _component < dim_data; _component++) {
-			current_convolve += (float)test_data[data_iterator] * masks_float[masks_float.size() - 1][_component];
-			data_iterator++;
-		}
-		output_test_data << current_convolve / current_id_sum_float << "\n";
-	}
-
+	process_data(&output_test_data, &test_data, &masks, &masks_id_sum, dim_data, size_target);
 	output_test_data.close();
 
 	return 0;
