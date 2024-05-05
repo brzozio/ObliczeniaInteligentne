@@ -15,8 +15,9 @@ from sklearn.metrics import confusion_matrix
 
 
 if __name__ == "__main__":
-    train: bool   = False
-    num_epochs    = 1000
+    train: bool           = True
+    num_epochs            = 10_000
+    continue_train: bool = False
     print(torch.version.cuda)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f'DEVICE RUNING: {device}')
@@ -27,10 +28,13 @@ if __name__ == "__main__":
 
     X_train, X_test, y_train, y_test = train_test_split(data_set.data, data_set.targets, test_size=0.2,  random_state=42)
 
+
     model = MLP(input_size=features_size, hidden_layer_size=hidden_neurons, classes=class_size) #input size to ilosc cech
     criteria = nn.CrossEntropyLoss()
     optimizer = optim.SGD(model.parameters(), lr=0.01)
-
+    if continue_train is True:
+        model.load_state_dict(load_model(f'model_{data_name}.pth'))
+        
     model.to(device)
 
     if train is True:
@@ -50,8 +54,9 @@ if __name__ == "__main__":
                 loss.backward()         # Backpropagation: Obliczenie gradientów
                 optimizer.step()        # Aktualizacja wag
             print(f"Epoch [{epoch+1}/{num_epochs}]  Loss: {loss.item():.4f}   - {data_name}")
+            if epoch % 1000 == 0: save_model(model.state_dict(), f'model_{data_name}.pth') #Zapisz model co 1_000 epok
 
-        save_model(model.state_dict(), f'model_{data_name}.pth')
+        save_model(model.state_dict(), f'model_{data_name}.pth') #Zapisz model na koniec trenignu - koniec epok
     else:
         #Klasyfikowanie danych
         model = MLP(input_size=features_size, hidden_layer_size=hidden_neurons, classes=class_size)

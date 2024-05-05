@@ -95,14 +95,10 @@ def mnist_extr_3(device, train, testtrain):
     #Getting data from .txt file
     mnist  = datasets.MNIST(root='data', train=train, download=True, transform=transform)
     data = np.genfromtxt(f"C:\\Users\\Michał\\Documents\\STUDIA\\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\Projekt 2 - zadanie 1\\mean_digit_convolution_{testtrain}_data.txt", delimiter=";")
-    ##if train is True:
-    #    mnists = CustomDataset(data=data, targets=mnist.targets[0:60000], device=device)
-    #else:
-    #    mnists = CustomDataset(data=data, targets=mnist.targets[0:10000], device=device)
-    mnists = CustomDataset(data=data, targets=mnist.targets, device=device)
-
-    #mnists               = CustomDataset(data=StandardScaler().fit_transform(data[0:10000]), targets=mnist.targets[0:10000], device=device)
-    return mnists, 10, 10, 'mnist_extr_3', 120
+    print(f"TESTTRAIN: {testtrain}")
+    print(f"MNIST TARGET SIZE: {mnist.targets.size()}")
+    mnists = CustomDataset(data=StandardScaler().fit_transform(data), targets=mnist.targets, device=device)
+    return mnists, 10, 10, 'mnist_extr_3', 10
 
 
 def mnist_extr_4(device, train):
