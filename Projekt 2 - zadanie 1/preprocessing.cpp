@@ -82,6 +82,7 @@ int main() {
 	int current_id_sum_int = 0;
 	float current_convolve = 0.0;
 	float current_id_sum_float = 0.0;
+
 	for (int _data_point = 0; _data_point < train_data.size() / dim_data; _data_point++) {
 
 		current_id_sum_int = 0;
@@ -92,7 +93,7 @@ int main() {
 		data_iterator -= dim_data;
 		current_id_sum_float = (float)current_id_sum_int;
 
-		for (int _mask_no = 0; _mask_no < masks_float.size(); _mask_no++) {
+		for (int _mask_no = 0; _mask_no < masks_float.size() - 1; _mask_no++) {
 			current_convolve = 0.0;
 			for (int _component = 0; _component < dim_data; _component++) {
 				current_convolve += (float)train_data[data_iterator] * masks_float[_mask_no][_component];
@@ -101,8 +102,13 @@ int main() {
 			output_train_data << current_convolve / current_id_sum_float << ";";
 			data_iterator -= dim_data;
 		}
-		output_train_data << "\n";
-		data_iterator += dim_data;
+
+		current_convolve = 0.0;
+		for (int _component = 0; _component < dim_data; _component++) {
+			current_convolve += (float)train_data[data_iterator] * masks_float[masks_float.size() - 1][_component];
+			data_iterator++;
+		}
+		output_train_data << current_convolve / current_id_sum_float << "\n";
 	}
 
 	output_train_data.close();
@@ -121,7 +127,7 @@ int main() {
 		data_iterator -= dim_data;
 		current_id_sum_float = (float)current_id_sum_int;
 
-		for (int _mask_no = 0; _mask_no < masks_float.size(); _mask_no++) {
+		for (int _mask_no = 0; _mask_no < masks_float.size() - 1; _mask_no++) {
 			current_convolve = 0.0;
 			for (int _component = 0; _component < dim_data; _component++) {
 				current_convolve += (float)test_data[data_iterator] * masks_float[_mask_no][_component];
@@ -130,8 +136,13 @@ int main() {
 			output_test_data << current_convolve / current_id_sum_float << ";";
 			data_iterator -= dim_data;
 		}
-		output_test_data << "\n";
-		data_iterator += dim_data;
+
+		current_convolve = 0.0;
+		for (int _component = 0; _component < dim_data; _component++) {
+			current_convolve += (float)test_data[data_iterator] * masks_float[masks_float.size() - 1][_component];
+			data_iterator++;
+		}
+		output_test_data << current_convolve / current_id_sum_float << "\n";
 	}
 
 	output_test_data.close();
