@@ -25,8 +25,9 @@ if __name__ == "__main__":
     print(f'DEVICE RUNING: {device}')
     #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_flatten(device, train)
     #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_PCA(device, train)
-    data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_TSNE(device, train, 'train' if train is True else 'test')
-    #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_3(device, train, 'train' if train is True else 'test')
+    #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_TSNE(device, train, 'train' if train is True else 'test')
+    data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_3(device, train, 'train' if train is True else 'test')
+    #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_4(device, train, 'train' if train is True else 'test')
 
     X_train, X_test, y_train, y_test = train_test_split(data_set.data, data_set.targets, test_size=0.2,  random_state=42)
 
@@ -56,7 +57,9 @@ if __name__ == "__main__":
                 loss.backward()         # Backpropagation: Obliczenie gradientów
                 optimizer.step()        # Aktualizacja wag
             print(f"Epoch [{epoch+1}/{num_epochs}]  Loss: {loss.item():.4f}   - {data_name}")
-            if epoch % 1000 == 0: save_model(model.state_dict(), f'model_{data_name}.pth') #Zapisz model co 1_000 epok
+            if epoch % 200 == 0: 
+                save_model(model.state_dict(), f'model_{data_name}.pth') #Zapisz model co 1_000 epok
+                print(f"SAVED MODEL: model_{data_name}.pth at epoch [{epoch}]")
 
         save_model(model.state_dict(), f'model_{data_name}.pth') #Zapisz model na koniec trenignu - koniec epok
     else:
@@ -85,7 +88,7 @@ if __name__ == "__main__":
         sb.heatmap(confusion_matrix(targets_cpu,predicted_classes_cpu), annot=True, cmap='Blues', fmt='g')
         plt.xlabel('Predicted labels')
         plt.ylabel('True labels')
-        #plt.show()
+        plt.show()
         accuracy = accuracy_score(predicted_classes_cpu, targets_cpu)
         print(f'ACCURACY SCORE FOR {data_name}: {accuracy:.4f}')
 
