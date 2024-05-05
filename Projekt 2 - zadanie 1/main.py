@@ -18,7 +18,7 @@ if __name__ == "__main__":
     model: cls.LinearModel = cls.LinearModel(dim_data=28*28, dim_target=10, dim_mid_layer=10)
     """
 
-    data = np.genfromtxt("masks_snake.csv", delimiter=";")
+    data = np.genfromtxt("masks.txt", delimiter=";")
     figure = plt.figure(figsize=(28, 28))
     dejta = np.zeros((28,28))
     for y in range(28):

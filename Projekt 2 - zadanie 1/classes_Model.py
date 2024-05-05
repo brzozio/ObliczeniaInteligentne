@@ -5,6 +5,7 @@ from torchvision import datasets
 from torchvision.transforms import ToTensor
 from datetime import datetime
 
+
 class LinearModel(torch.nn.Module):
 
     def __init__(self, dim_data: int, dim_target: int, dim_mid_layer: int) -> None:
