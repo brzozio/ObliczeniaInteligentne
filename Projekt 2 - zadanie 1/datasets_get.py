@@ -1,5 +1,6 @@
 import os
 import torch 
+import numpy as np
 from sklearn import datasets
 from torch.utils.data import Dataset
 from sklearn.preprocessing import StandardScaler
@@ -89,8 +90,16 @@ def mnist_extr_TSNE(device, train):
     return mnists, 2, 10, 'mnist_2_features_TSNE', 120
 
 
-def mnist_extr_3(device, train):
-    pass
+def mnist_extr_3(device, train, testtrain):
+    transform = transforms.Compose([
+            transforms.ToTensor()
+        ])
+    mnist           = datasets.MNIST(root='data', train=train, download=True, transform=transform)
+    #Getting data from .txt file
+    data = np.genfromtxt(f"C:\\Users\\Michał\\Documents\\STUDIA\\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\Projekt 2 - zadanie 1\\mean_digit_convolution_{testtrain}_data.txt", delimiter=";")
+    mnists               = CustomDataset(data=data, targets=mnist.targets[0:60000], device=device)
+    #mnists               = CustomDataset(data=StandardScaler().fit_transform(data[0:10000]), targets=mnist.targets[0:10000], device=device)
+    return mnists, 10, 10, 'mnist_extr_3', 120
 
 
 def mnist_extr_4(device, train):
