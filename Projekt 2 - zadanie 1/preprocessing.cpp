@@ -2,7 +2,7 @@
 #include <fstream>
 #include <vector>
 
-std::vector<std::vector<float>> get_std_distr(std::vector<std::vector<float>>* data) {
+static std::vector<std::vector<float>> get_std_distr(std::vector<std::vector<float>>* data) {
 
 	std::vector<std::vector<float>> mean_dev((*data)[0].size(), std::vector<float>(2));
 
@@ -26,7 +26,7 @@ std::vector<std::vector<float>> get_std_distr(std::vector<std::vector<float>>* d
 	return mean_dev;
 }
 
-void write_standardized_data(std::ofstream* output_file, std::vector<std::vector<float>>* processed_data,
+static void write_standardized_data(std::ofstream* output_file, std::vector<std::vector<float>>* processed_data,
 	std::vector<std::vector<float>>* std_distr) {
 
 	for (int _data_point = 0; _data_point < (*processed_data).size(); _data_point++) {
@@ -39,7 +39,7 @@ void write_standardized_data(std::ofstream* output_file, std::vector<std::vector
 	}
 }
 
-std::vector<std::vector<float>> process_data(std::ofstream* output_file,
+static std::vector<std::vector<float>> standard_mask_processing(std::ofstream* output_file,
 	std::vector<unsigned char>* data, std::vector<std::vector<float>>* masks,
 	std::vector<float>* masks_id_sum, int dim_data, bool is_training,
 	std::vector<std::vector<float>>* in_std_distr) {
@@ -79,6 +79,51 @@ std::vector<std::vector<float>> process_data(std::ofstream* output_file,
 	}
 
 	write_standardized_data(output_file, &processed_data, in_std_distr);
+	return (*in_std_distr);
+}
+
+static std::vector<std::vector<float>> standard_differential_processing(std::ofstream* output_file,
+	std::vector<unsigned char>* data, int dim_data, bool is_training,
+	std::vector<std::vector<float>>* in_std_distr) {
+
+	std::vector<std::vector<float>> differential_data((*data).size() / dim_data / dim_data,
+		std::vector<float>(dim_data*2));
+
+	int scaled_y;
+
+	for (int _data_point = 0; _data_point < differential_data.size(); _data_point++) {
+		scaled_y = _data_point * dim_data * dim_data;
+		for (int _y_component = 0; _y_component < dim_data; _y_component++) {
+			for (int _x_component = 0; _x_component < dim_data - 1; _x_component++) {
+				if (((*data)[scaled_y + _x_component + 1] == 0) xor
+					((*data)[scaled_y + _x_component] == 0)) {
+					differential_data[_data_point][_y_component + dim_data]++;
+				}
+			}
+			scaled_y += dim_data;
+		}
+	}
+
+	for (int _data_point = 0; _data_point < differential_data.size(); _data_point++) {
+		for (int _x_component = 0; _x_component < dim_data; _x_component++) {
+			scaled_y = _data_point * dim_data * dim_data;
+			for (int _y_component = 0; _y_component < dim_data - 1; _y_component++) {
+				if (((*data)[scaled_y + _x_component + dim_data] == 0) xor
+					((*data)[scaled_y + _x_component] == 0)) {
+					differential_data[_data_point][_x_component]++;
+				}
+				scaled_y += dim_data;
+			}
+		}
+	}
+
+	if (is_training) {
+		std::vector<std::vector<float>> std_distr = get_std_distr(&differential_data);
+		write_standardized_data(output_file, &differential_data, &std_distr);
+		return std_distr;
+	}
+
+	write_standardized_data(output_file, &differential_data, in_std_distr);
 	return (*in_std_distr);
 }
 
@@ -133,28 +178,32 @@ int main() {
 	}
 
 	std::vector<float> masks_id_sum(size_target, 0.0);
-	//std::ofstream out_masks;
-	//out_masks.open("masks.txt");
 
 	for (int _mask = 0; _mask < size_target; _mask++) {
 		for (int _component = 0; _component < dim_data; _component++) {
-			//out_masks << masks[_mask][_component] << ";";
 			masks_id_sum[_mask] += masks[_mask][_component];
 		}
-		//out_masks << "\n";
 	}
-	//out_masks.close();
 
 	// data processing
 
-	std::ofstream output_train_data("mean_digit_convolution_train_data.txt");
-	std::vector<std::vector<float>> train_std_distr;
-	train_std_distr = process_data(&output_train_data, &train_data, &masks, &masks_id_sum, dim_data, true, {});
-	output_train_data.close();
+	std::ofstream output_diff_train_data("differential_train_data.txt");
+	std::vector<std::vector<float>> diff_train_std_distr;
+	diff_train_std_distr = standard_differential_processing(&output_diff_train_data, &train_data, 28, true, {});
+	output_diff_train_data.close();
 
-	std::ofstream output_test_data("mean_digit_convolution_test_data.txt");
-	process_data(&output_test_data, &test_data, &masks, &masks_id_sum, dim_data, false, &train_std_distr);
-	output_test_data.close();
+	std::ofstream output_diff_test_data("differential_test_data.txt");
+	standard_differential_processing(&output_diff_test_data, &test_data, 28, false, &diff_train_std_distr);
+	output_diff_test_data.close();
+
+	std::ofstream output_mask_train_data("mean_digit_convolution_train_data.txt");
+	std::vector<std::vector<float>> mask_train_std_distr;
+	mask_train_std_distr = standard_mask_processing(&output_mask_train_data, &train_data, &masks, &masks_id_sum, dim_data, true, {});
+	output_mask_train_data.close();
+
+	std::ofstream output_mask_test_data("mean_digit_convolution_test_data.txt");
+	standard_mask_processing(&output_mask_test_data, &test_data, &masks, &masks_id_sum, dim_data, false, &mask_train_std_distr);
+	output_mask_test_data.close();
 
 	return 0;
 }
