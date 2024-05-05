@@ -72,12 +72,9 @@ def mnist_extr_TSNE(device, train):
         flattened_mnist = mnist.data.flatten(start_dim=1)
         #Ekstrakcja na dwie cechy
         tsne = TSNE(n_components=2, random_state=42)
-        print('test1')
         flattened_mnist_tsne = tsne.fit_transform(flattened_mnist)
         dump(flattened_mnist_tsne, 'flattened_mnist_tsne_afterTransform.joblib') 
-        print('test2')
         mnists               = CustomDataset(data=StandardScaler().fit_transform(flattened_mnist_tsne), targets=mnist.targets, device=device)
-        print('test3')
     return mnists, 2, 10, 'mnist_2_features_TSNE', 120
 
 def mnist_extr_3(device, train):
