@@ -1,9 +1,12 @@
+import os
 import torch 
 from sklearn import datasets
 from torch.utils.data import Dataset
 from sklearn.preprocessing import StandardScaler
 from torchvision import datasets, transforms
 from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+from joblib import dump, load
 
 class CustomDataset(Dataset):
     def __init__(self, data, targets, device):
@@ -56,8 +59,26 @@ def mnist_extr_PCA(device, train):
     return mnists, 2, 10, 'mnist_2_features_PCA', 120
 
 
-def mnist_extr_2(device, train):
-    pass
+def mnist_extr_TSNE(device, train):
+    file_path = 'flattened_mnist_tsne_afterTransform.joblib'
+    if os.path.exists(file_path):
+        flattened_mnist_tsne = load('flattened_mnist_tsne_afterTransform.joblib') 
+        mnists               = CustomDataset(data=StandardScaler().fit_transform(flattened_mnist_tsne), targets=mnist.targets, device=device)
+    else:
+        transform = transforms.Compose([
+            transforms.ToTensor()
+        ])
+        mnist           = datasets.MNIST(root='data', train=train, download=True, transform=transform)
+        flattened_mnist = mnist.data.flatten(start_dim=1)
+        #Ekstrakcja na dwie cechy
+        tsne = TSNE(n_components=2, random_state=42)
+        print('test1')
+        flattened_mnist_tsne = tsne.fit_transform(flattened_mnist)
+        dump(flattened_mnist_tsne, 'flattened_mnist_tsne_afterTransform.joblib') 
+        print('test2')
+        mnists               = CustomDataset(data=StandardScaler().fit_transform(flattened_mnist_tsne), targets=mnist.targets, device=device)
+        print('test3')
+    return mnists, 2, 10, 'mnist_2_features_TSNE', 120
 
 def mnist_extr_3(device, train):
     pass
