@@ -1,6 +1,7 @@
 import os
 import torch 
 import numpy as np
+import pandas as pd
 from sklearn import datasets
 from torch.utils.data import Dataset
 from sklearn.preprocessing import StandardScaler
@@ -88,9 +89,21 @@ def mnist_extr_3(device, train, testtrain):
     print(f"TESTTRAIN: {testtrain}")
     print(f"MNIST TARGET SIZE: {mnist.targets.size()}")
     #mnists = CustomDataset(data=data, targets=mnist.targets, device=device)
-    mnists = CustomDataset(data=StandardScaler().fit_transform(data), targets=mnist.targets, device=device)
+    mnists = CustomDataset(data=data, targets=mnist.targets, device=device)
     return mnists, 10, 10, 'mnist_extr_3', 10
 
 
-def mnist_extr_4(device, train):
-    pass
+def mnist_extr_4(device, train, testtrain):
+    #Getting data from .txt file
+    mnist  = datasets.MNIST(root='data', train=train, download=True, transform=transform)
+    data = pd.read_csv(f"C:\\Users\\Michał\\Documents\\STUDIA\\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\extraction_4_{testtrain}.csv", delimiter=",")
+    #print(data)
+    data_numeric = data.apply(pd.to_numeric)
+    #print(f"TESTTRAIN: {testtrain}")
+    #print(f"MNIST TARGET SIZE: {mnist.targets.size()}")
+    if train is True:
+        mnists = CustomDataset(data=StandardScaler().fit_transform(data_numeric), targets=mnist.targets[1:60000], device=device)
+    else:
+        mnists = CustomDataset(data=StandardScaler().fit_transform(data_numeric), targets=mnist.targets[1:10000], device=device)
+
+    return mnists, 2, 10, 'mnist_extr_4', 10
