@@ -96,14 +96,13 @@ def mnist_extr_3(device, train, testtrain):
 def mnist_extr_4(device, train, testtrain):
     #Getting data from .txt file
     mnist  = datasets.MNIST(root='data', train=train, download=True, transform=transform)
-    data = pd.read_csv(f"C:\\Users\\Michał\\Documents\\STUDIA\\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\extraction_4_{testtrain}.csv", delimiter=",")
-    print(data)
-    data_numeric = data.apply(pd.to_numeric)
-    #print(f"TESTTRAIN: {testtrain}")
-    #print(f"MNIST TARGET SIZE: {mnist.targets.size()}")
-    if train is True:
-        mnists = CustomDataset(data=StandardScaler().fit_transform(data_numeric), targets=mnist.targets[1:60000], device=device)
-    else:
-        mnists = CustomDataset(data=StandardScaler().fit_transform(data_numeric), targets=mnist.targets[1:10000], device=device)
+    data = np.genfromtxt(f"C:\\Users\\Michał\\Documents\\STUDIA\\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\Projekt 2 - zadanie 1\\differential_{testtrain}_data.txt", delimiter=";")
+    mnists = CustomDataset(data=data, targets=mnist.targets, device=device)
+    return mnists, 56, 10, 'mnist_extr_4', 10
 
-    return mnists, 6, 10, 'mnist_extr_4', 10
+def mnist_extr_5(device, train, testtrain):
+    #Getting data from .txt file
+    mnist  = datasets.MNIST(root='data', train=train, download=True, transform=transform)
+    data = np.genfromtxt(f"C:\\Users\\Michał\\Documents\\STUDIA\\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\extraction_5_{testtrain}.txt", delimiter=" ")
+    mnists = CustomDataset(data=data, targets=mnist.targets[0:3000], device=device)
+    return mnists, 32, 10, 'mnist_extr_5', 16
