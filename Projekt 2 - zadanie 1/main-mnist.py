@@ -17,7 +17,7 @@ from scipy.spatial import Voronoi
 
 
 if __name__ == "__main__":
-    train: bool           = False
+    train: bool           = True
     num_epochs            = 10_000
     continue_train: bool = True
     print(torch.version.cuda)
@@ -26,26 +26,22 @@ if __name__ == "__main__":
     #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_flatten(device, train)
     #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_PCA(device, train)
     #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_TSNE(device, train, 'train' if train is True else 'test')
-    #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_3(device,  train, 'train' if train is True else 'test')
-    data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_4(device, train, 'train' if train is True else 'test')
+    data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_3(device,  train, 'train' if train is True else 'test')
+    #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_4(device, train, 'train' if train is True else 'test')
     
-    #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_5(device, train, 'train' if train is True else 'test')
-
-    X_train, X_test, y_train, y_test = train_test_split(data_set.data, data_set.targets, test_size=0.2,  random_state=42)
+    ##data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_5(device, train, 'train' if train is True else 'test')
 
 
     model = MLP(input_size=features_size, hidden_layer_size=hidden_neurons, classes=class_size) #input size to ilosc cech
     criteria = nn.CrossEntropyLoss()
     optimizer = optim.SGD(model.parameters(), lr=0.01)
+
     if continue_train is True:
         model.load_state_dict(load_model(f'model_{data_name}.pth'))
         
     model.to(device)
 
     if train is True:
-        #Trenowanie modelu
-        data_set.data    = X_train
-        data_set.targets = y_train
         model.train()
         model.double()
         data_loader = DataLoader(data_set, batch_size=1024, shuffle=True) 
@@ -58,23 +54,20 @@ if __name__ == "__main__":
                 optimizer.zero_grad()   # Zerowanie gradientów, aby git auniknąć akumulacji w kolejnych krokach
                 loss.backward()         # Backpropagation: Obliczenie gradientów
                 optimizer.step()        # Aktualizacja wag
-            print(f"Epoch [{epoch+1}/{num_epochs}]  Loss: {loss.item():.4f}   - {data_name}")
-            if epoch % 200 == 0: 
+            print(f"Epoch [{epoch+1}/{num_epochs}]  Loss: {loss.item():.5f}   - {data_name}")
+            if epoch % 100 == 0: 
                 save_model(model.state_dict(), f'model_{data_name}.pth') #Zapisz model co 1_000 epok
                 print(f"SAVED MODEL: model_{data_name}.pth at epoch [{epoch}]")
 
         save_model(model.state_dict(), f'model_{data_name}.pth') #Zapisz model na koniec trenignu - koniec epok
     else:
-        #Klasyfikowanie danych
         model = MLP(input_size=features_size, hidden_layer_size=hidden_neurons, classes=class_size)
         model.load_state_dict(load_model(f'model_{data_name}.pth'))
         model.eval()
         model.double()
         model.to(device)
-        data_set.data    = X_test 
-        data_set.targets = y_test
 
-        outputs = model(X_test)
+        outputs = model(data_set.data)
         print(f"OUTPUS: {outputs}")
         softmax = torch.nn.Softmax(dim=1)
         probabilities = softmax(outputs)
@@ -98,6 +91,6 @@ if __name__ == "__main__":
         if data_name is 'mnist_2_features_TSNE' or data_name is 'mnist_2_features_PCA': 
             model.to('cpu')
             #plot_decision_boundary(X=data_set.data.cpu(), func=lambda X: model(X), y_true=data_set.targets.cpu())
-            #plot_decision_boundary(X=data_set.data.cpu(), func=lambda X: model(X))
+            plot_decision_boundary(X=data_set.data.cpu(), func=lambda X: model(X))
             vor = Voronoi(data_set.data.cpu())
             voronoi(vor=vor, etykiety=predicted_classes_cpu)
