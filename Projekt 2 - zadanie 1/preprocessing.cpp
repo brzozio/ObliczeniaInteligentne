@@ -195,7 +195,11 @@ int main() {
 	// data processing
 
 	std::ofstream output_diff_train_data("differential_train_data.txt");
-	std::vector<std::vector<float>> diff_train_std_distr;
+	std::vector<std::vector<float>> diff_train_std_distr(56, std::vector<float>(2, 1.0));
+	/*for (int i = 0; i < 56; i++) {
+		diff_train_std_distr[i][0] = 0.0;
+	}
+	standard_differential_processing(&output_diff_train_data, &train_data, 28, false, &diff_train_std_distr); */
 	diff_train_std_distr = standard_differential_processing(&output_diff_train_data, &train_data, 28, true, {});
 	output_diff_train_data.close();
 
@@ -205,6 +209,7 @@ int main() {
 
 	std::vector<std::vector<float>> digit_masks(size_target, std::vector<float>(dim_data));
 	digit_masks = gen_digit_masks(&train_data, &target, dim_data, size_target);
+
 
 	std::ofstream output_mask_train_data("mean_digit_convolution_train_data.txt");
 	std::vector<std::vector<float>> mask_train_std_distr;
