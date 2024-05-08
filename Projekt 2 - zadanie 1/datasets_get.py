@@ -83,7 +83,7 @@ def mnist_extr_TSNE(device, train, testtrain):
     return mnists, 2, 10, 'mnist_2_features_TSNE', 10
 
 
-def mnist_extr_3(device, train, testtrain):
+def mnist_extr_3(device, train, testtrain): #Conv
     #Getting data from .txt file
     mnist  = datasets.MNIST(root='data', train=train, download=True, transform=transform)
     data = np.genfromtxt(f"C:\\Users\\Michał\\Documents\\STUDIA\\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\Projekt 2 - zadanie 1\\mean_digit_convolution_{testtrain}_data.txt", delimiter=";")
@@ -94,7 +94,7 @@ def mnist_extr_3(device, train, testtrain):
     return mnists, 10, 10, 'mnist_extr_3', 10
 
 
-def mnist_extr_4(device, train, testtrain):
+def mnist_extr_4(device, train, testtrain): #Diff
     #Getting data from .txt file
     mnist  = datasets.MNIST(root='data', train=train, download=True, transform=transform)
     data = np.genfromtxt(f"C:\\Users\\Michał\\Documents\\STUDIA\\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\Projekt 2 - zadanie 1\\differential_{testtrain}_data.txt", delimiter=";")

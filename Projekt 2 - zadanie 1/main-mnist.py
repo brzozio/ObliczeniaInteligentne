@@ -11,7 +11,7 @@ from torch import save as save_model
 from model import MLP
 from torch.utils.data import DataLoader
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix, accuracy_score
+from sklearn.metrics import confusion_matrix, accuracy_score, silhouette_score
 from voronoi import plot_decision_boundary, voronoi
 from scipy.spatial import Voronoi
 
@@ -26,8 +26,8 @@ if __name__ == "__main__":
     #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_flatten(device, not train)
     #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_PCA(device, train)
     #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_TSNE(device, train, 'train' if train is True else 'test')
-    #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_3(device,  train, 'train' if train is True else 'test')
-    data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_4(device, train, 'train' if train is True else 'test')
+    data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_3(device,  train, 'train' if train is True else 'test')
+    #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_4(device, train, 'train' if train is True else 'test')
     
     """
     data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_5(device, train, 'train' if train is True else 'test')
@@ -81,12 +81,17 @@ if __name__ == "__main__":
         plt.figure(figsize=(10, 7))        
         predicted_classes_cpu = predicted_classes.cpu().numpy()
         targets_cpu           = data_set.targets.cpu().numpy()
+        dataset_cpu           = data_set.data.cpu().numpy()
         sb.heatmap(confusion_matrix(targets_cpu,predicted_classes_cpu), annot=True, cmap='Blues', fmt='g')
         plt.xlabel('Predicted labels')
         plt.ylabel('True labels')
         plt.show()
+        
         accuracy = accuracy_score(predicted_classes_cpu, targets_cpu)
         print(f'ACCURACY SCORE FOR {data_name}: {accuracy:.4f}')
+        
+        silhouette = silhouette_score(dataset_cpu,predicted_classes_cpu)
+        print(f'SILHOUETTE SCORE FOR {data_name}: {silhouette:.4f}')
 
         #Diagram Voronoi'a oraz granice decyzyjne dla ekstrakcji do 2 cech
         if data_name is 'mnist_2_features_TSNE' or data_name is 'mnist_2_features_PCA': 
