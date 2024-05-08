@@ -17,7 +17,3 @@ class MLP(nn.Module):
         out = self.activation(out)
         out = self.lay_2(out)
         return out
-
-if __name__ == "__main__":
-    pass
-    

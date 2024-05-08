@@ -16,7 +16,7 @@ from sklearn.metrics import confusion_matrix, accuracy_score
 
 if __name__ == "__main__":
     train: bool   = True
-    num_epochs    = 100000
+    num_epochs    = 1_000_000
     continue_train: bool = True
     print(torch.version.cuda)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -48,7 +48,7 @@ if __name__ == "__main__":
             optimizer.zero_grad()   # Zerowanie gradientów, aby uniknąć akumulacji w kolejnych krokach
             loss.backward()         # Backpropagation: Obliczenie gradientów
             optimizer.step()        # Aktualizacja wag
-            print(f"Epoch [{epoch+1}/{num_epochs}]  Loss: {loss.item():.6f}   - {data_name}")
+            print(f"Epoch [{epoch+1}/{num_epochs}]  Loss: {loss.item():.8f}   - {data_name}")
             if epoch % 2000 == 0: 
                 save_model(model.state_dict(), f'model_{data_name}.pth') #Zapisz model co 1_000 epok
                 print(f"SAVED MODEL: model_{data_name}.pth at epoch [{epoch}]")

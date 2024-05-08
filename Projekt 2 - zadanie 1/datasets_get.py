@@ -110,10 +110,10 @@ def mnist_extr_5(device, train, testtrain):
     else:    
         mnists = CustomDataset(data=data, targets=mnist.targets[0:1000], device=device)
     return mnists, 32, 10, 'mnist_extr_5', 16
-"""
 def mnist_extr_5(device, train, testtrain):
     #Getting data from .txt file
     mnist  = datasets.MNIST(root='data', train=train, download=True, transform=transform)
     data = np.genfromtxt(f"C:\\Users\\Michał\\Documents\\STUDIA\\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\extraction_5_{testtrain}.txt", delimiter=" ")
     mnists = CustomDataset(data=data, targets=mnist.targets, device=device)
     return mnists, 8, 10, 'mnist_extr_5', 10
+"""
