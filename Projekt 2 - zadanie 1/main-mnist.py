@@ -17,7 +17,7 @@ from scipy.spatial import Voronoi
 
 
 if __name__ == "__main__":
-    train: bool           = True
+    train: bool           = False
     num_epochs            = 10_000
     continue_train: bool = True
     print(torch.version.cuda)
