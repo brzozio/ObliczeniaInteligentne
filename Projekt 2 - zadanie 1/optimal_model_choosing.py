@@ -24,8 +24,9 @@ hidden_neurons_breast_cancer = [1,2,6,15,24,30,40]
 hidden_neurons_flatten      = [5,10,392,784,1176]
 hidden_neurons_PCA          = [1,2,5,10,15]
 hidden_neurons_TSNE         = [1,2,5,10,15]
-hidden_neurons_3            = [5,8,10,15,20]
-hidden_neurons_4            = [5,10,28,56,84]
+hidden_neurons_3            = [5,8,10,15,40]
+hidden_neurons_3            = [5,8,10,15,40]
+hidden_neurons_4            = [5,10,28,56,112]
 
 num_epochs: int      = 1_000
 acc_step  : int      = 5
@@ -104,17 +105,17 @@ def file_creation_mnist() -> None:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     #Pobieranie danych testowych zbioru MNIST
-    data_set_test, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_flatten(device, False)
+    #data_set_test, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_flatten(device, False)
     #data_set_test, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_PCA(device, False)
     #data_set_test, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_TSNE(device, False, 'test')
-    #data_set_test, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_3(device,  False, 'test')
+    data_set_test, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_3(device,  False, 'test')
     #data_set_test, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_4(device, False, 'test')
     
     #Pobieranie danych treningowych zbioru MNIST
-    data_set_train, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_flatten(device, True)
+    #data_set_train, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_flatten(device, True)
     #data_set_train, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_PCA(device, True)
     #data_set_train, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_TSNE(device, True, 'train')
-    #data_set_train, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_3(device,  True, 'train' )
+    data_set_train, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_3(device,  True, 'train' )
     #data_set_train, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_4(device, True, 'train')
     
     for neuron_i in range(5):
@@ -134,7 +135,7 @@ def file_creation_mnist() -> None:
         elif data_name is 'mnist_flatten':
             model = MLP(input_size=features_size, hidden_layer_size=hidden_neurons_flatten[neuron_i], classes=class_size)
             neuron = hidden_neurons_flatten[neuron_i]
-
+        
         criteria = nn.CrossEntropyLoss()
         optimizer = optim.SGD(model.parameters(), lr=0.01)
 
@@ -161,29 +162,44 @@ def file_creation_mnist() -> None:
         dump(accuracy_score_list, f'accuracy_score_{data_name}_{neuron}.joblib') 
 
 def chart_3_datasets() -> None:
-    fig, ax = plt.subplots(3)
-    list_names = ['iris', 'wine', 'breast_cancer']
+    fig, ax = plt.subplots(5, sharey=True)
+    list_names = ['mnist_extr_3', 'mnist_extr_4', 'mnist_2_features_TSNE', 'mnist_2_features_PCA', 'mnist_flatten']
     for name_i, name in enumerate(list_names):
-        for neuron_i in range(7):
-            if name is 'iris':
-                neuron = hidden_neurons_iris[neuron_i]
-            elif name is 'wine':
-                neuron = hidden_neurons_wine[neuron_i]
-            elif name is 'breast_cancer':
-                neuron = hidden_neurons_breast_cancer[neuron_i]
+        for neuron_i in range(5):
+            if name is 'mnist_extr_3':
+                neuron = hidden_neurons_3[neuron_i]
+            elif name is 'mnist_extr_4':
+                neuron = hidden_neurons_4[neuron_i]
+            elif name is 'mnist_2_features_TSNE':
+                neuron = hidden_neurons_TSNE[neuron_i]
+            elif name is 'mnist_2_features_PCA':
+                neuron = hidden_neurons_PCA[neuron_i]
+            elif name is 'mnist_flatten':
+                neuron = hidden_neurons_flatten[neuron_i]
 
             job_object = load(f'accuracy_score_{name}_{neuron}.joblib')
             ax[name_i].plot(range(int(num_epochs/acc_step)), job_object, label=neuron)
         
+        #Dopisane stare pliki do wykresu
+        if name is 'mnist_extr_3':
+            job_object = load(f'accuracy_score_{name}_20.joblib')
+            ax[name_i].plot(range(int(num_epochs/acc_step)), job_object, label='20')
+        elif name is 'mnist_extr_4':
+            job_object = load(f'accuracy_score_{name}_84.joblib')
+            ax[name_i].plot(range(int(num_epochs/acc_step)), job_object, label='84')
+
+
+        
         ax[name_i].set_title(name)
         ax[name_i].legend()
-    
+        ax[name_i].set_ylabel("Accuracy Score")
+        
     plt.xlabel("Num Epochs")
-    plt.ylabel("Accuracy Score")
     plt.show()
 
 if __name__ == "__main__":
    #file_creation_3_datasets()
    #chart_3_datasets()
-   file_creation_mnist()
+   #file_creation_mnist()
+   chart_3_datasets()
 

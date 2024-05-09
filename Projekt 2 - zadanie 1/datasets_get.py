@@ -50,7 +50,7 @@ def mnist_flatten(device, train):
     mnist           = datasets.MNIST(root='data', train=train, download=True, transform=transform)
     flattened_mnist = mnist.data.flatten(start_dim=1)
     mnists          = CustomDataset(data=StandardScaler().fit_transform(flattened_mnist), targets=mnist.targets, device=device)
-    return mnists, 28*28, 10, 'mnist_flatten', 120
+    return mnists, 28*28, 10, 'mnist_flatten', 784
 
 
 def mnist_extr_PCA(device, train):
@@ -60,7 +60,7 @@ def mnist_extr_PCA(device, train):
     pca = PCA(n_components=2)
     flattened_mnist_pca = pca.fit_transform(flattened_mnist)
     mnists              = CustomDataset(data=StandardScaler().fit_transform(flattened_mnist_pca), targets=mnist.targets, device=device)
-    return mnists, 2, 10, 'mnist_2_features_PCA', 10
+    return mnists, 2, 10, 'mnist_2_features_PCA', 1
 
 
 
@@ -80,7 +80,7 @@ def mnist_extr_TSNE(device, train, testtrain):
         dump(flattened_mnist_tsne, f'flattened_mnist_tsne_afterTransform_{testtrain}.joblib') 
         mnists               = CustomDataset(data=StandardScaler().fit_transform(flattened_mnist_tsne), targets=mnist.targets, device=device)
 
-    return mnists, 2, 10, 'mnist_2_features_TSNE', 10
+    return mnists, 2, 10, 'mnist_2_features_TSNE', 1
 
 
 def mnist_extr_3(device, train, testtrain): #Conv
@@ -91,7 +91,7 @@ def mnist_extr_3(device, train, testtrain): #Conv
     print(f"MNIST TARGET SIZE: {mnist.targets.size()}")
     #mnists = CustomDataset(data=data, targets=mnist.targets, device=device)
     mnists = CustomDataset(data=data, targets=mnist.targets, device=device)
-    return mnists, 10, 10, 'mnist_extr_3', 10
+    return mnists, 10, 10, 'mnist_extr_3', 40
 
 
 def mnist_extr_4(device, train, testtrain): #Diff
@@ -99,7 +99,7 @@ def mnist_extr_4(device, train, testtrain): #Diff
     mnist  = datasets.MNIST(root='data', train=train, download=True, transform=transform)
     data = np.genfromtxt(f"C:\\Users\\Michał\\Documents\\STUDIA\\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\Projekt 2 - zadanie 1\\differential_{testtrain}_data.txt", delimiter=";")
     mnists = CustomDataset(data=data, targets=mnist.targets, device=device)
-    return mnists, 56, 10, 'mnist_extr_4', 28
+    return mnists, 56, 10, 'mnist_extr_4', 84
 """
 def mnist_extr_5(device, train, testtrain):
     #Getting data from .txt file
