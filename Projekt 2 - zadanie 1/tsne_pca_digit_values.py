@@ -42,15 +42,19 @@ def PCA_DIGIT_VALUE(data, targets):
     np.savetxt('PCA_50_MNISTS_DATA.txt', mnists_data_numpy)
     np.savetxt('PCA_50_MNISTS_TARGETS.txt', mnists_data_targets)
 
-   
-
 
 
 def TSNE_DIGIT_VALUE(data, targets):
-    file_path = 'flattened_mnist_tsne_afterTransform_train.joblib'
-    if os.path.exists(file_path):
-        flattened_mnist_tsne = load(f'flattened_mnist_tsne_afterTransform_train.joblib') 
-        mnists               = CustomDataset(data=StandardScaler().fit_transform(flattened_mnist_tsne), targets=targets, device=device)
+    flattened_mnist = data.data.flatten(start_dim=1)
+    tsne = TSNE(n_components=2, random_state=42)
+    flattened_mnist_tsne = tsne.fit_transform(flattened_mnist)
+    mnists               = CustomDataset(data=StandardScaler().fit_transform(flattened_mnist_tsne), targets=targets, device=device)
+
+    mnists_data_numpy   = mnists.data.cpu().numpy()
+    mnists_data_targets = mnists.targets.cpu().numpy()
+
+    np.savetxt('TSNE_50_MNISTS_DATA.txt', mnists_data_numpy)
+    np.savetxt('TSNE_50_MNISTS_TARGETS.txt', mnists_data_targets)
 
 
 if __name__ == "__main__":
@@ -58,5 +62,5 @@ if __name__ == "__main__":
     first_50_mnists_data    = mnist.data[1:50]
     first_50_mnists_targets = mnist.targets[1:50]
 
-    #TSNE_DIGIT_VALUE(data=first_50_mnists_data, targets=first_50_mnists_targets)
-    PCA_DIGIT_VALUE(data=first_50_mnists_data, targets=first_50_mnists_targets)
+    TSNE_DIGIT_VALUE(data=first_50_mnists_data, targets=first_50_mnists_targets)
+    #PCA_DIGIT_VALUE(data=first_50_mnists_data, targets=first_50_mnists_targets)
