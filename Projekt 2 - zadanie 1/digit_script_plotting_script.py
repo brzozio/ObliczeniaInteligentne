@@ -12,7 +12,7 @@ mnist = datasets.MNIST(
 domain_convolution = np.genfromtxt("mean_digit_convolution_train_data.txt", delimiter=';')
 domain_differential = np.genfromtxt("raw_differential_train_data.txt", delimiter=';')
 domain_tsne =  np.genfromtxt('', delimiter=' ')
-domain_pca = np.genfromtxt('', delimiter=' ')
+domain_pca = np.genfromtxt('PCA_50_MNISTS_DATA.txt', delimiter=' ')
 
 digit_id = [1, 3, 5, 7, 20, 35, 18, 15, 31, 19]
 
