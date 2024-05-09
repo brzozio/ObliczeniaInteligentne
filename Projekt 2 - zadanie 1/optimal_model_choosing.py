@@ -15,8 +15,6 @@ from sklearn.metrics import confusion_matrix, accuracy_score, silhouette_score
 from joblib import dump, load
 
 
-#flattened_mnist_tsne = load(f'flattened_mnist_tsne_afterTransform_{testtrain}.joblib') 
-#dump(flattened_mnist_tsne, f'flattened_mnist_tsne_afterTransform_{testtrain}.joblib') 
 hidden_neurons_iris          = [1,2,3,4,5,7,10]
 hidden_neurons_wine          = [1,2,3,5,7,14,20]
 hidden_neurons_breast_cancer = [1,2,6,15,24,30,40]
@@ -147,9 +145,9 @@ def file_creation_mnist() -> None:
         for epoch in range(num_epochs):
             outputs = model(data_set_train.data)
             loss = criteria(outputs, data_set_train.targets)
-            optimizer.zero_grad()   # Zerowanie gradientów, aby uniknąć akumulacji w kolejnych krokach
-            loss.backward()         # Backpropagation: Obliczenie gradientów
-            optimizer.step()        # Aktualizacja wag
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
             
             if epoch % acc_step == 0:
                 model.eval()
