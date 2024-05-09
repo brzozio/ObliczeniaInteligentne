@@ -11,10 +11,13 @@ mnist = datasets.MNIST(
 
 domain_convolution = np.genfromtxt("mean_digit_convolution_train_data.txt", delimiter=';')
 domain_differential = np.genfromtxt("raw_differential_train_data.txt", delimiter=';')
-domain_tsne =  np.genfromtxt('', delimiter=' ')
-domain_pca = np.genfromtxt('', delimiter=' ')
+domain_tsne =  np.genfromtxt('TSNE_50_MNISTS_DATA.txt', delimiter=';')
+domain_pca = np.genfromtxt('PCA_50_MNISTS_DATA.txt', delimiter=';')
 
 digit_id = [1, 3, 5, 7, 20, 35, 18, 15, 31, 19]
+origin = [0,0]
+
+print(domain_tsne)
 
 for d_id in digit_id:
     image = mnist[d_id][0][0]
@@ -34,14 +37,18 @@ for d_id in digit_id:
     ax[0,1].set_xticks(range(0,8,2))
     ax[0,1].set_title("Ilość krawędzi poziomych")
 
-    ax[1,1].plot(domain_tsne[0], domain_tsne[1], marker='h')
+    ax[1,1].quiver(0,0, domain_tsne[d_id][0], domain_tsne[d_id][1], scale=1, scale_units='x')
+    ax[1,1].set(xlim=(-2.2, 2.2), ylim=(-2.2, 2.2))
+    ax[1,1].set_title("Wartości cech TSNE")
 
     plt.show()
 
     image = mnist[d_id][0][0]
-    _, ax = plt.subplots(1,3, figsize=(30,10))
+    _, ax = plt.subplots(1,3, figsize=(18,5))
 
-    ax[0].plot(domain_pca[0], domain_pca[1], marker='h')
+    ax[0].quiver(0,0, domain_pca[d_id][0], domain_pca[d_id][1], scale=1, scale_units='x')
+    ax[0].set(xlim=(-2.2, 2.2), ylim=(-2.2, 2.2))
+    ax[0].set_title("Wartości cech PCA")
 
     ax[1].imshow(image, cmap='gray')
     ax[1].set_title(f'Wizualizacja graficzna')
