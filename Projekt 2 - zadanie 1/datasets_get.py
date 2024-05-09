@@ -58,7 +58,7 @@ def mnist_extr_PCA(device, train):
     flattened_mnist = mnist.data.flatten(start_dim=1)
     #Ekstrakcja na dwie cechy
     pca = PCA(n_components=2)
-    flattened_mnist_pca = pca.fit_transform(flattened_mnist)
+    flattened_mnist_pca = pca.fit_transform(StandardScaler().fit_transform(flattened_mnist))
     mnists              = CustomDataset(data=StandardScaler().fit_transform(flattened_mnist_pca), targets=mnist.targets, device=device)
     return mnists, 2, 10, 'mnist_2_features_PCA', 1
 
@@ -75,7 +75,7 @@ def mnist_extr_TSNE(device, train, testtrain):
         flattened_mnist = mnist.data.flatten(start_dim=1)
         #Ekstrakcja na dwie cechy
         tsne = TSNE(n_components=2, random_state=42)
-        flattened_mnist_tsne = tsne.fit_transform(flattened_mnist)
+        flattened_mnist_tsne = tsne.fit_transform(StandardScaler().fit_transform(flattened_mnist))
         print("COMPUTING TSNE OBJECT")
         dump(flattened_mnist_tsne, f'flattened_mnist_tsne_afterTransform_{testtrain}.joblib') 
         mnists               = CustomDataset(data=StandardScaler().fit_transform(flattened_mnist_tsne), targets=mnist.targets, device=device)

@@ -17,18 +17,18 @@ from scipy.spatial import Voronoi
 
 
 if __name__ == "__main__":
-    train: bool           = False
+    train: bool           = True
     num_epochs            = 10_000
     continue_train: bool = True
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f'CUDA VERSION: {torch.version.cuda}')
     print(f'DEVICE RUNING: {device}')
 
-    #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_flatten(device,  train)
-    #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_PCA(device, not train)
-    data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_TSNE(device, train, 'train' if train is True else 'test')
-    #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_3(device,  train, 'train' if train is True else 'test')
-    #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_4(device, train, 'train' if train is True else 'test')
+    data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_flatten(device,  train)
+    #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_PCA(device,   train)
+    #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_TSNE(device,  train, 'train' if  train is True else 'test')
+    #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_3(device,   train, 'train' if  train is True else 'test')
+    #data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_4(device,   train, 'train' if   train is True else 'test')
     
     """
     data_set, features_size, class_size, data_name, hidden_neurons = datasets_get.mnist_extr_5(device, train, 'train' if train is True else 'test')
@@ -96,8 +96,11 @@ if __name__ == "__main__":
         accuracy = accuracy_score(predicted_classes_cpu, targets_cpu)
         print(f'ACCURACY SCORE FOR {data_name}: {accuracy:.4f}')
         
-        silhouette = silhouette_score(dataset_cpu,predicted_classes_cpu)
-        print(f'SILHOUETTE SCORE FOR {data_name}: {silhouette:.4f}')
+        silhouette = silhouette_score(dataset_cpu, predicted_classes_cpu)
+        print(f'PRED LABEL SILHOUETTE SCORE FOR {data_name}: {silhouette:.4f}')
+        
+        silhouette = silhouette_score(dataset_cpu, targets_cpu)
+        print(f'ORIG LABEL SILHOUETTE SCORE FOR {data_name}: {silhouette:.4f}')
 
         #Diagram Voronoi'a oraz granice decyzyjne dla ekstrakcji do 2 cech
         if data_name is 'mnist_2_features_TSNE' or data_name is 'mnist_2_features_PCA': 
