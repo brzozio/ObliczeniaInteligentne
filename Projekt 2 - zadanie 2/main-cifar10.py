@@ -14,7 +14,6 @@ from sklearn.metrics import confusion_matrix, accuracy_score, silhouette_score
 from voronoi import plot_decision_boundary, voronoi
 from scipy.spatial import Voronoi
 import torch.nn as nn
-import torch.nn.functional as F
 from model import CNN
 
 
@@ -42,12 +41,12 @@ if __name__ == "__main__":
     if train is True:
         model.train()
         model.double()
-        data_loader = DataLoader(data_set, batch_size=8092, shuffle=True) 
+        data_loader = DataLoader(data_set, batch_size=1024, shuffle=True) 
 
         for epoch in range(num_epochs):
             for batch in data_loader:
                 data, target = batch['data'].to(device), batch['target'].to(device)
-                data = data.view(-1, 1, 32, 32)
+                data = data.view(-1, 3, 32, 32)
                 outputs = model(data)
                 loss = criteria(outputs, target)
                 
@@ -69,7 +68,7 @@ if __name__ == "__main__":
         model.double()
         model.to(device)
         
-        data_set.data = data_set.data.view(-1, 1, 32, 32)
+        data_set.data = data_set.data.reshape(-1, 3, 32, 32)
         outputs = model(data_set.data)
         print(f"OUTPUS: {outputs}")
         

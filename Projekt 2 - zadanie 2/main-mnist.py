@@ -14,7 +14,6 @@ from sklearn.metrics import confusion_matrix, accuracy_score, silhouette_score
 from voronoi import plot_decision_boundary, voronoi
 from scipy.spatial import Voronoi
 import torch.nn as nn
-import torch.nn.functional as F
 from model import CNN
 
 
@@ -49,7 +48,7 @@ if __name__ == "__main__":
             for batch in data_loader:
                 data, target = batch['data'].to(device), batch['target'].to(device)
                 data = data.view(-1, 1, 28, 28)
-                outputs = model(data, 28)
+                outputs = model(data)
                 loss = criteria(outputs, target)
                 
                 optimizer.zero_grad()   # Zerowanie gradientów, aby git auniknąć akumulacji w kolejnych krokach
@@ -64,7 +63,7 @@ if __name__ == "__main__":
 
         save_model(model.state_dict(), f'model_{data_name}.pth') #Zapisz model na koniec trenignu - koniec epok
     else:
-        model = CNN(num_classes=10, imsize=28)
+        model = CNN(num_classes=10, imsize=28, channels=1)
         model.load_state_dict(load_model(f'model_{data_name}.pth'))
         model.eval()
         model.double()

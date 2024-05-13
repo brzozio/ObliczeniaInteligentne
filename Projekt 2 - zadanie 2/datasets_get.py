@@ -49,4 +49,4 @@ def mnist_to_cnn(device, train):
 def cifar10_to_cnn(device, train):
     cifar           = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform_cifar10)
     cifars          = CustomDataset(data=cifar.data, targets=cifar.targets, device=device)
-    return cifars, 3, 'projekt_2_zad_2_mnist', 3
+    return cifars, 3, 'projekt_2_zad_2_cifar10', 3
