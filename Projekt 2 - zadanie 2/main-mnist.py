@@ -16,20 +16,18 @@ from scipy.spatial import Voronoi
 import torch.nn as nn
 from model import CNN
 
-
+model = CNN(in_side_len=28, in_channels=1, cnv0_out_channels=8,
+            cnv1_out_channels=16, lin0_out_size=128, lin1_out_size=10, pooling_kernel=2)
 
 if __name__ == "__main__":
-    train: bool           = False
+    train: bool           = True
     num_epochs            = 10_000
-    continue_train: bool = True
+    continue_train: bool = False
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f'CUDA VERSION: {torch.version.cuda}')
     print(f'DEVICE RUNING: {device}')
 
-    data_set, input_channels, data_name, output_channels = datasets_get.mnist_to_cnn(device,  train)
-
-    model = CNN(in_side_len=28, in_channels=1, cnv0_out_channels=8,
-                cnv1_out_channels=16, lin0_out_size=128, lin1_out_size=10, pooling_kernel=2)
+    data_set, data_name = datasets_get.mnist_to_cnn(device,  train)
 
     criteria = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.01)
@@ -63,7 +61,7 @@ if __name__ == "__main__":
 
         save_model(model.state_dict(), f'model_{data_name}.pth') #Zapisz model na koniec trenignu - koniec epok
     else:
-        model = CNN(num_classes=10, imsize=28, channels=1)
+
         model.load_state_dict(load_model(f'model_{data_name}.pth'))
         model.eval()
         model.double()

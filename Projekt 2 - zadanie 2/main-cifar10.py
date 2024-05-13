@@ -16,6 +16,8 @@ from scipy.spatial import Voronoi
 import torch.nn as nn
 from model import CNN
 
+model = CNN(in_side_len=32, in_channels=3, cnv0_out_channels=8,
+            cnv1_out_channels=16, lin0_out_size=128, lin1_out_size=10, pooling_kernel=2)
 
 if __name__ == "__main__":
     train: bool           = True
@@ -25,11 +27,8 @@ if __name__ == "__main__":
     print(f'CUDA VERSION: {torch.version.cuda}')
     print(f'DEVICE RUNING: {device}')
 
-    data_set, input_channels, data_name, output_channels = datasets_get.cifar10_to_cnn(device,  train)
-    
-  
+    data_set, data_name = datasets_get.cifar10_to_cnn(device,  train)
 
-    model = CNN(num_classes=10, imsize=32, channels=3)
     criteria = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.01)
 
@@ -41,12 +40,13 @@ if __name__ == "__main__":
     if train is True:
         model.train()
         model.double()
-        data_loader = DataLoader(data_set, batch_size=1024, shuffle=True) 
+        data_loader = DataLoader(data_set, batch_size=1024, shuffle=True)
 
         for epoch in range(num_epochs):
             for batch in data_loader:
                 data, target = batch['data'].to(device), batch['target'].to(device)
-                data = data.view(-1, 3, 32, 32)
+                #print(data.size())
+                #data = data.view(-1, 3, 32, 32)
                 outputs = model(data)
                 loss = criteria(outputs, target)
                 
@@ -62,7 +62,6 @@ if __name__ == "__main__":
 
         save_model(model.state_dict(), f'model_{data_name}.pth') #Zapisz model na koniec trenignu - koniec epok
     else:
-        model = CNN(num_classes=10, imsize=32, channels=3)
         model.load_state_dict(load_model(f'model_{data_name}.pth'))
         model.eval()
         model.double()
