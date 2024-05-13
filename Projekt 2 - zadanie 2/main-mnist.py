@@ -27,10 +27,10 @@ if __name__ == "__main__":
     print(f'DEVICE RUNING: {device}')
 
     data_set, input_channels, data_name, output_channels = datasets_get.mnist_to_cnn(device,  train)
-    
-  
 
-    model = CNN(num_classes=10, imsize=28, channels=1)
+    model = CNN(in_side_len=28, in_channels=1, cnv0_out_channels=8,
+                cnv1_out_channels=16, lin0_out_size=128, lin1_out_size=10, pooling_kernel=2)
+
     criteria = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.01)
 
