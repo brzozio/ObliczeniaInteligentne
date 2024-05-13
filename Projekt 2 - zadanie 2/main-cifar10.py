@@ -16,8 +16,9 @@ from scipy.spatial import Voronoi
 import torch.nn as nn
 from model import CNN
 
-model = CNN(in_side_len=32, in_channels=3, cnv0_out_channels=8,
-            cnv1_out_channels=16, lin0_out_size=128, lin1_out_size=10, pooling_kernel=2)
+model = CNN(in_side_len=32, in_channels=3, cnv0_out_channels=6,
+            cnv1_out_channels=16, lin0_out_size=120, lin1_out_size=10,
+            lin2_out_size=0, convolution_kernel=3, pooling_kernel=2)
 
 if __name__ == "__main__":
     train: bool           = True
@@ -40,7 +41,7 @@ if __name__ == "__main__":
     if train is True:
         model.train()
         model.double()
-        data_loader = DataLoader(data_set, batch_size=1024, shuffle=True)
+        data_loader = DataLoader(data_set, batch_size=100, shuffle=True)
 
         for epoch in range(num_epochs):
             for batch in data_loader:

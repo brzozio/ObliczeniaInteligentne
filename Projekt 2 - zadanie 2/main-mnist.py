@@ -17,7 +17,8 @@ import torch.nn as nn
 from model import CNN
 
 model = CNN(in_side_len=28, in_channels=1, cnv0_out_channels=8,
-            cnv1_out_channels=16, lin0_out_size=128, lin1_out_size=10, pooling_kernel=2)
+            cnv1_out_channels=16, lin0_out_size=128, lin1_out_size=10,
+            convolution_kernel=3, pooling_kernel=2)
 
 if __name__ == "__main__":
     train: bool           = True
@@ -40,7 +41,7 @@ if __name__ == "__main__":
     if train is True:
         model.train()
         model.double()
-        data_loader = DataLoader(data_set, batch_size=8092, shuffle=True) 
+        data_loader = DataLoader(data_set, batch_size=6000, shuffle=True)
 
         for epoch in range(num_epochs):
             for batch in data_loader:
