@@ -8,12 +8,14 @@ import torch.optim as optim
 import matplotlib.pyplot as plt
 from torch import load as load_model
 from torch import save as save_model
-from model import CNN
 from torch.utils.data import DataLoader
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, accuracy_score, silhouette_score
 from voronoi import plot_decision_boundary, voronoi
 from scipy.spatial import Voronoi
+import torch.nn as nn
+import torch.nn.functional as F
+from model import CNN
 
 
 if __name__ == "__main__":
@@ -28,7 +30,7 @@ if __name__ == "__main__":
     
   
 
-    model = CNN(num_classes=10, imsize=32)
+    model = CNN(num_classes=10, imsize=32, channels=3)
     criteria = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.01)
 
@@ -61,7 +63,7 @@ if __name__ == "__main__":
 
         save_model(model.state_dict(), f'model_{data_name}.pth') #Zapisz model na koniec trenignu - koniec epok
     else:
-        model = CNN(num_classes=class_size)
+        model = CNN(num_classes=10, imsize=32, channels=3)
         model.load_state_dict(load_model(f'model_{data_name}.pth'))
         model.eval()
         model.double()

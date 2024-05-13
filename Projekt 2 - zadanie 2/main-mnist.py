@@ -8,16 +8,19 @@ import torch.optim as optim
 import matplotlib.pyplot as plt
 from torch import load as load_model
 from torch import save as save_model
-from model import CNN
 from torch.utils.data import DataLoader
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, accuracy_score, silhouette_score
 from voronoi import plot_decision_boundary, voronoi
 from scipy.spatial import Voronoi
+import torch.nn as nn
+import torch.nn.functional as F
+from model import CNN
+
 
 
 if __name__ == "__main__":
-    train: bool           = True
+    train: bool           = False
     num_epochs            = 10_000
     continue_train: bool = True
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -28,7 +31,7 @@ if __name__ == "__main__":
     
   
 
-    model = CNN(num_classes=10, imsize=28)
+    model = CNN(num_classes=10, imsize=28, channels=1)
     criteria = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.01)
 
@@ -46,7 +49,7 @@ if __name__ == "__main__":
             for batch in data_loader:
                 data, target = batch['data'].to(device), batch['target'].to(device)
                 data = data.view(-1, 1, 28, 28)
-                outputs = model(data)
+                outputs = model(data, 28)
                 loss = criteria(outputs, target)
                 
                 optimizer.zero_grad()   # Zerowanie gradientów, aby git auniknąć akumulacji w kolejnych krokach
@@ -61,7 +64,7 @@ if __name__ == "__main__":
 
         save_model(model.state_dict(), f'model_{data_name}.pth') #Zapisz model na koniec trenignu - koniec epok
     else:
-        model = CNN(num_classes=class_size)
+        model = CNN(num_classes=10, imsize=28)
         model.load_state_dict(load_model(f'model_{data_name}.pth'))
         model.eval()
         model.double()
@@ -92,12 +95,6 @@ if __name__ == "__main__":
         accuracy = accuracy_score(predicted_classes_cpu, targets_cpu)
         print(f'ACCURACY SCORE FOR {data_name}: {accuracy:.4f}')
         
-        #silhouette = silhouette_score(dataset_cpu, predicted_classes_cpu)
-        #print(f'PRED LABEL SILHOUETTE SCORE FOR {data_name}: {silhouette:.4f}')
-        
-        #silhouette = silhouette_score(dataset_cpu, targets_cpu)
-        #print(f'ORIG LABEL SILHOUETTE SCORE FOR {data_name}: {silhouette:.4f}')
-
 
         """
         #Diagram Voronoi'a oraz granice decyzyjne dla ekstrakcji do 2 cech
