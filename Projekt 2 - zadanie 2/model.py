@@ -33,3 +33,5 @@ class CNN(nn.Module):
         out = F.relu(self.fc1(out))
         out = self.fc2(out)
         return out
+
+

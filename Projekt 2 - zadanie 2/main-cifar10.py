@@ -41,7 +41,7 @@ if __name__ == "__main__":
     if train is True:
         model.train()
         model.double()
-        data_loader = DataLoader(data_set, batch_size=1024, shuffle=True) 
+        data_loader = DataLoader(data_set, batch_size=128, shuffle=True) 
 
         for epoch in range(num_epochs):
             for batch in data_loader:
@@ -69,6 +69,7 @@ if __name__ == "__main__":
         model.to(device)
         
         data_set.data = data_set.data.reshape(-1, 3, 32, 32)
+
         outputs = model(data_set.data)
         print(f"OUTPUS: {outputs}")
         
