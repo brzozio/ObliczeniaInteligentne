@@ -40,7 +40,7 @@ if __name__ == "__main__":
     if train is True:
         model.train()
         model.double()
-        data_loader = DataLoader(data_set, batch_size=1024, shuffle=True)
+        data_loader = DataLoader(data_set, batch_size=8092, shuffle=True)
 
         for epoch in range(num_epochs):
             for batch in data_loader:
