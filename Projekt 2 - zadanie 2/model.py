@@ -2,36 +2,72 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-import torch.nn as nn
-import torch.nn.functional as F
-
 class CNN(nn.Module):
-    def __init__(self, num_classes, imsize, channels):
+    def __init__(self, in_side_len: int, in_channels: int, cnv0_out_channels: int,
+                 lin0_out_size: int, lin1_out_size: int,
+                 convolution_kernel: int, pooling_kernel: int,
+                 reduce_to_dim2: bool = False, cnv1_out_channels: int = 2):
+
         super(CNN, self).__init__()
 
-        self.conv1 = nn.Conv2d(in_channels=channels, out_channels=16, kernel_size=3)
-        self.conv2 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=3)
+        self.in_side_len: int = in_side_len
+        self.in_channels: int = in_channels
+        self.cnv0_out_channels: int = cnv0_out_channels
+        self.cnv1_out_channels: int = cnv1_out_channels
+        self.lin0_out_size: int = lin0_out_size
+        self.lin1_out_size: int = lin1_out_size
+        self.pooling_kernel: int = pooling_kernel
+        self.conv_kernel_size: int = convolution_kernel
+        self.reduce_to_dim2: bool = reduce_to_dim2
 
-        self.pool = nn.MaxPool2d(kernel_size=2) 
-        
-        self.fc1 = nn.Linear(32 * ((imsize)//4 - 2) * ((imsize)//4 - 2), 64) 
-        self.fc2 = nn.Linear(64, num_classes)
-        
+        self.conv0 = nn.Conv2d(in_channels=self.in_channels, out_channels=self.cnv0_out_channels,
+                               kernel_size=self.conv_kernel_size)
+
+        if reduce_to_dim2:
+            self.conv_kernel_size = (self.in_side_len - self.conv_kernel_size + 1) // pooling_kernel
+            self.lin0_in_size = 2
+        else:
+            self.lin0_in_size = (self.in_side_len - self.conv_kernel_size + 1) // pooling_kernel
+            self.lin0_in_size = (self.lin0_in_size - self.conv_kernel_size + 1) // pooling_kernel
+            self.lin0_in_size = self.lin0_in_size * self.lin0_in_size * cnv1_out_channels
+
+        self.conv1 = nn.Conv2d(in_channels=self.cnv0_out_channels, out_channels=self.cnv1_out_channels,
+                               kernel_size=self.conv_kernel_size)
+
+        self.pool = nn.MaxPool2d(kernel_size=self.pooling_kernel)
+
+        self.lin0 = nn.Linear(self.lin0_in_size, self.lin0_out_size)
+        self.lin1 = nn.Linear(self.lin0_out_size, self.lin1_out_size)
+
     def forward(self, out):
-        out = F.relu(self.conv1(out))
-        #print(f'OUT SIZE AFTER conv1: {out.size()}')
+
+        out = self.conv0(out)
+        out = F.tanh( out)
         out = self.pool(out)
-        #print(f'OUT SIZE AFTER POOL 1: {out.size()}')
-        out = F.relu(self.conv2(out))
-        #print(f'OUT SIZE AFTER conv2: {out.size()}')
+
+        out = self.conv1(out)
+        out = F.tanh(out)
+
+        if not self.reduce_to_dim2:
+            out = self.pool(out)
+
+        out = out.view(-1, self.lin0_in_size)
+
+        out = self.lin0(out)
+        out = F.relu(out)
+        out = self.lin1(out)
+
+        return out
+
+    def extract(self, in_data):
+
+        out = self.conv0(in_data)
+        out = F.tanh( out)
         out = self.pool(out)
-        #print(f'OUT SIZE AFTER POOL 2: {out.size()}')
-        
-        out = out.view(out.size(0), -1)
-        #print(f'OUT SIZE AFTER FLATTEN: {out.size()}')
-        
-        out = F.relu(self.fc1(out))
-        out = self.fc2(out)
+
+        out = self.conv1(out)
+        out = F.tanh(out)
+
         return out
 
 
