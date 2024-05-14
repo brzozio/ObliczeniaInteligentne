@@ -3,7 +3,7 @@ from datasets_get import cifar10_to_cnn, mnist_to_cnn
 import torch
 
 train: bool          = False
-continue_train: bool = True
+continue_train: bool = False
 batch_size           = 20_000
 #data_name = 'projekt_2_zad_2_mnist'
 #data_name = 'projekt_2_zad_2_mnist_reduced'

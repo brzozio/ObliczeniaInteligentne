@@ -32,6 +32,7 @@ def execute_model(data_set, model, batch_size, data_name, train: bool = False, c
         model.train()
         model.double()
         data_loader = DataLoader(data_set, batch_size=batch_size, shuffle=True)
+        print(f'DATA SIZE: {data_set.data.size()}')
 
         for epoch in range(num_epochs):
             for batch in data_loader:
