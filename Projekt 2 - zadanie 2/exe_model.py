@@ -96,7 +96,7 @@ def execute_model(model, data_name, model_path, train: bool = False, continue_tr
 
             #plot_decision_boundary(X=data_set.data.cpu(), func=lambda X: model(X), y_true=data_set.targets.cpu())
 
-            plot_decision_boundary(X=data_set.data.cpu().detach().numpy(), func=lambda X: model(X))
+            plot_decision_boundary(X=data_set.data.cpu().numpy(), func=lambda X: model(X))
             
             vor = Voronoi(data_set.data.cpu())
             voronoi(vor=vor, etykiety=predicted_classes_cpu)
