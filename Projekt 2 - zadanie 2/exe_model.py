@@ -16,39 +16,32 @@ from scipy.spatial import Voronoi
 import torch.nn as nn
 from model import CNN
 
-model = CNN(in_side_len=32, in_channels=3, cnv0_out_channels=6,
-            cnv1_out_channels=16, lin0_out_size=120, lin1_out_size=10,
-            lin2_out_size=0, convolution_kernel=3, pooling_kernel=2)
 
-if __name__ == "__main__":
-    train: bool           = True
+def execute_model(model, data_name, model_path, train: bool = False, continue_train: bool = False):
     num_epochs            = 10_000
-    continue_train: bool = False
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f'CUDA VERSION: {torch.version.cuda}')
     print(f'DEVICE RUNING: {device}')
 
-    data_set, data_name = datasets_get.cifar10_to_cnn(device,  train)
+    data_set = datasets_get.mnist_to_cnn(device,  train)
 
     criteria = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.01)
 
     if continue_train is True:
-        model.load_state_dict(load_model(f'model_{data_name}.pth'))
+        model.load_state_dict(load_model(model_path))
         
     model.to(device)
 
     if train is True:
         model.train()
         model.double()
-        data_loader = DataLoader(data_set, batch_size=100, shuffle=True)
+        data_loader = DataLoader(data_set, batch_size=8000, shuffle=True)
 
         for epoch in range(num_epochs):
             for batch in data_loader:
                 data, target = batch['data'].to(device), batch['target'].to(device)
-                #print(data.size())
-                #data = data.view(-1, 3, 32, 32)
-                outputs = model(data)
+                outputs = model.forward(data)
                 loss = criteria(outputs, target)
                 
                 optimizer.zero_grad()   # Zerowanie gradientów, aby git auniknąć akumulacji w kolejnych krokach
@@ -58,17 +51,17 @@ if __name__ == "__main__":
             print(f"Epoch [{epoch+1}/{num_epochs}]  Loss: {loss.item():.5f}   - {data_name}")
             
             if epoch % 10 == 0: 
-                save_model(model.state_dict(), f'model_{data_name}.pth') #Zapisz model co 1_000 epok
+                save_model(model.state_dict(), model_path) #Zapisz model co 1_000 epok
                 print(f"SAVED MODEL: model_{data_name}.pth at epoch [{epoch}]")
 
-        save_model(model.state_dict(), f'model_{data_name}.pth') #Zapisz model na koniec trenignu - koniec epok
+        save_model(model.state_dict(), model_path) #Zapisz model na koniec trenignu - koniec epok
     else:
-        model.load_state_dict(load_model(f'model_{data_name}.pth'))
+
+        model.load_state_dict(load_model(model_path))
         model.eval()
         model.double()
         model.to(device)
-        
-        data_set.data = data_set.data.reshape(-1, 3, 32, 32)
+
         outputs = model(data_set.data)
         print(f"OUTPUS: {outputs}")
         
@@ -92,22 +85,18 @@ if __name__ == "__main__":
         
         accuracy = accuracy_score(predicted_classes_cpu, targets_cpu)
         print(f'ACCURACY SCORE FOR {data_name}: {accuracy:.4f}')
-        
-        #silhouette = silhouette_score(dataset_cpu, predicted_classes_cpu)
-        #print(f'PRED LABEL SILHOUETTE SCORE FOR {data_name}: {silhouette:.4f}')
-        
-        #silhouette = silhouette_score(dataset_cpu, targets_cpu)
-        #print(f'ORIG LABEL SILHOUETTE SCORE FOR {data_name}: {silhouette:.4f}')
 
-
-        """
         #Diagram Voronoi'a oraz granice decyzyjne dla ekstrakcji do 2 cech
-        if data_name is 'mnist_2_features_TSNE' or data_name is 'mnist_2_features_PCA': 
+        if model.reduce_to_dim2:
+
+            data = model.extract(data_set.data)
+            # print(data.size())
+            data = data.view(-1,2)
             model.to('cpu')
+
             #plot_decision_boundary(X=data_set.data.cpu(), func=lambda X: model(X), y_true=data_set.targets.cpu())
-           
-            plot_decision_boundary(X=data_set.data.cpu(), func=lambda X: model(X))
+
+            plot_decision_boundary(X=data.cpu(), func=lambda X: model.forward(X))
             
             vor = Voronoi(data_set.data.cpu())
             voronoi(vor=vor, etykiety=predicted_classes_cpu)
-        """

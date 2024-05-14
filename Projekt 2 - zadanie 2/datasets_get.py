@@ -44,10 +44,11 @@ def mnist_flatten(device, train):
 def mnist_to_cnn(device, train):
     mnist           = datasets.MNIST(root='data', train=train, download=True, transform=transform_mnist)
     mnists          = CustomDataset(data=mnist.data, targets=mnist.targets, device=device)
-    return mnists, 'projekt_2_zad_2_mnist'
+    mnists.data     = mnists.data.view(-1,1,28,28)
+    return mnists
 
 def cifar10_to_cnn(device, train):
     cifar           = torchvision.datasets.CIFAR10(root='./data', train=train, download=True, transform=transform_cifar10)
     cifars          = CustomDataset(data=cifar.data, targets=cifar.targets, device=device)
     cifars.data     = torch.permute(cifars.data, (0, 3, 1, 2))
-    return cifars, 'projekt_2_zad_2_cifar10'
+    return cifars
