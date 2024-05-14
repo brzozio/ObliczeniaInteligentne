@@ -92,11 +92,19 @@ def voronoi(vor, etykiety, radius=None):
     plt.show()
 
 
-def plot_decision_boundary(X, func, y_true=None)-> plt.figure:
+def plot_decision_boundary(X, func, tolerance = 1, y_true=None)-> plt.figure:
     fig, ax = plt.subplots()
+
+    #Predykcja etykiet dla danych testowych podanych w funkcji
+    if y_true is None:
+        y_tested = torch.argmax(func(X), dim=1).numpy()
+    else: y_tested=y_true
+
+    X = X.detach().numpy()
+
      # Definiujemy zakres dla osi x i y
-    x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
-    y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+    x_min, x_max = X[:, 0].min() - tolerance, X[:, 0].max() + 2*tolerance
+    y_min, y_max = X[:, 1].min() - tolerance, X[:, 1].max() + 2*tolerance
     
     # Tworzymy siatkę punktów w celu wygenerowania granicy decyzyjnej
     xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.1),
@@ -108,14 +116,10 @@ def plot_decision_boundary(X, func, y_true=None)-> plt.figure:
     Z = torch.argmax(Z,dim=1).detach().numpy().reshape(xx.shape)
     print(Z)
 
-    #Predykcja etykiet dla danych testowych podanych w funkcji
-    if y_true is None:
-        y_tested = torch.argmax(func(X), dim=1).numpy()
-    else: y_tested=y_true
-
     # Rysujemy kontury granicy decyzyjnej
     ax.contourf(xx, yy, Z, alpha=0.4)
-    
+
+
     # Rysujemy punkty treningowe
     ax.scatter(X[:, 0], X[:, 1], c=y_tested, s=20, edgecolors='k')
     
@@ -129,7 +133,8 @@ def plot_decision_boundary_ax(X, axes_dec, func, y_true=None)-> None:
      # Definiujemy zakres dla osi x i y
     x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
     y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
-    
+
+
     # Tworzymy siatkę punktów w celu wygenerowania granicy decyzyjnej
     xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.1),
                          np.arange(y_min, y_max, 0.1))

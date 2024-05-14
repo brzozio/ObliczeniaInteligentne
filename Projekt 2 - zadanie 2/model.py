@@ -41,18 +41,6 @@ class CNN(nn.Module):
 
     def forward(self, out):
 
-        out = self.conv0(out)
-        out = F.tanh( out)
-        out = self.pool(out)
-
-        out = self.conv1(out)
-        out = F.tanh(out)
-
-        if not self.reduce_to_dim2:
-            out = self.pool(out)
-
-        out = out.view(-1, self.lin0_in_size)
-
         out = self.lin0(out)
         out = F.relu(out)
         out = self.lin1(out)
@@ -67,5 +55,10 @@ class CNN(nn.Module):
 
         out = self.conv1(out)
         out = F.tanh(out)
+
+        if not self.reduce_to_dim2:
+            out = self.pool(out)
+
+        out = out.view(-1, self.lin0_in_size)
 
         return out
