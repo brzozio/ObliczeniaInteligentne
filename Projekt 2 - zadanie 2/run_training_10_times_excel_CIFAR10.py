@@ -1,3 +1,37 @@
+
+
+
+
+
+
+
+
+"""
+
+NOT STARTED
+
+
+"""
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -59,60 +93,30 @@ random_crop = transforms.Compose([
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-def augmenting_image_ax(transform):
+def augmenting_image_ax():
+    # Zaprezentowac zdjęcie przed i po augmentacji
     mnist = datasets.MNIST(
             root='data',
             train=True,
             download=True,
-            transform=transform
+            transform= transforms.ToTensor()
     )
-    _, ax = plt.subplots(3, 2, figsize=(10, 20))
-
+    _, ax = plt.subplots(3,2, figsize=(10,20))
+    
     for row in range(3):
         for col in range(2):
-            index = (row + col) * 2
-            original_image = mnist[index][0][0]
-            augmented_image = transform(original_image)
-            ax[row, col].imshow(original_image, cmap='gray')
-            ax[row, col].set_title(f'Original Image')
-            ax[row, col+1].imshow(augmented_image, cmap='gray')
-            ax[row, col+1].set_title(f'Augmented Image')
-
-    plt.show()
+            image = mnist[(row+col)*2][0][0]
+            ax[row,col].imshow(image)
+            ax[row,col].set_title(f'Liczba przed augmetnacją')
+            
+            augmented_image = flip(image)
+            ax[row,col].imshow(augmented_image)
+            ax[row,col].set_title(f'Liczba po augmetnacji')
 
     # a w przypadku 2 cech należy zaprezentować rozkład danych treningowych w przypadku gdy
     # rozważane było 100 przykładów raz gdy tylko te dane są widoczne i
     # raz gdy dla każdej danej 10 razy została zastosowana metoda augmentacji (1000 przykładów).
 
-def visualize_data_distribution(transform=None):
-    mnist = datasets.MNIST(
-            root='data',
-            train=True,
-            download=True,
-            transform=transform
-    )
-    data_loader = DataLoader(mnist, batch_size=100, shuffle=True)
-    images, labels = next(iter(data_loader))
-
-    plt.figure(figsize=(10, 5))
-    plt.subplot(1, 2, 1)
-    plt.hist(labels.numpy(), bins=range(11), edgecolor='black')
-    plt.title('Data Distribution (100 examples)')
-    plt.xlabel('Class')
-    plt.ylabel('Frequency')
-
-    if transform:
-        augmented_images = []
-        for i in range(10):
-            augmented_images.extend(transform(image) for image in images)
-        augmented_labels = labels.repeat(10)
-        plt.subplot(1, 2, 2)
-        plt.hist(augmented_labels.numpy(), bins=range(11), edgecolor='black')
-        plt.title('Data Distribution (1000 examples with augmentation)')
-        plt.xlabel('Class')
-        plt.ylabel('Frequency')
-
-    plt.show()
 
 
 def mnist_to_cnn(device, train, transforming) -> CustomDataset:
@@ -141,18 +145,18 @@ def run_random_state(reduce_dim) -> None:
                         convolution_kernel=5, pooling_kernel=2)
     
     augmentations = [basic, rotate, color_jitter]
-    sample_sizes  = [100,200,1000,60000]
-    criteria      = torch.nn.CrossEntropyLoss()
-    optimizer     = torch.optim.Adam(model.parameters(), lr=0.01)
-    num_epochs    = 5
+    sample_sizes = [100,200,1000,60000]
+    criteria     = torch.nn.CrossEntropyLoss()
+    optimizer    = torch.optim.Adam(model.parameters(), lr=0.01)
+    num_epochs   = 20
     
     avg_acc_aug           = np.array([])
     std_acc_aug           = np.array([])
 
-    data_set_basic_test   = mnist_to_cnn(device, False, basic)
-
     for augm_i, augm in enumerate(augmentations):
         data_set_train        = mnist_to_cnn(device, True, augm)
+        data_set_basic_test   = mnist_to_cnn(device, False, basic)
+
 
         for sample_size in sample_sizes: 
             print(f"SAMPLE SIZE: {sample_size}")
@@ -161,15 +165,15 @@ def run_random_state(reduce_dim) -> None:
                
             sample_param = torch.randperm(len(data_set_train))[:sample_size]
             if sample_size in (100,200):
-                batch_size   = 10
+                batch_size = 10
             elif sample_size == 1_000:
-                batch_size   = 250
+                batch_size = 250
             else:
                 batch_size = 20_000
             print(f'BATCH SIZE FOR {augm_i} AUG {sample_size} is: {batch_size}')
             dataloader = DataLoader(dataset=data_set_train, batch_size=batch_size, sampler=SubsetRandomSampler(sample_param))
 
-            for run in range(2):
+            for run in range(10):
                 for param in model.parameters():
                     param.data.fill_(0)
                 #Trenowanie modelu w kazdym run - 100, 200, 1000, All dane 
@@ -209,13 +213,13 @@ def run_random_state(reduce_dim) -> None:
                 #print(f'PREDICTED CLASSES: {predicted_classes}')
                 #print(f"ORIGINAL CLASSES: {data_set_basic_test.targets}")
                 
-                accuracy            = accuracy_score(predicted_classes_cpu, targets_cpu)
+                accuracy = accuracy_score(predicted_classes_cpu, targets_cpu)
                 accuracy_score_list = np.append(accuracy_score_list,accuracy)
                 #print(f'ACCURACY SCORE: {accuracy:.4f}')
                 
                 if accuracy > max_accuracy:
                     max_accuracy = accuracy
-                    save_model(model.state_dict(), f'RUN_10_TIMES_{augm_i}_{sample_size}_red_{reduce_dim}_MNIST.pth') 
+                    save_model(model.state_dict(), f'RUN_10_TIMES_{augm_i}_{sample_size}_MNIST.pth') 
                 
             #Wyliczanie sredniej acc i odchylenie standardowe acc dla test
             avg_acc = accuracy_score_list.mean()
@@ -253,7 +257,7 @@ def run_random_state(reduce_dim) -> None:
     df_avg_acc = df_avg_acc._append(new_row_run_avg_acc_aug_1, ignore_index=True)
     df_avg_acc = df_avg_acc._append(new_row_run_avg_acc_aug_2, ignore_index=True)
 
-    df_avg_acc.to_csv(f"projekt_2_zadanie_2_10_runs_AVG_ACC_red_{reduce_dim}.csv",   index=False)
+    df_avg_acc.to_csv(f"projekt_2_zadanie_2_10_runs_AVG_ACC.csv",   index=False)
     
     new_row_run_std_acc_no_aug = { 
                             'all': std_acc_aug[3], 
@@ -280,15 +284,12 @@ def run_random_state(reduce_dim) -> None:
     df_std_div_acc = df_std_div_acc._append(new_row_run_std_acc_aug_1, ignore_index=True)
     df_std_div_acc = df_std_div_acc._append(new_row_run_std_acc_aug_2, ignore_index=True)
 
-    df_std_div_acc.to_csv(f"projekt_2_zadanie_2_10_runs_STD_ACC_red_{reduce_dim}.csv",   index=False)
+    df_std_div_acc.to_csv(f"projekt_2_zadanie_2_10_runs_STD_ACC.csv",   index=False)
     
-    if reduce_dim is True:
-        augmenting_image_ax(transform=rotate)
-        visualize_data_distribution(transform=None)
-        visualize_data_distribution(transform=rotate)
+        #augmenting_image_ax()
 
 
 if __name__ == "__main__":
     print('RUNNING FILE RUN TRAINING')
-    #run_random_state(reduce_dim=False) 
-    run_random_state(reduce_dim=True) 
+    run_random_state(reduce_dim=False) 
+    #run_random_state(reduce_dim=True) 
