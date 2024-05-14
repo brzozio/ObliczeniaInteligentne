@@ -33,9 +33,9 @@ if __name__ == "__main__":
             data_set = cifar10_to_cnn(device, train)
 
         case 'projekt_2_zad_2_cifar10_reduced':
-            model = exe_model.CNN(in_side_len=32, in_channels=3, cnv0_out_channels=6,
+            model = exe_model.CNN(in_side_len=32, in_channels=3, cnv0_out_channels=10,
                                   reduce_to_dim2=True, lin0_out_size=20, lin1_out_size=10,
-                                  convolution_kernel=3, pooling_kernel=2)
+                                  convolution_kernel=5, pooling_kernel=2)
             data_set = cifar10_to_cnn(device, train)
 
         case _:

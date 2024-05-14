@@ -50,8 +50,5 @@ def mnist_to_cnn(device, train):
 def cifar10_to_cnn(device, train):
     cifar           = torchvision.datasets.CIFAR10(root='./data', train=train, download=True, transform=transform_cifar10)
     cifars          = CustomDataset(data=cifar.data, targets=cifar.targets, device=device)
-    print(cifars.data.size())
-    # cifars.data     = cifars.data.reshape(-1,32,32,3)
     cifars.data     = torch.permute(cifars.data, (0, 3, 1, 2))
-    print(cifars.data.size())
     return cifars

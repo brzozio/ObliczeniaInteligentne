@@ -46,7 +46,7 @@ def execute_model(data_set, model, batch_size, data_name, train: bool = False, c
             
             print(f"Epoch [{epoch+1}/{num_epochs}]  Loss: {loss.item():.5f}   - {data_name}")
             
-            if epoch % 10 == 0: 
+            if epoch % 10 == 0 and epoch != 0:
                 save_model(model.state_dict(), f'model_{data_name}.pth') #Zapisz model co 1_000 epok
                 print(f"SAVED MODEL: model_{data_name}.pth at epoch [{epoch}]")
 
