@@ -11,15 +11,49 @@ from sklearn.metrics import confusion_matrix, accuracy_score, silhouette_score
 from voronoi import plot_decision_boundary, voronoi
 from scipy.spatial import Voronoi
 import torch.nn as nn
-from model import CNN_tanh, CNN_sigmoid, CNN_relu, CNN_leaky_relu
+from model import CNN_tanh, CNN_sigmoid, CNN_relu, CNN_leaky_relu, CNN_id
 import os
 
 
-def eval_4_models(data_set, batch_size, data_name):
+def eval_4_models_cifar(data_set, batch_size, data_name):
+
+    model0 = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=10,
+                               reduce_to_dim2=True, lin0_out_size=16, lin1_out_size=10,
+                               convolution_kernel=7, pooling_kernel=2)
+    execute_model(data_set, model0, batch_size, data_name+"tanh")
+
+    model3 = CNN_leaky_relu(in_side_len=32, in_channels=3, cnv0_out_channels=10,
+                               reduce_to_dim2=True, lin0_out_size=16, lin1_out_size=10,
+                               convolution_kernel=7, pooling_kernel=2)
+    execute_model(data_set, model3, batch_size, data_name+"leaky_relu")
+
+    model1 = CNN_relu(in_side_len=32, in_channels=3, cnv0_out_channels=10,
+                               reduce_to_dim2=True, lin0_out_size=16, lin1_out_size=10,
+                               convolution_kernel=7, pooling_kernel=2)
+    execute_model(data_set, model1, batch_size, data_name+"relu")
+
+    model2 = CNN_sigmoid(in_side_len=32, in_channels=3, cnv0_out_channels=10,
+                               reduce_to_dim2=True, lin0_out_size=16, lin1_out_size=10,
+                               convolution_kernel=7, pooling_kernel=2)
+    execute_model(data_set, model2, batch_size, data_name+"sigmoid")
+
+    model4 = CNN_id(in_side_len=32, in_channels=3, cnv0_out_channels=10,
+                               reduce_to_dim2=True, lin0_out_size=16, lin1_out_size=10,
+                               convolution_kernel=7, pooling_kernel=2)
+    execute_model(data_set, model4, batch_size, data_name+"id")
+
+
+def eval_4_models_mnist(data_set, batch_size, data_name):
+
     model0 = CNN_tanh(in_side_len=28, in_channels=1, cnv0_out_channels=8,
                                        reduce_to_dim2=True, lin0_out_size=20, lin1_out_size=10,
                                        convolution_kernel=5, pooling_kernel=2)
     execute_model(data_set, model0, batch_size, data_name+"tanh")
+
+    model3 = CNN_leaky_relu(in_side_len=28, in_channels=1, cnv0_out_channels=8,
+                                       reduce_to_dim2=True, lin0_out_size=20, lin1_out_size=10,
+                                       convolution_kernel=5, pooling_kernel=2)
+    execute_model(data_set, model3, batch_size, data_name+"leaky_relu")
 
     model1 = CNN_relu(in_side_len=28, in_channels=1, cnv0_out_channels=8,
                                        reduce_to_dim2=True, lin0_out_size=20, lin1_out_size=10,
@@ -31,11 +65,10 @@ def eval_4_models(data_set, batch_size, data_name):
                                        convolution_kernel=5, pooling_kernel=2)
     execute_model(data_set, model2, batch_size, data_name+"sigmoid")
 
-    model3 = CNN_leaky_relu(in_side_len=28, in_channels=1, cnv0_out_channels=8,
+    model4 = CNN_id(in_side_len=28, in_channels=1, cnv0_out_channels=8,
                                        reduce_to_dim2=True, lin0_out_size=20, lin1_out_size=10,
                                        convolution_kernel=5, pooling_kernel=2)
-    execute_model(data_set, model3, batch_size, data_name+"leaky_relu")
-
+    execute_model(data_set, model4, batch_size, data_name+"id")
 
 
 def execute_model(data_set, model, batch_size, data_name):
@@ -49,7 +82,7 @@ def execute_model(data_set, model, batch_size, data_name):
     optimizer = optim.Adam(model.parameters(), lr=0.01)
     model.train()
     model.double()
-    data_loader = DataLoader(data_set, batch_size=batch_size, shuffle=True)
+    data_loader = DataLoader(data_set, batch_size=batch_size, shuffle=False)
     print(f'DATA SIZE: {data_set.data.size()}')
 
     model.to(device)

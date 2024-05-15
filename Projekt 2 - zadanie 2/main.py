@@ -48,4 +48,5 @@ if __name__ == "__main__":
         exe_model.execute_model(data_set=data_set, model=model, batch_size=batch_size, data_name=data_name,
                                 train=train, continue_train=continue_train)
                                 """
-        eval_model.eval_4_models(data_set, batch_size, data_name)
+        #eval_model.eval_4_models_mnist(data_set, batch_size, data_name)
+        #eval_model.eval_4_models_cifar(data_set, batch_size, data_name)
