@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 from joblib import dump as model_dump
 from joblib import load as model_load
 
-hidden_neurons = [2,10]
+hidden_neurons = [30,10]
 
 train_accuracies_all = []
 test_accuracies_all  = []

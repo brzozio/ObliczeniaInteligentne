@@ -7,7 +7,7 @@ from sklearn.metrics import accuracy_score
 from torchvision import datasets, transforms
 from torch.utils.data import Dataset
 import torch
-from model2test import CNN
+from model import CNN
 from torch.utils.data import DataLoader, SubsetRandomSampler
 from torch import load as load_model
 from torch import save as save_model
@@ -143,7 +143,7 @@ def run_random_state(reduce_dim) -> None:
     augmentations = [basic, rotate, color_jitter]
     sample_sizes  = [100,200,1000,60000]
     criteria      = torch.nn.CrossEntropyLoss()
-    num_epochs    = 5
+    num_epochs    = 100
     
     avg_acc_aug           = np.array([])
     std_acc_aug           = np.array([])
@@ -181,11 +181,11 @@ def run_random_state(reduce_dim) -> None:
                 for epoch in range(num_epochs):
                     for batch in dataloader:
                         data, target = batch['data'].to(device), batch['target'].to(device)
-                        print(f'BATCH SIZE IS: {data.size(0)}')
-                        print(f'TARGET SIZE IS: {target.size(0)}')
+                        #print(f'BATCH SIZE IS: {data.size(0)}')
+                        #print(f'TARGET SIZE IS: {target.size(0)}')
                         outputs = model.extract(data)
                         outputs = model.forward(outputs)
-                        print(f"OUTPUT SIZE: {outputs.size(0)}")
+                        #print(f"OUTPUT SIZE: {outputs.size(0)}")
                         loss = criteria(outputs, target)
                         
                         optimizer.zero_grad()

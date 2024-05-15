@@ -24,6 +24,7 @@ class CNN(nn.Module):
                                kernel_size=self.conv_kernel_size)
 
         if reduce_to_dim2:
+            self.cnv1_out_channels = 2
             self.conv_kernel_size = (self.in_side_len - self.conv_kernel_size + 1) // pooling_kernel
             self.lin0_in_size = 2
         else:
