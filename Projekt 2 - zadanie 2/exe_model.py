@@ -32,6 +32,7 @@ def execute_model(data_set, model, batch_size, data_name, train: bool = False, c
         model.train()
         model.double()
         data_loader = DataLoader(data_set, batch_size=batch_size, shuffle=True)
+        print(f'DATA SIZE: {data_set.data.size()}')
 
         for epoch in range(num_epochs):
             for batch in data_loader:
@@ -68,6 +69,14 @@ def execute_model(data_set, model, batch_size, data_name, train: bool = False, c
 
         print(f'PREDICTED CLASSES: {predicted_classes}')
         print(f"ORIGINAL CLASSES: {data_set.targets}")
+
+        if data_name == 'projekt_2_zad_2_cifar10' or data_name == 'projekt_2_zad_2_cifar10_reduced':
+            targets_names = ['airplane','automobile','bird','cat','deer','dog','frog','horse','ship','truck']
+            for index, label in enumerate(predicted_classes):
+                mapped_pred_class = targets_names[label]
+                orig_class   = data_set.targets[index]
+                mapped_orig_class = targets_names[orig_class]
+                print(f'PREDICTED: {mapped_pred_class}, {label}, ORIGINAL: {mapped_orig_class}, {orig_class}')
 
         plt.figure(figsize=(10, 7))        
        

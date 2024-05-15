@@ -26,7 +26,7 @@ def train_and_evaluate(X_train, X_test, y_train, y_test, name, run, random_state
     best_epoch_num : int   = 0
     best_epoch_acc : float = 0.0
 
-    for epoch in range(100000):  
+    for epoch in range(10_000):  
         model.partial_fit(X_train, y_train, classes=np.unique(y_train))
         train_accuracy = accuracy_score(y_train, model.predict(X_train))
         test_accuracy  = accuracy_score(y_test, model.predict(X_test))
@@ -68,14 +68,14 @@ def run_random_state(num_runs, X_train, y_train, X_test, y_test, name)->None:
         test_accuracies_all.append(test_accuracies)
         
         #if run is 9:
-        plt.figure(figsize=(10, 6))
-        plt.plot(range(1, len(train_accuracies_all[run]) + 1), train_accuracies_all[run], label=f"Run {run+1} Train")
-        plt.plot(range(1, len(test_accuracies_all[run]) + 1), test_accuracies_all[run], label=f"Run {run+1} Test")
-        plt.title(f'Acc. Changes Over Epochs - Exp. {name} Data, Run={run+1}')
-        plt.xlabel('Epoch')
-        plt.ylabel('Accuracy')
-        plt.legend()
-        plt.show()
+        #plt.figure(figsize=(10, 6))
+        #plt.semilogx(range(1, len(train_accuracies_all[run]) + 1), train_accuracies, label=f"Run {run+1} Train")
+        #plt.semilogx(range(1, len(test_accuracies_all[run]) + 1), test_accuracies, label=f"Run {run+1} Test")
+        #plt.title(f'Acc. Changes Over Epochs - Exp. {name} Data, Run={run+1}')
+        #plt.xlabel('Epoch')
+        #plt.ylabel('Accuracy')
+        #plt.legend()
+        #plt.show()
              
         new_row_test = {'Run': run+1, 'AccStart': start_acc_test, 'AccBest': best_epoch_acc, 'AccBestEpochNr': best_epoch_num, 'AccEnd': end_acc_test}
         df_test = df_test._append(new_row_test, ignore_index=True)
@@ -165,22 +165,24 @@ if __name__ == "__main__":
     num_runs = 10
 #Iris
     iris                = datasets.load_iris()
+    iris.data  = StandardScaler().fit_transform(iris.data)
     #iris.data           = StandardScaler().fit_transform(iris.data)
     X_train, X_test, y_train, y_test = train_test_split(iris.data, iris.target, test_size=0.25, train_size=0.75)
-    #run_random_state(num_runs=num_runs, name='iris', X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
-    KNN_accuracy(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
+    run_random_state(num_runs=num_runs, name='iris', X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
+    #KNN_accuracy(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
 #Wine
     wine                = datasets.load_wine()
+    wine.data  = StandardScaler().fit_transform(wine.data)
     #wine.data           = StandardScaler().fit_transform(wine.data)
     X_train, X_test, y_train, y_test = train_test_split(wine.data,wine.target, test_size=0.3, train_size=0.7)
-    #run_random_state(num_runs=num_runs, name='wine', X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
-    KNN_accuracy(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
+    run_random_state(num_runs=num_runs, name='wine', X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
+    #KNN_accuracy(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
 #Breast
     breast_cancer       = datasets.load_breast_cancer()
-    #breast_cancer.data  = StandardScaler().fit_transform(breast_cancer.data)
+    breast_cancer.data  = StandardScaler().fit_transform(breast_cancer.data)
     X_train, X_test, y_train, y_test = train_test_split(breast_cancer.data, breast_cancer.target, test_size=0.25, train_size=0.75)
-    #run_random_state(num_runs=num_runs, name='breast', X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
-    KNN_accuracy(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
+    run_random_state(num_runs=num_runs, name='breast', X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
+    #KNN_accuracy(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
 
 
     

@@ -112,6 +112,7 @@ def plot_decision_boundary(X, func, tolerance = 1, y_true=None)-> plt.figure:
     
     # Obliczamy etykiety dla każdego punktu w siatce
     meshgrid_tensor = torch.tensor(np.c_[xx.ravel(), yy.ravel()], dtype=torch.double)
+    #meshgrid_tensor.reshape(-1,28,28)
     Z = func(meshgrid_tensor)
     Z = torch.argmax(Z,dim=1).detach().numpy().reshape(xx.shape)
     print(Z)
