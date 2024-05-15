@@ -7,7 +7,7 @@ from sklearn.metrics import accuracy_score
 from torchvision import datasets, transforms
 from torch.utils.data import Dataset
 import torch
-from model import CNN
+from model import CNN_tanh
 from torch.utils.data import DataLoader, SubsetRandomSampler
 from torch import load as load_model
 from torch import save as save_model
@@ -139,9 +139,9 @@ def run_random_state(reduce_dim, num_runs) -> None:
         '1000': []
     })
     
-    model = CNN(in_side_len=28, in_channels=1, cnv0_out_channels=8, cnv1_out_channels=16,
-                        reduce_to_dim2=reduce_dim, lin0_out_size=20, lin1_out_size=10,
-                        convolution_kernel=5, pooling_kernel=2)
+    model = CNN_tanh(in_side_len=28, in_channels=1, cnv0_out_channels=8, cnv1_out_channels=16,
+                     reduce_to_dim2=reduce_dim, lin0_out_size=20, lin1_out_size=10,
+                     convolution_kernel=5, pooling_kernel=2)
     
     augmentations = [basic, rotate, color_jitter]
     sample_sizes  = [100,200,1000,60000]
