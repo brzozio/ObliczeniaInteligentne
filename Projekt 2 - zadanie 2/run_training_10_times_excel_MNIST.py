@@ -7,7 +7,7 @@ from sklearn.metrics import accuracy_score
 from torchvision import datasets, transforms
 from torch.utils.data import Dataset
 import torch
-from exe_model import CNN
+from model2test import CNN
 from torch.utils.data import DataLoader, SubsetRandomSampler
 from torch import load as load_model
 from torch import save as save_model
@@ -143,7 +143,6 @@ def run_random_state(reduce_dim) -> None:
     augmentations = [basic, rotate, color_jitter]
     sample_sizes  = [100,200,1000,60000]
     criteria      = torch.nn.CrossEntropyLoss()
-    optimizer     = torch.optim.Adam(model.parameters(), lr=0.01)
     num_epochs    = 5
     
     avg_acc_aug           = np.array([])
@@ -159,7 +158,6 @@ def run_random_state(reduce_dim) -> None:
             accuracy_score_list = np.array([])
             max_accuracy        = 0
                
-            sample_param = torch.randperm(len(data_set_train))[:sample_size]
             if sample_size in (100,200):
                 batch_size   = 10
             elif sample_size == 1_000:
@@ -167,12 +165,14 @@ def run_random_state(reduce_dim) -> None:
             else:
                 batch_size = 20_000
             print(f'BATCH SIZE FOR {augm_i} AUG {sample_size} is: {batch_size}')
-            dataloader = DataLoader(dataset=data_set_train, batch_size=batch_size, sampler=SubsetRandomSampler(sample_param))
+            sample_param = torch.randperm(len(data_set_train))[:sample_size]
+            sampler      = SubsetRandomSampler(sample_param)
+            dataloader   = DataLoader(dataset=data_set_train, batch_size=batch_size, sampler=sampler,drop_last=True)
 
             for run in range(2):
                 for param in model.parameters():
                     param.data.fill_(0)
-                #Trenowanie modelu w kazdym run - 100, 200, 1000, All dane 
+                optimizer     = torch.optim.Adam(model.parameters(), lr=0.01)
                 model.train()
                 model.double()
                 model.to(device)
@@ -181,15 +181,18 @@ def run_random_state(reduce_dim) -> None:
                 for epoch in range(num_epochs):
                     for batch in dataloader:
                         data, target = batch['data'].to(device), batch['target'].to(device)
+                        print(f'BATCH SIZE IS: {data.size(0)}')
+                        print(f'TARGET SIZE IS: {target.size(0)}')
                         outputs = model.extract(data)
                         outputs = model.forward(outputs)
+                        print(f"OUTPUT SIZE: {outputs.size(0)}")
                         loss = criteria(outputs, target)
                         
                         optimizer.zero_grad()
                         loss.backward()
                         optimizer.step()
                     
-                    print(f"Epoch [{epoch+1}/{num_epochs}]  Loss: {loss.item():.5f} - RUN [{run}]")
+                    print(f"Epoch [{epoch+1}/{num_epochs}]  Loss: {loss.item():.5f} - AUGM {augm_i}, SAMPLE {sample_size}, RUN [{run}]")
 
                 model.eval()
                 model.double()
@@ -211,7 +214,7 @@ def run_random_state(reduce_dim) -> None:
                 
                 accuracy            = accuracy_score(predicted_classes_cpu, targets_cpu)
                 accuracy_score_list = np.append(accuracy_score_list,accuracy)
-                #print(f'ACCURACY SCORE: {accuracy:.4f}')
+                print(f'ACCURACY SCORE: {accuracy:.4f}')
                 
                 if accuracy > max_accuracy:
                     max_accuracy = accuracy

@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.neural_network import MLPClassifier as MLP
+from sklearn.preprocessing import StandardScaler
 from voronoi import plot_decision_boundary, plot_decision_boundary_ax
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
@@ -23,7 +24,7 @@ def train_and_evaluate(X_train, X_test, y_train, y_test, hidden_neurons, exp, ru
     best_epoch_num : int   = 0
     best_epoch_acc : float = 0.0
 
-    for epoch in range(20000):  
+    for epoch in range(100_000):  
         model.partial_fit(X_train, y_train, classes=np.unique(y_train))
         train_accuracy = accuracy_score(y_train, model.predict(X_train))
         test_accuracy  = accuracy_score(y_test, model.predict(X_test))
@@ -65,18 +66,18 @@ def run_random_state(num_runs, X_train, y_train, X_test, y_test, experiment)->No
         print(f"TRAIN ACC: {train_accuracies}")
         train_accuracies_all.append(train_accuracies)
         test_accuracies_all.append(test_accuracies)
-        """
+        
         plt.figure(figsize=(10, 6))
         #plt.plot(range(1, len(train_accuracies_all[run]) + 1), train_accuracies_all[run], label=f"Run {run+1} Train")
         #plt.plot(range(1, len(test_accuracies_all[run]) + 1), test_accuracies_all[run], label=f"Run {run+1} Test")
-        plt.plot(range(1, len(train_accuracies_all[run]) + 1), train_accuracies, label=f"Run {run+1} Train")
-        plt.plot(range(1, len(test_accuracies_all[run]) + 1), test_accuracies, label=f"Run {run+1} Test")
+        plt.semilogx(range(1, len(train_accuracies_all[run]) + 1), train_accuracies, label=f"Run {run+1} Train")
+        plt.semilogx(range(1, len(test_accuracies_all[run]) + 1), test_accuracies, label=f"Run {run+1} Test")
         plt.title(f'Acc. Changes Over Epochs - Exp. {experiment+2} Data, Run={run+1}, Act={activation}')
         plt.xlabel('Epoch')
         plt.ylabel('Accuracy')
         plt.legend()
         plt.show()
-        """
+        
         #decision_boundary(exp=experiment, best_epoch_num=best_epoch_num, accuracy=best_epoch_acc, num_run=run, data_train=X_train, data_test=X_test, start_acc_test =start_acc_test,  end_acc_test =end_acc_test, start_acc_train=start_acc_train, end_acc_train=end_acc_train)
         new_row_test = {'Run': run+1, 'AccStart': start_acc_test, 'AccBest': best_epoch_acc, 'AccBestEpochNr': best_epoch_num, 'AccEnd': end_acc_test}
         df_test = df_test._append(new_row_test, ignore_index=True)
@@ -113,7 +114,8 @@ def decision_boundary(exp, best_epoch_num, accuracy, num_run, data_train, data_t
 if __name__ == "__main__":
     
     Data = np.genfromtxt(f"C:\\Users\\Michał\\Documents\\STUDIA\\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\Projekt 1 - zadanie 2\\2_3.csv", delimiter=';')
-    num_runs = 10
+    num_runs = 1
+    Data[:,0:2] = StandardScaler().fit_transform(Data[:,0:2])
     X_train_2, X_test_2, y_train_2, y_test_2 = train_test_split(Data[:,0:2], Data[:,2], test_size=0.2,  random_state=42)
     X_train_3, X_test_3, y_train_3, y_test_3 = train_test_split(Data[:,0:2], Data[:,2], test_size=0.2, train_size=0.2, random_state=42)
 
@@ -122,7 +124,7 @@ if __name__ == "__main__":
     run_random_state(num_runs=num_runs, experiment=0, X_train=X_train_2, y_train=y_train_2, X_test=X_test_2, y_test=y_test_2)
 
 #Przypadek z eksperymentu 3
-    run_random_state(num_runs=num_runs, experiment=1, X_train=X_train_3, y_train=y_train_3, X_test=X_test_3, y_test=y_test_3)
+    #run_random_state(num_runs=num_runs, experiment=1, X_train=X_train_3, y_train=y_train_3, X_test=X_test_3, y_test=y_test_3)
 
     
     
