@@ -32,29 +32,21 @@ basic = transforms.Compose([
 flip = transforms.Compose([
     #Odwrócenie obrazu horyzontalnie - w przypadku liczb bez sensu
     transforms.RandomHorizontalFlip(),    
-    transforms.ToTensor(),                 
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  
 ])
 
 rotate = transforms.Compose([
     #Rotacja obrazu o rand kąt <0,15> 
-    transforms.RandomRotation(15),          
-    transforms.ToTensor(),                  
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  
+    transforms.RandomRotation(30),          
 ])
 
 color_jitter = transforms.Compose([
     #Modulacja jasności, kontrastu, nasycenia w obrazie - sens, zdjęcia mogą być ciemniejsze itd.
-    transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),  
-    transforms.ToTensor(),                                                           
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))       
+    transforms.ColorJitter(brightness=0.7, contrast=0.8, saturation=0.4, hue=0.3),  
 ])
 
 random_crop = transforms.Compose([
     #Randomowe przycięcie obrazu - moze np. wyciąć samą głowę zwierzęcia
     transforms.RandomCrop(32, padding=4),                   
-    transforms.ToTensor(),                                  
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)) 
 ])
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -70,13 +62,13 @@ def augmenting_image_ax(transform):
 
     for row in range(3):
         for col in range(2):
-            index = (row + col) * 2
-            original_image = mnist[index][0][0]
+            index = (row * 2) + col
+            original_image, _ = mnist[index]
             augmented_image = transform(original_image)
-            ax[row, col].imshow(original_image, cmap='gray')
-            ax[row, col].set_title(f'Original Image')
-            ax[row, col+1].imshow(augmented_image, cmap='gray')
-            ax[row, col+1].set_title(f'Augmented Image')
+            ax[row, 0].imshow(original_image, cmap='gray')
+            ax[row, 0].set_title(f'Original Image')
+            ax[row, 1].imshow(augmented_image, cmap='gray')
+            ax[row, 1].set_title(f'Augmented Image')
 
     plt.show()
 
@@ -84,17 +76,25 @@ def augmenting_image_ax(transform):
     # rozważane było 100 przykładów raz gdy tylko te dane są widoczne i
     # raz gdy dla każdej danej 10 razy została zastosowana metoda augmentacji (1000 przykładów).
 
+def collate_fn(batch):
+    # Konwertuj obrazy PIL na tensory
+    images, labels = zip(*batch)
+    images = torch.stack([transforms.ToTensor()(img) for img in images])
+    return images, torch.tensor(labels)
+
 def visualize_data_distribution(transform=None):
     mnist = datasets.MNIST(
-            root='data',
-            train=True,
-            download=True,
-            transform=transform
+        root='data',
+        train=True,
+        download=True,
+        transform=transform
     )
-    data_loader = DataLoader(mnist, batch_size=100, shuffle=True)
+    data_loader = DataLoader(mnist, batch_size=100, shuffle=True, collate_fn=collate_fn)
     images, labels = next(iter(data_loader))
 
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=(12, 6))
+
+    # Histogram przed transformacją
     plt.subplot(1, 2, 1)
     plt.hist(labels.numpy(), bins=range(11), edgecolor='black')
     plt.title('Data Distribution (100 examples)')
@@ -103,9 +103,11 @@ def visualize_data_distribution(transform=None):
 
     if transform:
         augmented_images = []
+        augmented_labels = []
         for i in range(10):
             augmented_images.extend(transform(image) for image in images)
-        augmented_labels = labels.repeat(10)
+            augmented_labels.extend(labels)
+        augmented_labels = torch.tensor(augmented_labels)
         plt.subplot(1, 2, 2)
         plt.hist(augmented_labels.numpy(), bins=range(11), edgecolor='black')
         plt.title('Data Distribution (1000 examples with augmentation)')
@@ -115,13 +117,14 @@ def visualize_data_distribution(transform=None):
     plt.show()
 
 
+
 def mnist_to_cnn(device, train, transforming) -> CustomDataset:
     mnist           = datasets.MNIST(root='data', train=train, download=True, transform=transforming)
     mnists          = CustomDataset(data=mnist.data, targets=mnist.targets, device=device)
     mnists.data     = mnists.data.view(-1,1,28,28)
     return mnists
 
-def run_random_state(reduce_dim) -> None:
+def run_random_state(reduce_dim, num_runs) -> None:
     print(f'RUNNING: {device}')
     df_avg_acc = pd.DataFrame({
         'all': [],
@@ -143,7 +146,7 @@ def run_random_state(reduce_dim) -> None:
     augmentations = [basic, rotate, color_jitter]
     sample_sizes  = [100,200,1000,60000]
     criteria      = torch.nn.CrossEntropyLoss()
-    num_epochs    = 100
+    num_epochs    = 1
     
     avg_acc_aug           = np.array([])
     std_acc_aug           = np.array([])
@@ -163,13 +166,13 @@ def run_random_state(reduce_dim) -> None:
             elif sample_size == 1_000:
                 batch_size   = 250
             else:
-                batch_size = 20_000
+                batch_size = 12_000
             print(f'BATCH SIZE FOR {augm_i} AUG {sample_size} is: {batch_size}')
             sample_param = torch.randperm(len(data_set_train))[:sample_size]
             sampler      = SubsetRandomSampler(sample_param)
             dataloader   = DataLoader(dataset=data_set_train, batch_size=batch_size, sampler=sampler,drop_last=True)
 
-            for run in range(2):
+            for run in range(num_runs):
                 for param in model.parameters():
                     param.data.fill_(0)
                 optimizer     = torch.optim.Adam(model.parameters(), lr=0.01)
@@ -286,12 +289,13 @@ def run_random_state(reduce_dim) -> None:
     df_std_div_acc.to_csv(f"projekt_2_zadanie_2_10_runs_STD_ACC_red_{reduce_dim}.csv",   index=False)
     
     if reduce_dim is True:
+        augmenting_image_ax(transform=color_jitter)
         augmenting_image_ax(transform=rotate)
         visualize_data_distribution(transform=None)
-        visualize_data_distribution(transform=rotate)
+        visualize_data_distribution(transform=color_jitter)
 
 
 if __name__ == "__main__":
     print('RUNNING FILE RUN TRAINING')
-    #run_random_state(reduce_dim=False) 
-    run_random_state(reduce_dim=True) 
+    #run_random_state(reduce_dim=False, num_runs=2) 
+    run_random_state(reduce_dim=True, num_runs=2) 

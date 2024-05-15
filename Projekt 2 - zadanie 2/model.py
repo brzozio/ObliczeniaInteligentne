@@ -51,11 +51,13 @@ class CNN(nn.Module):
     def extract(self, in_data):
 
         out = self.conv0(in_data)
-        out = F.tanh( out)
+        #out = F.tanh( out)
+        out = F.leaky_relu( input=out, negative_slope=0.33)
         out = self.pool(out)
 
         out = self.conv1(out)
-        out = F.tanh(out)
+        #out = F.tanh(out)
+        out = F.leaky_relu( input=out, negative_slope=0.33)
 
         if not self.reduce_to_dim2:
             out = self.pool(out)
