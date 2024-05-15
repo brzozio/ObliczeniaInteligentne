@@ -1,9 +1,9 @@
 import exe_model
-from datasets_get import cifar10_to_cnn, mnist_to_cnn
+from datasets_get import cifar10_to_cnn, mnist_to_cnn, cifar10_to_cnn_AUGMENTED
 import torch
 
 train: bool          = False
-continue_train: bool = False
+continue_train: bool = True
 batch_size           = 20_000
 #data_name = 'projekt_2_zad_2_mnist'
 #data_name = 'projekt_2_zad_2_mnist_reduced'
@@ -30,7 +30,8 @@ if __name__ == "__main__":
             model = exe_model.CNN(in_side_len=32, in_channels=3, cnv0_out_channels=6,
                                   cnv1_out_channels=16, lin0_out_size=128, lin1_out_size=10,
                                   convolution_kernel=3, pooling_kernel=2)
-            data_set      = cifar10_to_cnn(device, train)
+            data_set      = cifar10_to_cnn_AUGMENTED(device, train)
+            #data_set      = cifar10_to_cnn(device, not train)
 
         case 'projekt_2_zad_2_cifar10_reduced':
             model = exe_model.CNN(in_side_len=32, in_channels=3, cnv0_out_channels=10,
