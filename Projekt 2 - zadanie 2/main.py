@@ -41,7 +41,6 @@ if __name__ == "__main__":
         case _:
             model         = None
             data_set      = None
-            targets_names = None
 
     if (model is not None) or (data_set is not None):
         exe_model.execute_model(data_set=data_set, model=model, batch_size=batch_size, data_name=data_name,

@@ -10,6 +10,7 @@ from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 from joblib import dump, load
 import torchvision
+from torch.utils.data import DataLoader
 
 
 class CustomDataset(Dataset):
@@ -58,3 +59,47 @@ def cifar10_to_cnn(device, train):
     print(cifars.data.size())
     
     return cifars
+
+
+def cifar10_to_cnn_AUGMENTED(device, train):
+    
+    rotate = transforms.Compose([
+        # Rotacja obrazu o losowy kąt z zakresu <0,15>
+        transforms.RandomRotation(15),          
+        transforms.ToTensor(),                  
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  
+    ])
+    color_jitter = transforms.Compose([
+        # Modulacja jasności, kontrastu, nasycenia w obrazie
+        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),  
+        transforms.ToTensor(),                                                           
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))       
+    ])
+    cifar = torchvision.datasets.CIFAR10(root='./data', train=train, download=True)
+    print(f'SIZE PRE AUGMENTATION: {len(cifar)}')
+
+    augmented_images = []
+    augmented_labels = []
+    for data, target in cifar:
+        augmented_images.append(rotate(data))
+        augmented_labels.append(target)
+
+    cifar = torchvision.datasets.CIFAR10(root='./data', train=train, download=True, transform=transform_cifar10)
+    cifar.data = torch.from_numpy(cifar.data)
+    cifar.data = torch.permute(cifar.data, (0, 3, 1, 2))
+    augmented_images_tensor = torch.stack(augmented_images)
+    cifar_extended_data = torch.cat((cifar.data, augmented_images_tensor), dim=0)
+    cifar_extended_labels = cifar.targets + augmented_labels
+
+    # Konwertuj listę do postaci tensorów PyTorch i dostosuj kształt danych
+    print(f'CIFAR EXT SIZE: {len(cifar_extended_data)}')
+    cifars = CustomDataset(data=cifar_extended_data, targets=cifar_extended_labels, device=device)
+    cifars.data = torch.permute(cifars.data, (0, 3, 1, 2))
+    print(f'SIZE POST AUGMENTATION: {len(cifars)}')
+
+    return cifars
+
+
+
+if __name__ == "__main__":
+    cifar10_to_cnn_AUGMENTED('cuda', True)
