@@ -129,52 +129,153 @@ def eval_models_mnist_sizes(data_set, batch_size, data_name):
 
     ############################################################################################
 
-    model10 = CNN_tanh(in_side_len=28, in_channels=1, cnv0_out_channels=4,
+    model10 = CNN_leaky_relu(in_side_len=28, in_channels=1, cnv0_out_channels=4,
                                        cnv1_out_channels=16, lin0_out_size=16, lin1_out_size=10,
                                        convolution_kernel=3, pooling_kernel=2, reduce_to_dim2=True)
     acc_ar[1][0] = eval_model(data_set, model10, batch_size, data_name, learning_rate=0.01)
 
-    model11 = CNN_tanh(in_side_len=28, in_channels=1, cnv0_out_channels=8,
+    model11 = CNN_leaky_relu(in_side_len=28, in_channels=1, cnv0_out_channels=8,
                                        cnv1_out_channels=16, lin0_out_size=16, lin1_out_size=10,
                                        convolution_kernel=3, pooling_kernel=2, reduce_to_dim2=True)
     acc_ar[1][1] = eval_model(data_set, model11, batch_size, data_name, learning_rate=0.01)
 
-    model12 = CNN_tanh(in_side_len=28, in_channels=1, cnv0_out_channels=12,
+    model12 = CNN_leaky_relu(in_side_len=28, in_channels=1, cnv0_out_channels=12,
                                        cnv1_out_channels=16, lin0_out_size=16, lin1_out_size=10,
                                        convolution_kernel=3, pooling_kernel=2, reduce_to_dim2=True)
     acc_ar[1][2] = eval_model(data_set, model12, batch_size, data_name, learning_rate=0.01)
 
-    model13 = CNN_tanh(in_side_len=28, in_channels=1, cnv0_out_channels=4,
+    model13 = CNN_leaky_relu(in_side_len=28, in_channels=1, cnv0_out_channels=4,
                                        cnv1_out_channels=16, lin0_out_size=16, lin1_out_size=10,
                                        convolution_kernel=5, pooling_kernel=2, reduce_to_dim2=True)
     acc_ar[1][3] = eval_model(data_set, model13, batch_size, data_name, learning_rate=0.01)
 
-    model14 = CNN_tanh(in_side_len=28, in_channels=1, cnv0_out_channels=8,
+    model14 = CNN_leaky_relu(in_side_len=28, in_channels=1, cnv0_out_channels=8,
                                        cnv1_out_channels=16, lin0_out_size=16, lin1_out_size=10,
                                        convolution_kernel=5, pooling_kernel=2, reduce_to_dim2=True)
     acc_ar[1][4] = eval_model(data_set, model14, batch_size, data_name, learning_rate=0.01)
 
-    model15 = CNN_tanh(in_side_len=28, in_channels=1, cnv0_out_channels=12,
+    model15 = CNN_leaky_relu(in_side_len=28, in_channels=1, cnv0_out_channels=12,
                                        cnv1_out_channels=16, lin0_out_size=16, lin1_out_size=10,
                                        convolution_kernel=5, pooling_kernel=2, reduce_to_dim2=True)
     acc_ar[1][5] = eval_model(data_set, model15, batch_size, data_name, learning_rate=0.01)
 
-    model16 = CNN_tanh(in_side_len=28, in_channels=1, cnv0_out_channels=4,
+    model16 = CNN_leaky_relu(in_side_len=28, in_channels=1, cnv0_out_channels=4,
                                        cnv1_out_channels=16, lin0_out_size=16, lin1_out_size=10,
                                        convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=True)
     acc_ar[1][6] = eval_model(data_set, model16, batch_size, data_name, learning_rate=0.01)
 
-    model17 = CNN_tanh(in_side_len=28, in_channels=1, cnv0_out_channels=8,
+    model17 = CNN_leaky_relu(in_side_len=28, in_channels=1, cnv0_out_channels=8,
                                        cnv1_out_channels=16, lin0_out_size=16, lin1_out_size=10,
                                        convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=True)
     acc_ar[1][7] = eval_model(data_set, model17, batch_size, data_name, learning_rate=0.01)
 
-    model18 = CNN_tanh(in_side_len=28, in_channels=1, cnv0_out_channels=12,
+    model18 = CNN_leaky_relu(in_side_len=28, in_channels=1, cnv0_out_channels=12,
                                        cnv1_out_channels=16, lin0_out_size=16, lin1_out_size=10,
                                        convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=True)
     acc_ar[1][8] = eval_model(data_set, model18, batch_size, data_name, learning_rate=0.01)
 
     joblib.dump(acc_ar, 'mnist_kernel_channels.joblib')
+
+
+def eval_models_cifar_sizes(data_set, batch_size, data_name):
+
+    acc_ar = np.zeros((2, 9, 50))
+
+    joblib.dump(acc_ar, 'cifar_kernel_channels.joblib')
+
+    model0 = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=5,
+                      cnv1_out_channels=20, lin0_out_size=128, lin1_out_size=10,
+                      convolution_kernel=3, pooling_kernel=2, reduce_to_dim2=False)
+    acc_ar[0][0] = eval_model(data_set, model0, batch_size, data_name, learning_rate=0.001)
+
+    model1 = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=10,
+                      cnv1_out_channels=20, lin0_out_size=128, lin1_out_size=10,
+                      convolution_kernel=3, pooling_kernel=2, reduce_to_dim2=False)
+    acc_ar[0][1] = eval_model(data_set, model1, batch_size, data_name, learning_rate=0.001)
+
+    model2 = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=15,
+                      cnv1_out_channels=20, lin0_out_size=128, lin1_out_size=10,
+                      convolution_kernel=3, pooling_kernel=2, reduce_to_dim2=False)
+    acc_ar[0][2] = eval_model(data_set, model2, batch_size, data_name, learning_rate=0.001)
+
+    model3 = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=5,
+                      cnv1_out_channels=20, lin0_out_size=128, lin1_out_size=10,
+                      convolution_kernel=5, pooling_kernel=2, reduce_to_dim2=False)
+    acc_ar[0][3] = eval_model(data_set, model3, batch_size, data_name, learning_rate=0.001)
+
+    model4 = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=10,
+                      cnv1_out_channels=20, lin0_out_size=128, lin1_out_size=10,
+                      convolution_kernel=5, pooling_kernel=2, reduce_to_dim2=False)
+    acc_ar[0][4] = eval_model(data_set, model4, batch_size, data_name, learning_rate=0.001)
+
+    model5 = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=15,
+                      cnv1_out_channels=20, lin0_out_size=128, lin1_out_size=10,
+                      convolution_kernel=5, pooling_kernel=2, reduce_to_dim2=False)
+    acc_ar[0][5] = eval_model(data_set, model5, batch_size, data_name, learning_rate=0.001)
+
+    model6 = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=5,
+                      cnv1_out_channels=20, lin0_out_size=128, lin1_out_size=10,
+                      convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=False)
+    acc_ar[0][6] = eval_model(data_set, model6, batch_size, data_name, learning_rate=0.001)
+
+    model7 = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=10,
+                      cnv1_out_channels=20, lin0_out_size=128, lin1_out_size=10,
+                      convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=False)
+    acc_ar[0][7] = eval_model(data_set, model7, batch_size, data_name, learning_rate=0.001)
+
+    model8 = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=15,
+                      cnv1_out_channels=20, lin0_out_size=128, lin1_out_size=10,
+                      convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=False)
+    acc_ar[0][8] = eval_model(data_set, model8, batch_size, data_name, learning_rate=0.001)
+
+    ############################################################################################
+
+    model10 = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=5,
+                      cnv1_out_channels=20, lin0_out_size=20, lin1_out_size=10,
+                      convolution_kernel=3, pooling_kernel=2, reduce_to_dim2=True)
+    acc_ar[1][0] = eval_model(data_set, model10, batch_size, data_name, learning_rate=0.001)
+
+    model11 = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=10,
+                      cnv1_out_channels=20, lin0_out_size=20, lin1_out_size=10,
+                      convolution_kernel=3, pooling_kernel=2, reduce_to_dim2=True)
+    acc_ar[1][1] = eval_model(data_set, model11, batch_size, data_name, learning_rate=0.001)
+
+    model12 = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=15,
+                      cnv1_out_channels=20, lin0_out_size=20, lin1_out_size=10,
+                      convolution_kernel=3, pooling_kernel=2, reduce_to_dim2=True)
+    acc_ar[1][2] = eval_model(data_set, model12, batch_size, data_name, learning_rate=0.001)
+
+    model13 = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=5,
+                      cnv1_out_channels=20, lin0_out_size=20, lin1_out_size=10,
+                      convolution_kernel=5, pooling_kernel=2, reduce_to_dim2=True)
+    acc_ar[1][3] = eval_model(data_set, model13, batch_size, data_name, learning_rate=0.001)
+
+    model14 = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=10,
+                      cnv1_out_channels=20, lin0_out_size=20, lin1_out_size=10,
+                      convolution_kernel=5, pooling_kernel=2, reduce_to_dim2=True)
+    acc_ar[1][4] = eval_model(data_set, model14, batch_size, data_name, learning_rate=0.001)
+
+    model15 = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=15,
+                      cnv1_out_channels=20, lin0_out_size=20, lin1_out_size=10,
+                      convolution_kernel=5, pooling_kernel=2, reduce_to_dim2=True)
+    acc_ar[1][5] = eval_model(data_set, model15, batch_size, data_name, learning_rate=0.001)
+
+    model16 = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=5,
+                      cnv1_out_channels=20, lin0_out_size=20, lin1_out_size=10,
+                      convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=True)
+    acc_ar[1][6] = eval_model(data_set, model16, batch_size, data_name, learning_rate=0.001)
+
+    model17 = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=10,
+                      cnv1_out_channels=20, lin0_out_size=20, lin1_out_size=10,
+                      convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=True)
+    acc_ar[1][7] = eval_model(data_set, model17, batch_size, data_name, learning_rate=0.001)
+
+    model18 = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=15,
+                      cnv1_out_channels=20, lin0_out_size=20, lin1_out_size=10,
+                      convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=True)
+    acc_ar[1][8] = eval_model(data_set, model18, batch_size, data_name, learning_rate=0.001)
+
+    joblib.dump(acc_ar, 'cifar_kernel_channels.joblib')
 
 
 
