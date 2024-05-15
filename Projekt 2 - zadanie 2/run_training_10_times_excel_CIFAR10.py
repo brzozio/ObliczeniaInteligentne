@@ -26,8 +26,10 @@ class CustomDataset(Dataset):
         return sample
 
 basic = transforms.Compose([
-    transforms.ToTensor()
+    transforms.ToTensor(),
+    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 ])
+
 
 flip = transforms.Compose([
     #Odwrócenie obrazu horyzontalnie - w przypadku liczb bez sensu
@@ -52,7 +54,7 @@ random_crop = transforms.Compose([
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def augmenting_image_ax(transform):
-    mnist = datasets.MNIST(
+    cifar = datasets.CIFAR10(
             root='data',
             train=True,
             download=True,
@@ -63,7 +65,7 @@ def augmenting_image_ax(transform):
     for row in range(3):
         for col in range(2):
             index = (row * 2) + col
-            original_image, _ = mnist[index]
+            original_image, _ = cifar[index]
             augmented_image = transform(original_image)
             ax[row, 0].imshow(original_image, cmap='gray')
             ax[row, 0].set_title(f'Original Image')
@@ -83,13 +85,13 @@ def collate_fn(batch):
     return images, torch.tensor(labels)
 
 def visualize_data_distribution(transform=None):
-    mnist = datasets.MNIST(
+    cifar = datasets.CIFAR10(
         root='data',
         train=True,
         download=True,
         transform=transform
     )
-    data_loader = DataLoader(mnist, batch_size=100, shuffle=True, collate_fn=collate_fn)
+    data_loader = DataLoader(cifar, batch_size=100, shuffle=True, collate_fn=collate_fn)
     images, labels = next(iter(data_loader))
 
     plt.figure(figsize=(12, 6))
@@ -118,11 +120,14 @@ def visualize_data_distribution(transform=None):
 
 
 
-def mnist_to_cnn(device, train, transforming) -> CustomDataset:
-    mnist           = datasets.MNIST(root='data', train=train, download=True, transform=transforming)
-    mnists          = CustomDataset(data=mnist.data, targets=mnist.targets, device=device)
-    mnists.data     = mnists.data.view(-1,1,28,28)
-    return mnists
+def cifar10_to_cnn(device, train, transforming):
+    cifar           = datasets.CIFAR10(root='./data', train=train, download=True, transform=transforming)
+    cifars          = CustomDataset(data=cifar.data, targets=cifar.targets, device=device)
+    print(cifars.data.size())
+    cifars.data     = torch.permute(cifars.data, (0, 3, 1, 2))
+    print(cifars.data.size())
+    
+    return cifars
 
 def run_random_state(reduce_dim, num_runs) -> None:
     print(f'RUNNING: {device}')
@@ -139,7 +144,7 @@ def run_random_state(reduce_dim, num_runs) -> None:
         '1000': []
     })
     
-    model = CNN(in_side_len=28, in_channels=1, cnv0_out_channels=8, cnv1_out_channels=16,
+    model = CNN(in_side_len=32, in_channels=3, cnv0_out_channels=8, cnv1_out_channels=16,
                         reduce_to_dim2=reduce_dim, lin0_out_size=20, lin1_out_size=10,
                         convolution_kernel=5, pooling_kernel=2)
     
@@ -151,10 +156,10 @@ def run_random_state(reduce_dim, num_runs) -> None:
     avg_acc_aug           = np.array([])
     std_acc_aug           = np.array([])
 
-    data_set_basic_test   = mnist_to_cnn(device, False, basic)
+    data_set_basic_test   = cifar10_to_cnn(device, False, basic)
 
     for augm_i, augm in enumerate(augmentations):
-        data_set_train        = mnist_to_cnn(device, True, augm)
+        data_set_train        = cifar10_to_cnn(device, True, augm)
 
         for sample_size in sample_sizes: 
             print(f"SAMPLE SIZE: {sample_size}")
@@ -259,7 +264,7 @@ def run_random_state(reduce_dim, num_runs) -> None:
     df_avg_acc = df_avg_acc._append(new_row_run_avg_acc_aug_1, ignore_index=True)
     df_avg_acc = df_avg_acc._append(new_row_run_avg_acc_aug_2, ignore_index=True)
 
-    df_avg_acc.to_csv(f"projekt_2_zadanie_2_10_runs_AVG_ACC_red_{reduce_dim}.csv",   index=False)
+    df_avg_acc.to_csv(f"projekt_2_zadanie_2_10_runs_AVG_ACC_red_{reduce_dim}_CIFAR.csv",   index=False)
     
     new_row_run_std_acc_no_aug = { 
                             'all': std_acc_aug[3], 
@@ -286,7 +291,7 @@ def run_random_state(reduce_dim, num_runs) -> None:
     df_std_div_acc = df_std_div_acc._append(new_row_run_std_acc_aug_1, ignore_index=True)
     df_std_div_acc = df_std_div_acc._append(new_row_run_std_acc_aug_2, ignore_index=True)
 
-    df_std_div_acc.to_csv(f"projekt_2_zadanie_2_10_runs_STD_ACC_red_{reduce_dim}.csv",   index=False)
+    df_std_div_acc.to_csv(f"projekt_2_zadanie_2_10_runs_STD_ACC_red_{reduce_dim}_CIFAR.csv",   index=False)
     
     if reduce_dim is True:
         augmenting_image_ax(transform=color_jitter)

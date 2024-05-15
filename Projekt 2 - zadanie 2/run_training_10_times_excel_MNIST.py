@@ -259,7 +259,7 @@ def run_random_state(reduce_dim, num_runs) -> None:
     df_avg_acc = df_avg_acc._append(new_row_run_avg_acc_aug_1, ignore_index=True)
     df_avg_acc = df_avg_acc._append(new_row_run_avg_acc_aug_2, ignore_index=True)
 
-    df_avg_acc.to_csv(f"projekt_2_zadanie_2_10_runs_AVG_ACC_red_{reduce_dim}.csv",   index=False)
+    df_avg_acc.to_csv(f"projekt_2_zadanie_2_10_runs_AVG_ACC_red_{reduce_dim}_MNIST.csv",   index=False)
     
     new_row_run_std_acc_no_aug = { 
                             'all': std_acc_aug[3], 
@@ -286,7 +286,7 @@ def run_random_state(reduce_dim, num_runs) -> None:
     df_std_div_acc = df_std_div_acc._append(new_row_run_std_acc_aug_1, ignore_index=True)
     df_std_div_acc = df_std_div_acc._append(new_row_run_std_acc_aug_2, ignore_index=True)
 
-    df_std_div_acc.to_csv(f"projekt_2_zadanie_2_10_runs_STD_ACC_red_{reduce_dim}.csv",   index=False)
+    df_std_div_acc.to_csv(f"projekt_2_zadanie_2_10_runs_STD_ACC_red_{reduce_dim}_MNIST.csv",   index=False)
     
     if reduce_dim is True:
         augmenting_image_ax(transform=color_jitter)
