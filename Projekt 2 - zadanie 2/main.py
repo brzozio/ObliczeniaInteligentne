@@ -6,9 +6,9 @@ import torch
 train: bool          = False
 continue_train: bool = False
 batch_size           = 20_000
-#data_name = 'projekt_2_zad_2_mnist'
+data_name = 'projekt_2_zad_2_mnist'
 #data_name = 'projekt_2_zad_2_mnist_reduced'
-data_name = 'projekt_2_zad_2_cifar10'
+#data_name = 'projekt_2_zad_2_cifar10'
 #data_name = 'projekt_2_zad_2_cifar10_reduced'
 
 if __name__ == "__main__":
@@ -49,6 +49,8 @@ if __name__ == "__main__":
         exe_model.execute_model(data_set=data_set, model=model, batch_size=batch_size, data_name=data_name,
                                 train=train, continue_train=continue_train)
         """
-        eval_model.eval_4_models_cifar(data_set=data_set, batch_size=batch_size, data_name=data_name, redux=True)
+        #eval_model.eval_4_models_cifar(data_set=data_set, batch_size=batch_size, data_name=data_name, redux=True)
 
         #eval_model.eval_4_models_mnist(data_set=data_set, batch_size=batch_size, data_name=data_name, redux=False)
+
+        eval_model.eval_models_mnist_sizes(data_set=data_set, batch_size=batch_size, data_name=data_name)
