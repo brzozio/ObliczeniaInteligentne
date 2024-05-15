@@ -142,11 +142,12 @@ def run_random_state(reduce_dim, num_runs) -> None:
     model = CNN_tanh(in_side_len=28, in_channels=1, cnv0_out_channels=8, cnv1_out_channels=16,
                      reduce_to_dim2=reduce_dim, lin0_out_size=20, lin1_out_size=10,
                      convolution_kernel=5, pooling_kernel=2)
+    save_model(model.state_dict(), f'RUN_10_TIMES____START_DICT_MNIST.pth') 
     
     augmentations = [basic, rotate, color_jitter]
     sample_sizes  = [100,200,1000,60000]
     criteria      = torch.nn.CrossEntropyLoss()
-    num_epochs    = 1
+    num_epochs    = 50
     
     avg_acc_aug           = np.array([])
     std_acc_aug           = np.array([])
@@ -164,31 +165,29 @@ def run_random_state(reduce_dim, num_runs) -> None:
             if sample_size in (100,200):
                 batch_size   = 10
             elif sample_size == 1_000:
-                batch_size   = 250
+                batch_size   = 100
             else:
-                batch_size = 12_000
+                batch_size = 5000
+
             print(f'BATCH SIZE FOR {augm_i} AUG {sample_size} is: {batch_size}')
+            
             sample_param = torch.randperm(len(data_set_train))[:sample_size]
             sampler      = SubsetRandomSampler(sample_param)
             dataloader   = DataLoader(dataset=data_set_train, batch_size=batch_size, sampler=sampler,drop_last=True)
 
             for run in range(num_runs):
-                for param in model.parameters():
-                    param.data.fill_(0)
+                model.load_state_dict(load_model(f'RUN_10_TIMES____START_DICT_MNIST.pth'))
+
                 optimizer     = torch.optim.Adam(model.parameters(), lr=0.01)
                 model.train()
                 model.double()
                 model.to(device)
-                #print(f'DATA SIZE: {data_set_train.data.size()}')
 
                 for epoch in range(num_epochs):
                     for batch in dataloader:
                         data, target = batch['data'].to(device), batch['target'].to(device)
-                        #print(f'BATCH SIZE IS: {data.size(0)}')
-                        #print(f'TARGET SIZE IS: {target.size(0)}')
                         outputs = model.extract(data)
                         outputs = model.forward(outputs)
-                        #print(f"OUTPUT SIZE: {outputs.size(0)}")
                         loss = criteria(outputs, target)
                         
                         optimizer.zero_grad()
@@ -198,31 +197,27 @@ def run_random_state(reduce_dim, num_runs) -> None:
                     print(f"Epoch [{epoch+1}/{num_epochs}]  Loss: {loss.item():.5f} - AUGM {augm_i}, SAMPLE {sample_size}, RUN [{run}]")
 
                 model.eval()
-                model.double()
-                model.to(device)
 
                 outputs = model.extract(data_set_basic_test.data)
                 outputs = model.forward(outputs)
-                #print(f"OUTPUS: {outputs}")
                 
-                softmax = torch.nn.Softmax(dim=1)
-                probabilities = softmax(outputs)
+                softmax           = torch.nn.Softmax(dim=1)
+                probabilities     = softmax(outputs)
                 predicted_classes = torch.argmax(probabilities, dim=1)
 
                 predicted_classes_cpu = predicted_classes.cpu().numpy()
                 targets_cpu           = data_set_basic_test.targets.cpu().numpy()
 
-                #print(f'PREDICTED CLASSES: {predicted_classes}')
-                #print(f"ORIGINAL CLASSES: {data_set_basic_test.targets}")
-                
                 accuracy            = accuracy_score(predicted_classes_cpu, targets_cpu)
                 accuracy_score_list = np.append(accuracy_score_list,accuracy)
                 print(f'ACCURACY SCORE: {accuracy:.4f}')
                 
                 if accuracy > max_accuracy:
                     max_accuracy = accuracy
+                    model.train()
                     save_model(model.state_dict(), f'RUN_10_TIMES_{augm_i}_{sample_size}_red_{reduce_dim}_MNIST.pth') 
-                
+                    model.eval()
+
             #Wyliczanie sredniej acc i odchylenie standardowe acc dla test
             avg_acc = accuracy_score_list.mean()
             std_div = accuracy_score_list.std()
@@ -297,5 +292,5 @@ def run_random_state(reduce_dim, num_runs) -> None:
 
 if __name__ == "__main__":
     print('RUNNING FILE RUN TRAINING')
-    #run_random_state(reduce_dim=False, num_runs=2) 
-    run_random_state(reduce_dim=True, num_runs=2) 
+    #run_random_state(reduce_dim=False, num_runs=10) 
+    run_random_state(reduce_dim=True, num_runs=10) 

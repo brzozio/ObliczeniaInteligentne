@@ -7,7 +7,7 @@ from sklearn.metrics import accuracy_score
 from torchvision import datasets, transforms
 from torch.utils.data import Dataset
 import torch
-from model import CNN
+from model import CNN_tanh
 from torch.utils.data import DataLoader, SubsetRandomSampler
 from torch import load as load_model
 from torch import save as save_model
@@ -144,14 +144,15 @@ def run_random_state(reduce_dim, num_runs) -> None:
         '1000': []
     })
     
-    model = CNN(in_side_len=32, in_channels=3, cnv0_out_channels=8, cnv1_out_channels=16,
+    model = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=8, cnv1_out_channels=16,
                         reduce_to_dim2=reduce_dim, lin0_out_size=20, lin1_out_size=10,
                         convolution_kernel=5, pooling_kernel=2)
+    save_model(model.state_dict(), f'RUN_10_TIMES____START_DICT_CIFAR10.pth')
     
     augmentations = [basic, rotate, color_jitter]
     sample_sizes  = [100,200,1000,60000]
     criteria      = torch.nn.CrossEntropyLoss()
-    num_epochs    = 1
+    num_epochs    = 50
     
     avg_acc_aug           = np.array([])
     std_acc_aug           = np.array([])
@@ -171,16 +172,16 @@ def run_random_state(reduce_dim, num_runs) -> None:
             elif sample_size == 1_000:
                 batch_size   = 250
             else:
-                batch_size = 12_000
+                batch_size = 5000
             print(f'BATCH SIZE FOR {augm_i} AUG {sample_size} is: {batch_size}')
             sample_param = torch.randperm(len(data_set_train))[:sample_size]
             sampler      = SubsetRandomSampler(sample_param)
             dataloader   = DataLoader(dataset=data_set_train, batch_size=batch_size, sampler=sampler,drop_last=True)
 
             for run in range(num_runs):
-                for param in model.parameters():
-                    param.data.fill_(0)
-                optimizer     = torch.optim.Adam(model.parameters(), lr=0.01)
+                model.load_state_dict(load_model(f'RUN_10_TIMES____START_DICT_CIFAR10.pth'))
+
+                optimizer     = torch.optim.Adam(model.parameters(), lr=0.001)
                 model.train()
                 model.double()
                 model.to(device)
