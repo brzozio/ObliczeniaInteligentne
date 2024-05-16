@@ -58,7 +58,6 @@ def augmenting_image_ax(transform, fname=None):
             root='data',
             train=True,
             download=True,
-            transform=transform
     )
     _, ax = plt.subplots(3, 2, figsize=(10, 20))
 
@@ -135,7 +134,7 @@ def cifar10_to_cnn(device, train, transforming):
     
     return cifars
 
-def run_random_state(model, reduce_dim, num_runs) -> None:
+def run_random_state(model, num_runs) -> None:
     print(f'RUNNING: {device}')
     df_avg_acc = pd.DataFrame({
         'all': [],
@@ -231,7 +230,7 @@ def run_random_state(model, reduce_dim, num_runs) -> None:
                 
                 if accuracy > max_accuracy:
                     max_accuracy = accuracy
-                    save_model(model.state_dict(), f'RUN_10_TIMES_{augm_i}_{sample_size}_red_{reduce_dim}_MNIST.pth') 
+                    save_model(model.state_dict(), f'RUN_10_TIMES_{augm_i}_{sample_size}_red_{model.reduce_to_dim2}_MNIST.pth') 
                 
             #Wyliczanie sredniej acc i odchylenie standardowe acc dla test
             avg_acc = accuracy_score_list.mean()
@@ -269,7 +268,7 @@ def run_random_state(model, reduce_dim, num_runs) -> None:
     df_avg_acc = df_avg_acc._append(new_row_run_avg_acc_aug_1, ignore_index=True)
     df_avg_acc = df_avg_acc._append(new_row_run_avg_acc_aug_2, ignore_index=True)
 
-    df_avg_acc.to_csv(f"projekt_2_zadanie_2_10_runs_AVG_ACC_red_{reduce_dim}_CIFAR.csv",   index=False)
+    df_avg_acc.to_csv(f"projekt_2_zadanie_2_10_runs_AVG_ACC_red_{model.reduce_to_dim2}_CIFAR.csv", index=False)
     
     new_row_run_std_acc_no_aug = { 
                             'all': std_acc_aug[3], 
@@ -296,9 +295,9 @@ def run_random_state(model, reduce_dim, num_runs) -> None:
     df_std_div_acc = df_std_div_acc._append(new_row_run_std_acc_aug_1, ignore_index=True)
     df_std_div_acc = df_std_div_acc._append(new_row_run_std_acc_aug_2, ignore_index=True)
 
-    df_std_div_acc.to_csv(f"projekt_2_zadanie_2_10_runs_STD_ACC_red_{reduce_dim}_CIFAR.csv",   index=False)
+    df_std_div_acc.to_csv(f"projekt_2_zadanie_2_10_runs_STD_ACC_red_{model.reduce_to_dim2}_CIFAR.csv", index=False)
     
-    if reduce_dim is True:
+    if model.reduce_to_dim2 is True:
         augmenting_image_ax(transform=color_jitter, fname='cifar_run10_aug_jitter.png')
         augmenting_image_ax(transform=rotate, fname='cifar_run10_aug_rotate.png')
         visualize_data_distribution(transform=None, fname='cifar_run10_vis_identity.png')
@@ -312,5 +311,5 @@ if __name__ == "__main__":
 
     print('RUNNING FILE RUN TRAINING')
     #run_random_state(reduce_dim=False, num_runs=2) 
-    run_random_state(model=model_cifar_ker, reduce_dim=False, num_runs=10) 
-    run_random_state(model=model_cifar_reduced_ker, reduce_dim=True, num_runs=10) 
+    run_random_state(model=model_cifar_ker, num_runs=10)
+    #run_random_state(model=model_cifar_reduced_ker, num_runs=10)
