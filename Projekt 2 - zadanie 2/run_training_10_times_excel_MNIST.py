@@ -298,5 +298,5 @@ if __name__ == "__main__":
 
 
     print('RUNNING FILE RUN TRAINING')
-    run_random_state(model=model_mnist_ker, reduce_dim=True, num_runs=10) 
+    run_random_state(model=model_mnist_ker, reduce_dim=False, num_runs=10) 
     run_random_state(model=model_mnist_reduced_ker, reduce_dim=True, num_runs=10) 

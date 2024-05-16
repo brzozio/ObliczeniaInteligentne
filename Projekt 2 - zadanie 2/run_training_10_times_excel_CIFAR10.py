@@ -306,5 +306,5 @@ if __name__ == "__main__":
 
     print('RUNNING FILE RUN TRAINING')
     #run_random_state(reduce_dim=False, num_runs=2) 
-    run_random_state(model=model_cifar_ker, reduce_dim=True, num_runs=10) 
+    run_random_state(model=model_cifar_ker, reduce_dim=False, num_runs=10) 
     run_random_state(model=model_cifar_reduced_ker, reduce_dim=True, num_runs=10) 
