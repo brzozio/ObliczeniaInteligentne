@@ -82,15 +82,20 @@ def augmenting_image_ax(transform, fname=None):
 
 
 def visualize_data_distribution(model, transform=None, fname=None):
+    transform_cifar10 = transforms.Compose([                
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  
+    ])
     #pil_image = transforms.ToPILImage()(image)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.double()
     model.eval()
+    model.to(device)
     
     cifar = datasets.CIFAR10(
         root='data',
         train=True,
-        download=True
+        download=True,
+        transform=transform_cifar10
     )
     to_tensor = transforms.ToTensor()
 
@@ -104,18 +109,23 @@ def visualize_data_distribution(model, transform=None, fname=None):
     cifar = datasets.CIFAR10(
         root='data',
         train=True,
-        download=True
+        download=True,
+        transform=transform_cifar10
     )
-    images_1000 = cifar.data[:100]
+    images_1000 = cifar.data[0:100]
     if transform:
         augmented_images_list = []
         for i in range(10):
             for image in images_1000:
                 augmented_image = transform(transforms.ToPILImage()(image))
-                augmented_images_list.append(augmented_image)
+                augmented_image_tensor = to_tensor(augmented_image)
+                augmented_images_list.append(augmented_image_tensor)
+
     print(f'SIZE: {len(augmented_images_list)}')
-    
-    features_1000 = model.extract(augmented_images_list_tensors)
+
+    augmented_images_list_tensors = torch.stack(augmented_images_list).double().to(device)
+
+    features_1000 = model.extract(augmented_images_list_tensors).cpu()
     plot_decision_boundary(X=features_1000, func=lambda X: model.forward(X), tolerance=0.1)
     
 
