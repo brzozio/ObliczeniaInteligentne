@@ -243,11 +243,11 @@ def execute_model_fast(data_set_train, data_set_test, model, batch_size, data_na
 
             outputs_train = model.extract(data_set_train.data[0:1000])
             outputs_train = model.forward(outputs_train)
-            
+
             predicted_classes_train = torch.argmax(outputs_train, dim=1)
-        
+
             predicted_classes_cpu_train = predicted_classes_train.cpu().numpy()
-        
+
             accuracy = accuracy_score(predicted_classes_cpu_train, data_set_train_targets_cpu)
             accuracy_list_train[epoch//calc_interval] = accuracy
             #---
@@ -264,9 +264,10 @@ def execute_model_fast(data_set_train, data_set_test, model, batch_size, data_na
 
         save_model(model.state_dict(), f'model_{data_name}.pth')
 
-    plt.plot(range(0, num_epoch, calc_interval), accuracy_list_train, label="TRAIN")
-    plt.plot(range(len(accuracy_list_test)), accuracy_list_test, label="TEST")
-    plt.title(f"Accuracy Score for {data_name}")
-    plt.legend()
-    plt.ylim(0,1)
-    plt.savefig(f'accuracy_{data_name}.png')          
+    fig, ax = plt.subplots()
+    ax.plot(range(0, num_epoch, calc_interval), accuracy_list_train, label="TRAIN")
+    ax.plot(range(0, num_epoch, calc_interval), accuracy_list_test, label="TEST")
+    ax.set_title(f"Accuracy Score for {data_name}")
+    ax.legend()
+    ax.set_ylim(0, 1)
+    fig.savefig(f'accuracy_{data_name}.png')
