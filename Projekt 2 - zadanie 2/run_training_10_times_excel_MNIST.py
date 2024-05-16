@@ -56,7 +56,6 @@ def augmenting_image_ax(transform):
             root='data',
             train=True,
             download=True,
-            transform=transform
     )
     _, ax = plt.subplots(3, 2, figsize=(10, 20))
 
@@ -87,7 +86,6 @@ def visualize_data_distribution(transform=None):
         root='data',
         train=True,
         download=True,
-        transform=transform
     )
     data_loader = DataLoader(mnist, batch_size=100, shuffle=True, collate_fn=collate_fn)
     images, labels = next(iter(data_loader))
@@ -298,5 +296,8 @@ if __name__ == "__main__":
 
 
     print('RUNNING FILE RUN TRAINING')
-    run_random_state(model=model_mnist_ker, reduce_dim=False, num_runs=10) 
-    run_random_state(model=model_mnist_reduced_ker, reduce_dim=True, num_runs=10) 
+    #run_random_state(model=model_mnist_ker, reduce_dim=False, num_runs=10) 
+    #run_random_state(model=model_mnist_reduced_ker, reduce_dim=True, num_runs=10) \
+
+    augmenting_image_ax(transforms.ColorJitter(brightness=2, contrast=3, saturation=0.5, hue=0.5))
+    augmenting_image_ax(transforms.RandomRotation(15))
