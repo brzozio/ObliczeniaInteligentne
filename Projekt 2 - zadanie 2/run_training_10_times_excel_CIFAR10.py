@@ -106,26 +106,28 @@ def visualize_data_distribution(model, transform=None, fname=None):
                   transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
             ])
     )
-    cifar.transform(cifar.data[:100])
-    ims_raw = cifar.data[:100]
-    print(ims_raw)
-    images_1000 = np.zeros((1000, 32, 32, 3))
 
+    ims_raw = cifar.data[:100]
+
+    images_1000 = np.zeros((100, 32, 32, 3))
+    if transform:
+        for im in range(100):
+            #for aug in range(10):
+            images_1000[im] = transform(transforms.ToPILImage()(ims_raw[im]))
+
+    images_1000 = np.zeros((1000, 32, 32, 3))
     if transform:
         for im in range(100):
             for aug in range(10):
-                images_1000[im*10+aug] = transform(transforms.ToPILImage()(ims_raw[im]))
-    print(f'SIZE: {len(images_1000)}')
+                images_1000[10*im+aug] = transform(transforms.ToPILImage()(ims_raw[im]))
 
     augmented_images_list_tensors = torch.from_numpy(images_1000)
     augmented_images_list_tensors = torch.permute(augmented_images_list_tensors, (0, 3, 1, 2))
     print(augmented_images_list_tensors.size())
 
     features_1000 = model.extract(augmented_images_list_tensors)
-    #plot_decision_boundary(X=features_1000, func=lambda X: model.forward(X), tolerance=0.1)
+    plot_decision_boundary(X=features_1000, func=lambda X: model.forward(X), tolerance=0.1)
 
-    #features_100 = torch.permute(features_100, (0, 3, 1, 2))
-    plot_decision_boundary(X=ims_raw, func=lambda X: model.forward(X), tolerance=0.1)
     if fname is None:
         plt.show()
     else:
@@ -326,4 +328,4 @@ if __name__ == "__main__":
     #augmenting_image_ax(transforms.ColorJitter(brightness=0.7, contrast=0.5, saturation=0.2))
     #augmenting_image_ax(transforms.RandomRotation(30))
     model_cifar_reduced_ker.load_state_dict(load_model('model_model_cifar_reduced_ker.pth'))
-    visualize_data_distribution(model=model_cifar_reduced_ker, transform=transforms.RandomRotation(20))
+    visualize_data_distribution(model=model_cifar_reduced_ker, transform=transforms.RandomRotation(0))
