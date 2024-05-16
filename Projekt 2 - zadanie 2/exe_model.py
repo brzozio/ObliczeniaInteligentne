@@ -89,6 +89,7 @@ def execute_model(data_set, model, batch_size, data_name, num_epochs: int = 200,
         sb.heatmap(confusion_matrix(targets_cpu,predicted_classes_cpu), annot=True, cmap='Blues', fmt='g')
         plt.xlabel('Predicted labels')
         plt.ylabel('True labels')
+        plt.title(f"Conf Matrix - {data_name}")
         plt.show()
         
         accuracy = accuracy_score(predicted_classes_cpu, targets_cpu)
