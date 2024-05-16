@@ -201,7 +201,8 @@ def execute_model_with_acc_plot(data_set, model, batch_size, data_name, num_epoc
             voronoi(vor=vor, etykiety=predicted_classes_cpu)
 
 
-def execute_model_fast(data_set_train, data_set_test, model, batch_size, data_name, num_epoch: int = 1600, lr: float = 0.001, calc_interval : int = 16) -> None:
+def execute_model_fast(data_set_train, data_set_test, model, batch_size, data_name, num_epoch: int = 1600,
+                       lr: float = 0.001, calc_interval : int = 16) -> None:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f'CUDA VERSION: {torch.version.cuda}')
     print(f'DEVICE RUNING: {device}')
