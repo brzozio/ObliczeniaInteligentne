@@ -7,7 +7,7 @@ from sklearn.metrics import accuracy_score
 from torchvision import datasets, transforms
 from torch.utils.data import Dataset
 import torch
-from model import CNN_tanh
+from model import CNN_tanh, CNN_leaky_relu
 from torch.utils.data import DataLoader, SubsetRandomSampler
 from torch import load as load_model
 from torch import save as save_model
@@ -106,23 +106,28 @@ def visualize_data_distribution(model, transform=None, fname=None):
                   transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
             ])
     )
+    cifar           = datasets.MNIST(root='data', train=True, download=True, transform=transforms.ToTensor())
 
     ims_raw = cifar.data[:100]
 
-    images_1000 = np.zeros((100, 32, 32, 3))
+    #images_1000 = np.zeros((100, 32, 32, 3))
+    images_1000 = np.zeros((100, 28, 28))
     if transform:
         for im in range(100):
             #for aug in range(10):
             images_1000[im] = transform(transforms.ToPILImage()(ims_raw[im]))
 
-    images_1000 = np.zeros((1000, 32, 32, 3))
+    #images_1000 = np.zeros((1000, 32, 32, 3))
+    images_1000 = np.zeros((1000, 1, 28, 28))
     if transform:
         for im in range(100):
             for aug in range(10):
-                images_1000[10*im+aug] = transform(transforms.ToPILImage()(ims_raw[im]))
+                images_1000[10*im+aug, 0] = transform(transforms.ToPILImage()(ims_raw[im]))
 
     augmented_images_list_tensors = torch.from_numpy(images_1000)
-    augmented_images_list_tensors = torch.permute(augmented_images_list_tensors, (0, 3, 1, 2))
+    #augmented_images_list_tensors = torch.permute(augmented_images_list_tensors, (0, 3, 1, 2))
+    #augmented_images_list_tensors = torch.permute(augmented_images_list_tensors, (1, 0, 2, 3))
+    #augmented_images_list_tensors.view(-1,1,28,28)
     print(augmented_images_list_tensors.size())
 
     features_1000 = model.extract(augmented_images_list_tensors)
@@ -317,9 +322,9 @@ def run_random_state(model, num_runs) -> None:
 
 if __name__ == "__main__":
 
-    #model_cifar_ker         = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=15, cnv1_out_channels=16, lin0_out_size=128, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=False)
-    model_cifar_reduced_ker = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=10, cnv1_out_channels=16, lin0_out_size=20, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=True)
-
+    model_cifar_ker         = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=15, cnv1_out_channels=16, lin0_out_size=128, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=False)
+    #model_cifar_reduced_ker = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=10, cnv1_out_channels=16, lin0_out_size=20, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=True)
+    model_mnist_reduced_ker = CNN_leaky_relu(in_side_len=28, in_channels=1, cnv0_out_channels=4, cnv1_out_channels=16, lin0_out_size=16, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=True)
     #run_random_state(reduce_dim=False, num_runs=2) 
 
     #run_random_state(model=model_cifar_ker, reduce_dim=False, num_runs=10) 
@@ -327,5 +332,6 @@ if __name__ == "__main__":
 
     #augmenting_image_ax(transforms.ColorJitter(brightness=0.7, contrast=0.5, saturation=0.2))
     #augmenting_image_ax(transforms.RandomRotation(30))
-    model_cifar_reduced_ker.load_state_dict(load_model('model_model_cifar_reduced_ker.pth'))
-    visualize_data_distribution(model=model_cifar_reduced_ker, transform=transforms.RandomRotation(0))
+    #model_cifar_reduced_ker.load_state_dict(load_model('model_model_cifar_reduced_ker.pth'))
+    model_mnist_reduced_ker.load_state_dict(load_model('model_model_mnist_reduced_ker.pth'))
+    visualize_data_distribution(model=model_mnist_reduced_ker, transform=transforms.RandomRotation(20))
