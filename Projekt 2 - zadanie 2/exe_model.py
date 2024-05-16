@@ -201,7 +201,7 @@ def execute_model_with_acc_plot(data_set, model, batch_size, data_name, num_epoc
             voronoi(vor=vor, etykiety=predicted_classes_cpu)
 
 
-def execute_model_fast_cifars(data_set, model, batch_size, data_name, num_epoch: int = 1600, lr: float = 0.001, calc_interval : int = 16) -> None:
+def execute_model_fast(data_set_train, data_set_test, model, batch_size, data_name, num_epoch: int = 1600, lr: float = 0.001, calc_interval : int = 16) -> None:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f'CUDA VERSION: {torch.version.cuda}')
     print(f'DEVICE RUNING: {device}')
@@ -212,14 +212,19 @@ def execute_model_fast_cifars(data_set, model, batch_size, data_name, num_epoch:
     model.to(device)
     model.train()
     model.double()
+
+    data_set_train_targets_cpu = data_set_train.targets[0:1000].cpu().numpy()
+    data_set_test_targets_cpu = data_set_test.targets[0:500].cpu().numpy()
    
-    accuracy_list = np.zeros(num_epoch//calc_interval)
-    data_loader = DataLoader(data_set, batch_size=batch_size, shuffle=True)
-    print(f'DATA SIZE: {data_set.data.size()}')
+    accuracy_list_train = np.zeros(num_epoch//calc_interval + 1)
+    accuracy_list_test  = np.zeros(num_epoch//calc_interval + 1)
+
+    data_loader = DataLoader(data_set_train, batch_size=batch_size, shuffle=True)
+    print(f'DATA SIZE: {data_set_train.data.size()}')
 
     for epoch in range(num_epoch):
         for batch in data_loader:
-            data, target = batch['data'].to(device), batch['target'].to(device)
+            data, target = batch['data'], batch['target']
             outputs = model.extract(data)
             outputs = model.forward(outputs)
             loss = criteria(outputs, target)
@@ -233,20 +238,32 @@ def execute_model_fast_cifars(data_set, model, batch_size, data_name, num_epoch:
         if epoch % calc_interval == 0:
             model.eval()
 
-            outputs = model.extract(data_set.data)
-            outputs = model.forward(outputs)
+            outputs_train = model.extract(data_set_train.data[0:1000])
+            outputs_train = model.forward(outputs_train)
             
-            predicted_classes = torch.argmax(outputs, dim=1)
+            predicted_classes_train = torch.argmax(outputs_train, dim=1)
         
-            predicted_classes_cpu = predicted_classes.cpu().numpy()
-            targets_cpu           = data_set.targets.cpu().numpy()
+            predicted_classes_cpu_train = predicted_classes_train.cpu().numpy()
         
-            accuracy = accuracy_score(predicted_classes_cpu, targets_cpu)
-            accuracy_list[num_epoch//calc_interval] = accuracy
-
-            print(f'ACCURACY SCORE FOR {data_name}: {accuracy:.4f}')
-
-
-        save_model(model.state_dict(), f'model_{data_name}.pth') #Zapisz model na koniec trenignu - koniec epok
-    
+            accuracy = accuracy_score(predicted_classes_cpu_train, data_set_train_targets_cpu)
+            accuracy_list_train[epoch//calc_interval] = accuracy
+            #---
+            outputs_test = model.extract(data_set_test.data[0:500])
+            outputs_test = model.forward(outputs_test)
             
+            predicted_classes_test = torch.argmax(outputs_test, dim=1)
+        
+            predicted_classes_test = predicted_classes_test.cpu().numpy()
+        
+            accuracy = accuracy_score(predicted_classes_test, data_set_test_targets_cpu)
+            accuracy_list_test[epoch//calc_interval] = accuracy
+
+
+
+        save_model(model.state_dict(), f'model_{data_name}.pth')
+
+    plt.plot(range(0, num_epoch, calc_interval), accuracy_list_train, label="TRAIN")
+    plt.plot(range(0, num_epoch, calc_interval), accuracy_list_test, label="TEST")
+    plt.title(f"Accuracy Score for {data_name}")
+    plt.legend()
+    plt.savefig(f'accuracy_{data_name}.png')          
