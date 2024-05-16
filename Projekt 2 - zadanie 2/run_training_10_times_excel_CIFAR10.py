@@ -124,9 +124,8 @@ def visualize_data_distribution(model, transform=None, fname=None):
     features_1000 = model.extract(augmented_images_list_tensors)
     #plot_decision_boundary(X=features_1000, func=lambda X: model.forward(X), tolerance=0.1)
 
-    features_100 = torch.from_numpy(ims_raw)
-    features_100 = torch.permute(features_100, (0, 3, 1, 2))
-    plot_decision_boundary(X=features_100, func=lambda X: model.forward(X), tolerance=0.1)
+    #features_100 = torch.permute(features_100, (0, 3, 1, 2))
+    plot_decision_boundary(X=ims_raw, func=lambda X: model.forward(X), tolerance=0.1)
     if fname is None:
         plt.show()
     else:
