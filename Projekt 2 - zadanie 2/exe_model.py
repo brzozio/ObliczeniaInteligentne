@@ -215,7 +215,9 @@ def execute_model_fast(data_set_train, data_set_test, model, batch_size, data_na
 
     data_set_train_targets_cpu = data_set_train.targets[0:1000].cpu().numpy()
     data_set_test_targets_cpu = data_set_test.targets[0:500].cpu().numpy()
-   
+
+    num_epoch = num_epoch - (num_epoch % calc_interval)
+
     accuracy_list_train = np.zeros(num_epoch//calc_interval)
     accuracy_list_test  = np.zeros(num_epoch//calc_interval)
 
@@ -258,8 +260,6 @@ def execute_model_fast(data_set_train, data_set_test, model, batch_size, data_na
             accuracy = accuracy_score(predicted_classes_test, data_set_test_targets_cpu)
             accuracy_list_test[epoch//calc_interval] = accuracy
             print(accuracy)
-
-
 
         save_model(model.state_dict(), f'model_{data_name}.pth')
 
