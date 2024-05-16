@@ -262,8 +262,8 @@ def execute_model_fast(data_set_train, data_set_test, model, batch_size, data_na
 
         save_model(model.state_dict(), f'model_{data_name}.pth')
 
-    plt.plot(range(0, num_epoch, calc_interval), accuracy_list_train, label="TRAIN")
-    plt.plot(range(0, num_epoch, calc_interval), accuracy_list_test, label="TEST")
+    plt.plot(range(len(accuracy_list_test)), accuracy_list_train, label="TRAIN")
+    plt.plot(range(len(accuracy_list_test)), accuracy_list_test, label="TEST")
     plt.title(f"Accuracy Score for {data_name}")
     plt.legend()
     plt.savefig(f'accuracy_{data_name}.png')          
