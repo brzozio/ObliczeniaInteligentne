@@ -40,14 +40,10 @@ def model_choosing():
     mnist_test = mnist_to_cnn(device, False)
     cifar_test = cifar10_to_cnn(device, False)
 
-    model_mnist_ker         = CNN_tanh(in_side_len=28, in_channels=1, cnv0_out_channels=12, cnv1_out_channels=16, lin0_out_size=100, lin1_out_size=10, convolution_kernel=3, pooling_kernel=2, reduce_to_dim2=False)
-    model_mnist_reduced_ker = CNN_leaky_relu(in_side_len=28, in_channels=1, cnv0_out_channels=4, cnv1_out_channels=16, lin0_out_size=16, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=True)
-    
-    #model_cifar_activ         = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=10, cnv1_out_channels=20, lin0_out_size=128, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=False)
-    #model_cifar_reduced_activ = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=10, cnv1_out_channels=20, lin0_out_size=20, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=True)
+    #model_mnist_ker         = CNN_tanh(in_side_len=28, in_channels=1, cnv0_out_channels=12, cnv1_out_channels=16, lin0_out_size=100, lin1_out_size=10, convolution_kernel=3, pooling_kernel=2, reduce_to_dim2=False)
+    #model_mnist_reduced_ker = CNN_leaky_relu(in_side_len=28, in_channels=1, cnv0_out_channels=4, cnv1_out_channels=16, lin0_out_size=16, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=True)
     #model_cifar_ker         = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=15, cnv1_out_channels=16, lin0_out_size=128, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=False)
-    model_cifar_reduced_ker = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=10, cnv1_out_channels=16, lin0_out_size=20, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=True)
-    
+    #model_cifar_reduced_ker = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=10, cnv1_out_channels=16, lin0_out_size=20, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=True)
 
     #exe_model.execute_model(data_set=mnist, model=model_mnist_activ, batch_size=12_000, data_name='model_mnist_activ', num_epochs=200, lr=0.01, train=train, continue_train=continue_train)
     #exe_model.execute_model(data_set=mnist, model=model_mnist_reduced_activ, batch_size=12_000, data_name='model_mnist_reduced_activ', num_epochs=400, lr=0.01, train=train, continue_train=continue_train)
@@ -58,7 +54,7 @@ def model_choosing():
     #exe_model.execute_model(data_set=cifar, model=model_cifar_reduced_activ, batch_size=12_000, data_name='model_cifar_reduced_activ', num_epochs=600, lr=0.001, train=train, continue_train=continue_train)
     #exe_model.execute_model(data_set=cifar, model=model_cifar_ker, batch_size=12_000, data_name='model_cifar_ker', num_epochs=400, lr=0.001, train=train, continue_train=continue_train)
     #exe_model.execute_model(data_set=cifar, model=model_cifar_reduced_ker, batch_size=12_000, data_name='model_cifar_reduced_ker', num_epochs=600, lr=0.001, train=train, continue_train=continue_train)
-
+    """
     model_mnist_activ = CNN_tanh(in_side_len=28, in_channels=1, cnv0_out_channels=8, cnv1_out_channels=16,
                                  lin0_out_size=100, lin1_out_size=10, convolution_kernel=5, pooling_kernel=2,
                                  reduce_to_dim2=False)
@@ -67,21 +63,30 @@ def model_choosing():
                                                pooling_kernel=2, reduce_to_dim2=True)
 
     exe_model.execute_model_fast(data_set_test=mnist_test, data_set_train=mnist_train, model=model_mnist_activ,
-                                 batch_size=12_000, data_name='mnist_activ', num_epoch=11, lr=0.01, calc_interval=2)
+                                 batch_size=12_000, data_name='mnist_activ', num_epoch=100, lr=0.01, calc_interval=2)
 
     exe_model.execute_model_fast(data_set_test=mnist_test, data_set_train=mnist_train, model=model_mnist_reduced_activ,
-                                 batch_size=12_000, data_name='mnist_activ_reduced', num_epoch=14, lr=0.01,
+                                 batch_size=12_000, data_name='mnist_activ_reduced', num_epoch=200, lr=0.01,
                                  calc_interval=4)
+    """
 
+    model_cifar_activ = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=10, cnv1_out_channels=20,
+                                 lin0_out_size=128, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2,
+                                 reduce_to_dim2=False)
 
+    model_cifar_reduced_activ = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=10, cnv1_out_channels=20,
+                                         lin0_out_size=20, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2,
+                                         reduce_to_dim2=True)
 
-    
     #exe_model.execute_model_fast(data_set_test=mnist_test, data_set_train=mnist_train, model=model_mnist_ker, batch_size=12_000, data_name='mnist_ker', num_epoch=100, lr=0.01, calc_interval=2)
     #exe_model.execute_model_fast(data_set_test=mnist_test, data_set_train=mnist_train, model=model_mnist_reduced_ker, batch_size=12_000, data_name='mnist_ker_reduced', num_epoch=200, lr=0.01, calc_interval=4)
-    
-    #exe_model.execute_model_fast(data_set_test=cifar_test, data_set_train=cifar_train, model=model_cifar_ker, batch_size=12000, data_name='cifar_ker', num_epoch=400, lr=0.001, calc_interval=8)
-    #exe_model.execute_model_fast(data_set_test=cifar_test, data_set_train=cifar_train, model=model_cifar_reduced_ker, batch_size=5000, data_name='cifar_reduced_ker', num_epoch=600, lr=0.001, calc_interval=12)
-    
+
+    exe_model.execute_model_fast(data_set_test=cifar_test, data_set_train=cifar_train, model=model_cifar_activ,
+                                 batch_size=5000, data_name='cifar_ker', num_epoch=400, lr=0.001, calc_interval=8)
+
+    exe_model.execute_model_fast(data_set_test=cifar_test, data_set_train=cifar_train, model=model_cifar_reduced_activ,
+                                 batch_size=5000, data_name='cifar_reduced_ker', num_epoch=600, lr=0.001,
+                                 calc_interval=12)
 
 
 if __name__ == "__main__":
@@ -131,4 +136,5 @@ if __name__ == "__main__":
    
 
     model_choosing()
+
 
