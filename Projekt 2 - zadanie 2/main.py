@@ -29,16 +29,16 @@ def model_choosing():
                 - cifar reduced : tanh, lr=0.001, in_side_len=28, in_channels=1, cnv0_out_channels=10, cnv1_out_channels=16, lin0_out_size=100||16, lin1_out_size=10, convolution_kernel=3, pooling_kernel=2, reduce_to_dim2=redux
 
     """
-    mnist      = mnist_to_cnn(device, not train)
+    #mnist      = mnist_to_cnn(device, not train)
     cifar      = cifar10_to_cnn(device, not train)
 
-    model_mnist_activ         = CNN_tanh(in_side_len=28, in_channels=1, cnv0_out_channels=8, cnv1_out_channels=16, lin0_out_size=100, lin1_out_size=10, convolution_kernel=5, pooling_kernel=2, reduce_to_dim2=False)
-    model_mnist_reduced_activ = CNN_leaky_relu(in_side_len=28, in_channels=1, cnv0_out_channels=8, cnv1_out_channels=16, lin0_out_size=16, lin1_out_size=10, convolution_kernel=5, pooling_kernel=2, reduce_to_dim2=True)
-    model_mnist_ker         = CNN_tanh(in_side_len=28, in_channels=1, cnv0_out_channels=12, cnv1_out_channels=16, lin0_out_size=100, lin1_out_size=10, convolution_kernel=3, pooling_kernel=2, reduce_to_dim2=False)
-    model_mnist_reduced_ker = CNN_leaky_relu(in_side_len=28, in_channels=1, cnv0_out_channels=4, cnv1_out_channels=16, lin0_out_size=16, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=True)
+    #model_mnist_activ         = CNN_tanh(in_side_len=28, in_channels=1, cnv0_out_channels=8, cnv1_out_channels=16, lin0_out_size=100, lin1_out_size=10, convolution_kernel=5, pooling_kernel=2, reduce_to_dim2=False)
+    #model_mnist_reduced_activ = CNN_leaky_relu(in_side_len=28, in_channels=1, cnv0_out_channels=8, cnv1_out_channels=16, lin0_out_size=16, lin1_out_size=10, convolution_kernel=5, pooling_kernel=2, reduce_to_dim2=True)
+    #model_mnist_ker         = CNN_tanh(in_side_len=28, in_channels=1, cnv0_out_channels=12, cnv1_out_channels=16, lin0_out_size=100, lin1_out_size=10, convolution_kernel=3, pooling_kernel=2, reduce_to_dim2=False)
+    #model_mnist_reduced_ker = CNN_leaky_relu(in_side_len=28, in_channels=1, cnv0_out_channels=4, cnv1_out_channels=16, lin0_out_size=16, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=True)
     
-    model_cifar_activ         = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=10, cnv1_out_channels=20, lin0_out_size=128, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=False)
-    model_cifar_reduced_activ = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=10, cnv1_out_channels=20, lin0_out_size=20, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=True)
+    #model_cifar_activ         = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=10, cnv1_out_channels=20, lin0_out_size=128, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=False)
+    #model_cifar_reduced_activ = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=10, cnv1_out_channels=20, lin0_out_size=20, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=True)
     model_cifar_ker         = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=15, cnv1_out_channels=16, lin0_out_size=128, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=False)
     model_cifar_reduced_ker = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=10, cnv1_out_channels=16, lin0_out_size=20, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=True)
     
@@ -51,7 +51,9 @@ def model_choosing():
     #exe_model.execute_model(data_set=cifar, model=model_cifar_activ, batch_size=12_000, data_name='model_cifar_activ', num_epochs=400, lr=0.001, train=train, continue_train=continue_train)
     #exe_model.execute_model(data_set=cifar, model=model_cifar_reduced_activ, batch_size=12_000, data_name='model_cifar_reduced_activ', num_epochs=600, lr=0.001, train=train, continue_train=continue_train)
     #exe_model.execute_model(data_set=cifar, model=model_cifar_ker, batch_size=12_000, data_name='model_cifar_ker', num_epochs=400, lr=0.001, train=train, continue_train=continue_train)
-    exe_model.execute_model(data_set=cifar, model=model_cifar_reduced_ker, batch_size=12_000, data_name='model_cifar_reduced_ker', num_epochs=600, lr=0.001, train=train, continue_train=continue_train)
+    #exe_model.execute_model(data_set=cifar, model=model_cifar_reduced_ker, batch_size=12_000, data_name='model_cifar_reduced_ker', num_epochs=600, lr=0.001, train=train, continue_train=continue_train)
+    exe_model.execute_model_fast_cifars(data_set=cifar, model=model_cifar_ker, batch_size=12_000, data_name='cifar_ker')
+    #exe_model.execute_model_fast_cifars(data_set=cifar, model=model_cifar_reduced_ker, batch_size=12_000, data_name='cifar_reduced_ker')
 
 
 

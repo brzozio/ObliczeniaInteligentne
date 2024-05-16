@@ -201,3 +201,52 @@ def execute_model_with_acc_plot(data_set, model, batch_size, data_name, num_epoc
             voronoi(vor=vor, etykiety=predicted_classes_cpu)
 
 
+def execute_model_fast_cifars(data_set, model, batch_size, data_name, num_epoch: int = 1600, lr: float = 0.001, calc_interval : int = 16) -> None:
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f'CUDA VERSION: {torch.version.cuda}')
+    print(f'DEVICE RUNING: {device}')
+
+    criteria = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(model.parameters(), lr=lr)
+        
+    model.to(device)
+    model.train()
+    model.double()
+   
+    accuracy_list = np.zeros(num_epoch//calc_interval)
+    data_loader = DataLoader(data_set, batch_size=batch_size, shuffle=True)
+    print(f'DATA SIZE: {data_set.data.size()}')
+
+    for epoch in range(num_epoch):
+        for batch in data_loader:
+            data, target = batch['data'].to(device), batch['target'].to(device)
+            outputs = model.extract(data)
+            outputs = model.forward(outputs)
+            loss = criteria(outputs, target)
+            
+            optimizer.zero_grad()   # Zerowanie gradientów, aby git auniknąć akumulacji w kolejnych krokach
+            loss.backward()         # Backpropagation: Obliczenie gradientów
+            optimizer.step()        # Aktualizacja wag
+        
+        print(f"Epoch [{epoch+1}/{num_epoch}]")
+
+        if epoch % calc_interval == 0:
+            model.eval()
+
+            outputs = model.extract(data_set.data)
+            outputs = model.forward(outputs)
+            
+            predicted_classes = torch.argmax(outputs, dim=1)
+        
+            predicted_classes_cpu = predicted_classes.cpu().numpy()
+            targets_cpu           = data_set.targets.cpu().numpy()
+        
+            accuracy = accuracy_score(predicted_classes_cpu, targets_cpu)
+            accuracy_list[num_epoch//calc_interval] = accuracy
+
+            print(f'ACCURACY SCORE FOR {data_name}: {accuracy:.4f}')
+
+
+        save_model(model.state_dict(), f'model_{data_name}.pth') #Zapisz model na koniec trenignu - koniec epok
+    
+            
