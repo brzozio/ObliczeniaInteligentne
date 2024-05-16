@@ -51,7 +51,7 @@ random_crop = transforms.Compose([
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-def augmenting_image_ax(transform):
+def augmenting_image_ax(transform, fname=None):
     mnist = datasets.MNIST(
             root='data',
             train=True,
@@ -69,7 +69,10 @@ def augmenting_image_ax(transform):
             ax[row, 1].imshow(augmented_image, cmap='gray')
             ax[row, 1].set_title(f'Augmented Image')
 
-    plt.show()
+    if fname is None:
+        plt.show()
+    else:
+        plt.savefig(fname)
 
     # a w przypadku 2 cech należy zaprezentować rozkład danych treningowych w przypadku gdy
     # rozważane było 100 przykładów raz gdy tylko te dane są widoczne i
@@ -81,7 +84,7 @@ def collate_fn(batch):
     images = torch.stack([transforms.ToTensor()(img) for img in images])
     return images, torch.tensor(labels)
 
-def visualize_data_distribution(transform=None):
+def visualize_data_distribution(transform=None, fname=None):
     mnist = datasets.MNIST(
         root='data',
         train=True,
@@ -112,7 +115,10 @@ def visualize_data_distribution(transform=None):
         plt.xlabel('Class')
         plt.ylabel('Frequency')
 
-    plt.show()
+    if fname is None:
+        plt.show()
+    else:
+        plt.savefig(fname)
 
 
 
@@ -122,7 +128,7 @@ def mnist_to_cnn(device, train, transforming) -> CustomDataset:
     mnists.data     = mnists.data.view(-1,1,28,28)
     return mnists
 
-def run_random_state(model, reduce_dim, num_runs) -> None:
+def run_random_state(model, num_runs) -> None:
     print(f'RUNNING: {device}')
     df_avg_acc = pd.DataFrame({
         'all': [],
@@ -211,7 +217,7 @@ def run_random_state(model, reduce_dim, num_runs) -> None:
                 if accuracy > max_accuracy:
                     max_accuracy = accuracy
                     model.train()
-                    save_model(model.state_dict(), f'RUN_10_TIMES_{augm_i}_{sample_size}_red_{reduce_dim}_MNIST.pth') 
+                    save_model(model.state_dict(), f'RUN_10_TIMES_{augm_i}_{sample_size}_red_{model.reduce_to_dim2}_MNIST.pth') 
                     model.eval()
 
             #Wyliczanie sredniej acc i odchylenie standardowe acc dla test
@@ -250,7 +256,7 @@ def run_random_state(model, reduce_dim, num_runs) -> None:
     df_avg_acc = df_avg_acc._append(new_row_run_avg_acc_aug_1, ignore_index=True)
     df_avg_acc = df_avg_acc._append(new_row_run_avg_acc_aug_2, ignore_index=True)
 
-    df_avg_acc.to_csv(f"projekt_2_zadanie_2_10_runs_AVG_ACC_red_{reduce_dim}_MNIST.csv",   index=False)
+    df_avg_acc.to_csv(f"projekt_2_zadanie_2_10_runs_AVG_ACC_red_{model.reduce_to_dim2}_MNIST.csv", index=False)
     
     new_row_run_std_acc_no_aug = { 
                             'all': std_acc_aug[3], 
@@ -277,9 +283,9 @@ def run_random_state(model, reduce_dim, num_runs) -> None:
     df_std_div_acc = df_std_div_acc._append(new_row_run_std_acc_aug_1, ignore_index=True)
     df_std_div_acc = df_std_div_acc._append(new_row_run_std_acc_aug_2, ignore_index=True)
 
-    df_std_div_acc.to_csv(f"projekt_2_zadanie_2_10_runs_STD_ACC_red_{reduce_dim}_MNIST.csv",   index=False)
+    df_std_div_acc.to_csv(f"projekt_2_zadanie_2_10_runs_STD_ACC_red_{model.reduce_to_dim2}_MNIST.csv", index=False)
     
-    if reduce_dim is True:
+    if model.reduce_to_dim2 is True:
         augmenting_image_ax(transform=color_jitter)
         augmenting_image_ax(transform=rotate)
         visualize_data_distribution(transform=None)
@@ -296,8 +302,8 @@ if __name__ == "__main__":
 
 
     print('RUNNING FILE RUN TRAINING')
-    #run_random_state(model=model_mnist_ker, reduce_dim=False, num_runs=10) 
-    #run_random_state(model=model_mnist_reduced_ker, reduce_dim=True, num_runs=10) \
+    #run_random_state(model=model_mnist_ker, num_runs=10)
+    #run_random_state(model=model_mnist_reduced_ker, num_runs=10) \
 
     augmenting_image_ax(transforms.ColorJitter(brightness=2, contrast=3, saturation=0.5, hue=0.5))
     augmenting_image_ax(transforms.RandomRotation(15))
