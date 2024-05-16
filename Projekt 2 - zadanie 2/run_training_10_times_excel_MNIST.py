@@ -86,7 +86,6 @@ def visualize_data_distribution(transform=None):
         root='data',
         train=True,
         download=True,
-        transform=transform
     )
     data_loader = DataLoader(mnist, batch_size=100, shuffle=True, collate_fn=collate_fn)
     images, labels = next(iter(data_loader))
