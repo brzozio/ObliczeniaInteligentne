@@ -81,23 +81,21 @@ def augmenting_image_ax(transform, fname=None):
     # raz gdy dla każdej danej 10 razy została zastosowana metoda augmentacji (1000 przykładów).
 
 def collate_fn(batch):
-    # Konwertuj obrazy PIL na tensory
     images, labels = zip(*batch)
-    images = torch.stack([transforms.ToTensor()(img) for img in images])
-    return images, torch.tensor(labels)
+    return list(images), torch.tensor(labels, dtype=torch.double)
 
-def visualize_data_distribution(transform=None, fname=None):
+def visualize_data_distribution(model, transform=None, fname=None):
     cifar = datasets.CIFAR10(
         root='data',
         train=True,
-        download=True,
+        download=True
     )
     data_loader = DataLoader(cifar, batch_size=100, shuffle=True, collate_fn=collate_fn)
     images, labels = next(iter(data_loader))
 
     plt.figure(figsize=(12, 6))
 
-    # Histogram przed transformacją
+    # Histogram before transformation
     plt.subplot(1, 2, 1)
     plt.hist(labels.numpy(), bins=range(11), edgecolor='black')
     plt.title('Data Distribution (100 examples)')
@@ -107,20 +105,36 @@ def visualize_data_distribution(transform=None, fname=None):
     if transform:
         augmented_images = []
         augmented_labels = []
-        for i in range(10):
-            augmented_images.extend(transform(image) for image in images)
-            augmented_labels.extend(labels)
-        augmented_labels = torch.tensor(augmented_labels)
-        plt.subplot(1, 2, 2)
-        plt.hist(augmented_labels.numpy(), bins=range(11), edgecolor='black')
-        plt.title('Data Distribution (1000 examples with augmentation)')
-        plt.xlabel('Class')
-        plt.ylabel('Frequency')
+        to_tensor = transforms.ToTensor()
+
+        for image in images:
+            # Since image is already a PIL image, directly apply the transform
+            augmented_image = transform(image)
+            augmented_image = to_tensor(augmented_image)
+            augmented_images.append(augmented_image)
+
+        augmented_images = torch.stack(augmented_images).double()  
+        augmented_labels = torch.tensor(labels) 
+
+    model.eval()
+    model.double()
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
+    augmented_images = augmented_images.to(device)
+
+    #with torch.no_grad():
+    data = model.extract(augmented_images).cpu()
+    #    print(f'DATA: len={len(data)}, size={data.size}')
+
+    model.to('cpu')
+
+    plot_decision_boundary(X=data, func=lambda X: model.forward(X), tolerance=0.1)  # Ensure input is float32
 
     if fname is None:
         plt.show()
     else:
         plt.savefig(fname)
+
 
 
 
@@ -305,7 +319,7 @@ def run_random_state(model, num_runs) -> None:
 
 if __name__ == "__main__":
 
-    model_cifar_ker         = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=15, cnv1_out_channels=16, lin0_out_size=128, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=False)
+    #model_cifar_ker         = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=15, cnv1_out_channels=16, lin0_out_size=128, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=False)
     model_cifar_reduced_ker = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=10, cnv1_out_channels=16, lin0_out_size=20, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=True)
 
     print('RUNNING FILE RUN TRAINING')
@@ -314,5 +328,7 @@ if __name__ == "__main__":
     #run_random_state(model=model_cifar_ker, reduce_dim=False, num_runs=10) 
     #run_random_state(model=model_cifar_reduced_ker, reduce_dim=True, num_runs=10)
 
-    augmenting_image_ax(transforms.ColorJitter(brightness=0.7, contrast=0.5, saturation=0.2))
-    augmenting_image_ax(transforms.RandomRotation(30))
+    #augmenting_image_ax(transforms.ColorJitter(brightness=0.7, contrast=0.5, saturation=0.2))
+    #augmenting_image_ax(transforms.RandomRotation(30))
+
+    visualize_data_distribution(model=model_cifar_reduced_ker, transform=transforms.RandomRotation(20))
