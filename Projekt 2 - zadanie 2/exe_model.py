@@ -216,8 +216,8 @@ def execute_model_fast(data_set_train, data_set_test, model, batch_size, data_na
     data_set_train_targets_cpu = data_set_train.targets[0:1000].cpu().numpy()
     data_set_test_targets_cpu = data_set_test.targets[0:500].cpu().numpy()
    
-    accuracy_list_train = np.zeros(num_epoch//calc_interval + 1)
-    accuracy_list_test  = np.zeros(num_epoch//calc_interval + 1)
+    accuracy_list_train = np.zeros(num_epoch//calc_interval)
+    accuracy_list_test  = np.zeros(num_epoch//calc_interval)
 
     data_loader = DataLoader(data_set_train, batch_size=batch_size, shuffle=True)
     print(f'DATA SIZE: {data_set_train.data.size()}')
@@ -257,13 +257,15 @@ def execute_model_fast(data_set_train, data_set_test, model, batch_size, data_na
         
             accuracy = accuracy_score(predicted_classes_test, data_set_test_targets_cpu)
             accuracy_list_test[epoch//calc_interval] = accuracy
+            print(accuracy)
 
 
 
         save_model(model.state_dict(), f'model_{data_name}.pth')
 
-    plt.plot(range(len(accuracy_list_test)), accuracy_list_train, label="TRAIN")
+    plt.plot(range(0, num_epoch, calc_interval), accuracy_list_train, label="TRAIN")
     plt.plot(range(len(accuracy_list_test)), accuracy_list_test, label="TEST")
     plt.title(f"Accuracy Score for {data_name}")
     plt.legend()
+    plt.ylim(0,1)
     plt.savefig(f'accuracy_{data_name}.png')          

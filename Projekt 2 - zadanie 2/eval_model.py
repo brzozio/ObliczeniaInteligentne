@@ -17,10 +17,16 @@ def eval_4_models_cifar(data_set, batch_size, data_name, redux):
         lin_out = 20
 
     model0 = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=10,
+                               cnv1_out_channels=4, lin0_out_size=lin_out, lin1_out_size=10,
+                               convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=redux)
+    acc_ar[0] = eval_model(data_set, model0, batch_size, data_name+"tanh_0_01", learning_rate=0.001)
+    """
+    model1 = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=10,
                                cnv1_out_channels=20, lin0_out_size=lin_out, lin1_out_size=10,
                                convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=redux)
-    acc_ar[4] = eval_model(data_set, model0, batch_size, data_name+"tanh")
+    acc_ar[1] = eval_model(data_set, model1, batch_size, data_name+"tanh_0_001", learning_rate=0.001)
 
+    
     model3 = CNN_leaky_relu(in_side_len=32, in_channels=3, cnv0_out_channels=10,
                                cnv1_out_channels=20, lin0_out_size=lin_out, lin1_out_size=10,
                                convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=redux)
@@ -40,7 +46,8 @@ def eval_4_models_cifar(data_set, batch_size, data_name, redux):
                                cnv1_out_channels=20, lin0_out_size=lin_out, lin1_out_size=10,
                                convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=redux)
     acc_ar[0] = eval_model(data_set, model4, batch_size, data_name+"id")
-
+    """
+    #print(acc_ar)
 
 def eval_4_models_mnist(data_set, batch_size, data_name, redux):
 
@@ -318,4 +325,5 @@ def eval_model(data_set, model, batch_size, data_name, learning_rate) -> np.ndar
     #path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "data", f'model_{data_name}.csv')
     #np.savetxt(fname=path, X=running_acc, delimiter=';')
     return running_acc
+
 

@@ -3,6 +3,7 @@ import eval_model
 from datasets_get import cifar10_to_cnn, mnist_to_cnn, cifar10_to_cnn_AUGMENTED
 import torch
 from model import CNN_tanh, CNN_leaky_relu
+import matplotlib.pyplot as plt
 
 train: bool          = False
 continue_train: bool = False
@@ -29,17 +30,22 @@ def model_choosing():
                 - cifar reduced : tanh, lr=0.001, in_side_len=28, in_channels=1, cnv0_out_channels=10, cnv1_out_channels=16, lin0_out_size=100||16, lin1_out_size=10, convolution_kernel=3, pooling_kernel=2, reduce_to_dim2=redux
 
     """
-    #mnist      = mnist_to_cnn(device, train)
+    mnist      = mnist_to_cnn(device, train)
     #cifar      = cifar10_to_cnn(device, train)
 
-    #model_mnist_activ         = CNN_tanh(in_side_len=28, in_channels=1, cnv0_out_channels=8, cnv1_out_channels=16, lin0_out_size=100, lin1_out_size=10, convolution_kernel=5, pooling_kernel=2, reduce_to_dim2=False)
-    #model_mnist_reduced_activ = CNN_leaky_relu(in_side_len=28, in_channels=1, cnv0_out_channels=8, cnv1_out_channels=16, lin0_out_size=16, lin1_out_size=10, convolution_kernel=5, pooling_kernel=2, reduce_to_dim2=True)
+    # Do Accuracy Score
+    mnist_train = mnist_to_cnn(device, True)
+    cifar_train = cifar10_to_cnn(device, True)
+
+    mnist_test = mnist_to_cnn(device, False)
+    cifar_test = cifar10_to_cnn(device, False)
+
     model_mnist_ker         = CNN_tanh(in_side_len=28, in_channels=1, cnv0_out_channels=12, cnv1_out_channels=16, lin0_out_size=100, lin1_out_size=10, convolution_kernel=3, pooling_kernel=2, reduce_to_dim2=False)
     model_mnist_reduced_ker = CNN_leaky_relu(in_side_len=28, in_channels=1, cnv0_out_channels=4, cnv1_out_channels=16, lin0_out_size=16, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=True)
     
     #model_cifar_activ         = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=10, cnv1_out_channels=20, lin0_out_size=128, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=False)
     #model_cifar_reduced_activ = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=10, cnv1_out_channels=20, lin0_out_size=20, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=True)
-    model_cifar_ker         = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=15, cnv1_out_channels=16, lin0_out_size=128, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=False)
+    #model_cifar_ker         = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=15, cnv1_out_channels=16, lin0_out_size=128, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=False)
     model_cifar_reduced_ker = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=10, cnv1_out_channels=16, lin0_out_size=20, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=True)
     
 
@@ -52,20 +58,28 @@ def model_choosing():
     #exe_model.execute_model(data_set=cifar, model=model_cifar_reduced_activ, batch_size=12_000, data_name='model_cifar_reduced_activ', num_epochs=600, lr=0.001, train=train, continue_train=continue_train)
     #exe_model.execute_model(data_set=cifar, model=model_cifar_ker, batch_size=12_000, data_name='model_cifar_ker', num_epochs=400, lr=0.001, train=train, continue_train=continue_train)
     #exe_model.execute_model(data_set=cifar, model=model_cifar_reduced_ker, batch_size=12_000, data_name='model_cifar_reduced_ker', num_epochs=600, lr=0.001, train=train, continue_train=continue_train)
-    
-    #Do Accuracy Score
-    mnist_train      = mnist_to_cnn(device, True)
-    cifar_train      = cifar10_to_cnn(device, True)
-    
-    mnist_test      = mnist_to_cnn(device, False)
-    cifar_test      = cifar10_to_cnn(device, False)
+
+    model_mnist_activ = CNN_tanh(in_side_len=28, in_channels=1, cnv0_out_channels=8, cnv1_out_channels=16,
+                                 lin0_out_size=100, lin1_out_size=10, convolution_kernel=5, pooling_kernel=2,
+                                 reduce_to_dim2=False)
+    model_mnist_reduced_activ = CNN_leaky_relu(in_side_len=28, in_channels=1, cnv0_out_channels=8, cnv1_out_channels=16,
+                                               lin0_out_size=16, lin1_out_size=10, convolution_kernel=5,
+                                               pooling_kernel=2, reduce_to_dim2=True)
+
+    exe_model.execute_model_fast(data_set_test=mnist_test, data_set_train=mnist_train, model=model_mnist_activ,
+                                 batch_size=12_000, data_name='mnist_activ', num_epoch=100, lr=0.01, calc_interval=2)
+
+    exe_model.execute_model_fast(data_set_test=mnist_test, data_set_train=mnist_train, model=model_mnist_reduced_activ,
+                                 batch_size=12_000, data_name='mnist_activ_reduced', num_epoch=400, lr=0.01)
+
+
 
     
     #exe_model.execute_model_fast(data_set_test=mnist_test, data_set_train=mnist_train, model=model_mnist_ker, batch_size=12_000, data_name='mnist_ker', num_epoch=100, lr=0.01, calc_interval=2)
-    exe_model.execute_model_fast(data_set_test=mnist_test, data_set_train=mnist_train, model=model_mnist_reduced_ker, batch_size=12_000, data_name='mnist_ker_reduced', num_epoch=200, lr=0.01, calc_interval=4)
+    #exe_model.execute_model_fast(data_set_test=mnist_test, data_set_train=mnist_train, model=model_mnist_reduced_ker, batch_size=12_000, data_name='mnist_ker_reduced', num_epoch=200, lr=0.01, calc_interval=4)
     
-    #exe_model.execute_model_fast(data_set_test=cifar_test, data_set_train=cifar_train, model=model_cifar_ker, batch_size=5000, data_name='cifar_ker', num_epoch=400, lr=0.001, calc_interval=8)
-    exe_model.execute_model_fast(data_set_test=cifar_test, data_set_train=cifar_train, model=model_cifar_reduced_ker, batch_size=5000, data_name='cifar_reduced_ker', num_epoch=600, lr=0.001, calc_interval=12)
+    #exe_model.execute_model_fast(data_set_test=cifar_test, data_set_train=cifar_train, model=model_cifar_ker, batch_size=12000, data_name='cifar_ker', num_epoch=400, lr=0.001, calc_interval=8)
+    #exe_model.execute_model_fast(data_set_test=cifar_test, data_set_train=cifar_train, model=model_cifar_reduced_ker, batch_size=5000, data_name='cifar_reduced_ker', num_epoch=600, lr=0.001, calc_interval=12)
     
 
 
@@ -106,7 +120,7 @@ if __name__ == "__main__":
         exe_model.execute_model(data_set=data_set, model=model, batch_size=batch_size, data_name=data_name,
                                 train=train, continue_train=continue_train)
         """
-        #eval_model.eval_4_models_cifar(data_set=data_set, batch_size=batch_size, data_name=data_name, redux=True)
+        #eval_model.eval_4_models_cifar(data_set=data_set, batch_size=batch_size, data_name=data_name, redux=False)
 
         #eval_model.eval_4_models_mnist(data_set=data_set, batch_size=batch_size, data_name=data_name, redux=False)
 
@@ -116,3 +130,4 @@ if __name__ == "__main__":
    
 
     model_choosing()
+
