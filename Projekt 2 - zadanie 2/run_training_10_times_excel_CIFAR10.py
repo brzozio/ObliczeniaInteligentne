@@ -53,7 +53,7 @@ random_crop = transforms.Compose([
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-def augmenting_image_ax(transform):
+def augmenting_image_ax(transform, fname=None):
     cifar = datasets.CIFAR10(
             root='data',
             train=True,
@@ -72,7 +72,10 @@ def augmenting_image_ax(transform):
             ax[row, 1].imshow(augmented_image, cmap='gray')
             ax[row, 1].set_title(f'Augmented Image')
 
-    plt.show()
+    if fname is None:
+        plt.show()
+    else:
+        plt.savefig(fname)
 
     # a w przypadku 2 cech należy zaprezentować rozkład danych treningowych w przypadku gdy
     # rozważane było 100 przykładów raz gdy tylko te dane są widoczne i
@@ -84,7 +87,7 @@ def collate_fn(batch):
     images = torch.stack([transforms.ToTensor()(img) for img in images])
     return images, torch.tensor(labels)
 
-def visualize_data_distribution(transform=None):
+def visualize_data_distribution(transform=None, fname=None):
     cifar = datasets.CIFAR10(
         root='data',
         train=True,
@@ -116,7 +119,10 @@ def visualize_data_distribution(transform=None):
         plt.xlabel('Class')
         plt.ylabel('Frequency')
 
-    plt.show()
+    if fname is None:
+        plt.show()
+    else:
+        plt.savefig(fname)
 
 
 
@@ -295,10 +301,10 @@ def run_random_state(reduce_dim, num_runs) -> None:
     df_std_div_acc.to_csv(f"projekt_2_zadanie_2_10_runs_STD_ACC_red_{reduce_dim}_CIFAR.csv",   index=False)
     
     if reduce_dim is True:
-        augmenting_image_ax(transform=color_jitter)
-        augmenting_image_ax(transform=rotate)
-        visualize_data_distribution(transform=None)
-        visualize_data_distribution(transform=color_jitter)
+        augmenting_image_ax(transform=color_jitter, fname='cifar_run10_aug_jitter.png')
+        augmenting_image_ax(transform=rotate, fname='cifar_run10_aug_rotate.png')
+        visualize_data_distribution(transform=None, fname='cifar_run10_vis_identity.png')
+        visualize_data_distribution(transform=color_jitter, fname='cifar_run10_vis_jitter.png')
 
 
 if __name__ == "__main__":
