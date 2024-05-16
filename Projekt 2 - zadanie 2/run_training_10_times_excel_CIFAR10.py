@@ -80,55 +80,44 @@ def augmenting_image_ax(transform, fname=None):
     # rozważane było 100 przykładów raz gdy tylko te dane są widoczne i
     # raz gdy dla każdej danej 10 razy została zastosowana metoda augmentacji (1000 przykładów).
 
-def collate_fn(batch):
-    images, labels = zip(*batch)
-    return list(images), torch.tensor(labels, dtype=torch.double)
 
 def visualize_data_distribution(model, transform=None, fname=None):
+    #pil_image = transforms.ToPILImage()(image)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.double()
+    model.eval()
+    
     cifar = datasets.CIFAR10(
         root='data',
         train=True,
         download=True
     )
-    data_loader = DataLoader(cifar, batch_size=100, shuffle=True, collate_fn=collate_fn)
-    images, labels = next(iter(data_loader))
+    to_tensor = transforms.ToTensor()
 
-    plt.figure(figsize=(12, 6))
-
-    # Histogram before transformation
-    plt.subplot(1, 2, 1)
-    plt.hist(labels.numpy(), bins=range(11), edgecolor='black')
-    plt.title('Data Distribution (100 examples)')
-    plt.xlabel('Class')
-    plt.ylabel('Frequency')
-
+    # First 100 images without augmentation
+    #images_100 = cifar.data[:100]
+    #print(f"ETYKIETY: {cifar.targets[0:100]}")
+    #images_tensored = torch.stack([to_tensor(images_100[i]) for i in range(len(images_100))]).double()
+    #features_100 = model.extract(images_tensored).cpu()
+    #plot_decision_boundary(X=features_100, func=lambda X: model.forward(X), tolerance=0.1)
+    
+    cifar = datasets.CIFAR10(
+        root='data',
+        train=True,
+        download=True
+    )
+    images_1000 = cifar.data[:100]
     if transform:
-        augmented_images = []
-        augmented_labels = []
-        to_tensor = transforms.ToTensor()
-
-        for image in images:
-            # Since image is already a PIL image, directly apply the transform
-            augmented_image = transform(image)
-            augmented_image = to_tensor(augmented_image)
-            augmented_images.append(augmented_image)
-
-        augmented_images = torch.stack(augmented_images).double()  
-        augmented_labels = torch.tensor(labels) 
-
-    model.eval()
-    model.double()
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model.to(device)
-    augmented_images = augmented_images.to(device)
-
-    #with torch.no_grad():
-    data = model.extract(augmented_images).cpu()
-    #    print(f'DATA: len={len(data)}, size={data.size}')
-
-    model.to('cpu')
-
-    plot_decision_boundary(X=data, func=lambda X: model.forward(X), tolerance=0.1)  # Ensure input is float32
+        augmented_images_list = []
+        for i in range(10):
+            for image in images_1000:
+                augmented_image = transform(transforms.ToPILImage()(image))
+                augmented_images_list.append(augmented_image)
+    print(f'SIZE: {len(augmented_images_list)}')
+    
+    features_1000 = model.extract(augmented_images_list_tensors)
+    plot_decision_boundary(X=features_1000, func=lambda X: model.forward(X), tolerance=0.1)
+    
 
     if fname is None:
         plt.show()
@@ -322,7 +311,6 @@ if __name__ == "__main__":
     #model_cifar_ker         = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=15, cnv1_out_channels=16, lin0_out_size=128, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=False)
     model_cifar_reduced_ker = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=10, cnv1_out_channels=16, lin0_out_size=20, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=True)
 
-    print('RUNNING FILE RUN TRAINING')
     #run_random_state(reduce_dim=False, num_runs=2) 
 
     #run_random_state(model=model_cifar_ker, reduce_dim=False, num_runs=10) 
@@ -330,5 +318,5 @@ if __name__ == "__main__":
 
     #augmenting_image_ax(transforms.ColorJitter(brightness=0.7, contrast=0.5, saturation=0.2))
     #augmenting_image_ax(transforms.RandomRotation(30))
-
+    model_cifar_reduced_ker.load_state_dict(load_model('model_cifar_reduced_ker.pth'))
     visualize_data_distribution(model=model_cifar_reduced_ker, transform=transforms.RandomRotation(20))

@@ -74,18 +74,18 @@ def model_choosing():
                                  lin0_out_size=128, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2,
                                  reduce_to_dim2=False)
 
-    model_cifar_reduced_activ = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=10, cnv1_out_channels=20,
+    model_cifar_reduced_activ = CNN_leaky_relu(in_side_len=32, in_channels=3, cnv0_out_channels=10, cnv1_out_channels=20,
                                          lin0_out_size=20, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2,
                                          reduce_to_dim2=True)
 
     #exe_model.execute_model_fast(data_set_test=mnist_test, data_set_train=mnist_train, model=model_mnist_ker, batch_size=12_000, data_name='mnist_ker', num_epoch=100, lr=0.01, calc_interval=2)
     #exe_model.execute_model_fast(data_set_test=mnist_test, data_set_train=mnist_train, model=model_mnist_reduced_ker, batch_size=12_000, data_name='mnist_ker_reduced', num_epoch=200, lr=0.01, calc_interval=4)
 
-    exe_model.execute_model_fast(data_set_test=cifar_test, data_set_train=cifar_train, model=model_cifar_activ,
-                                 batch_size=5000, data_name='cifar_ker', num_epoch=400, lr=0.001, calc_interval=8)
+    #exe_model.execute_model_fast(data_set_test=cifar_test, data_set_train=cifar_train, model=model_cifar_activ,
+    #                             batch_size=5000, data_name='cifar_ker', num_epoch=400, lr=0.001, calc_interval=8)
 
     exe_model.execute_model_fast(data_set_test=cifar_test, data_set_train=cifar_train, model=model_cifar_reduced_activ,
-                                 batch_size=5000, data_name='cifar_reduced_ker', num_epoch=600, lr=0.001,
+                                 batch_size=5000, data_name='cifar_reduced_ker', num_epoch=600, lr=0.005,
                                  calc_interval=12)
 
 
