@@ -67,12 +67,12 @@ def model_choosing():
                                                pooling_kernel=2, reduce_to_dim2=True)
 
     exe_model.execute_model_fast(data_set_test=mnist_test, data_set_train=mnist_train, model=model_mnist_activ,
-                                 batch_size=12_000, data_name='mnist_activ', num_epoch=30, lr=0.01, calc_interval=2)
-    """
+                                 batch_size=12_000, data_name='mnist_activ', num_epoch=11, lr=0.01, calc_interval=2)
+
     exe_model.execute_model_fast(data_set_test=mnist_test, data_set_train=mnist_train, model=model_mnist_reduced_activ,
-                                 batch_size=12_000, data_name='mnist_activ_reduced', num_epoch=200, lr=0.01,
+                                 batch_size=12_000, data_name='mnist_activ_reduced', num_epoch=14, lr=0.01,
                                  calc_interval=4)
-    """
+
 
 
     
