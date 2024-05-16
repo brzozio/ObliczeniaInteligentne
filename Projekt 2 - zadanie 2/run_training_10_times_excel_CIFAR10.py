@@ -58,7 +58,6 @@ def augmenting_image_ax(transform):
             root='data',
             train=True,
             download=True,
-            transform=transform
     )
     _, ax = plt.subplots(3, 2, figsize=(10, 20))
 
@@ -66,9 +65,9 @@ def augmenting_image_ax(transform):
         for col in range(2):
             index = (row * 2) + col
             original_image, _ = cifar[index]
-            augmented_image = transform(original_image)
             ax[row, 0].imshow(original_image, cmap='gray')
             ax[row, 0].set_title(f'Original Image')
+            augmented_image = transform(original_image)
             ax[row, 1].imshow(augmented_image, cmap='gray')
             ax[row, 1].set_title(f'Augmented Image')
 
@@ -306,5 +305,8 @@ if __name__ == "__main__":
 
     print('RUNNING FILE RUN TRAINING')
     #run_random_state(reduce_dim=False, num_runs=2) 
-    run_random_state(model=model_cifar_ker, reduce_dim=False, num_runs=10) 
-    run_random_state(model=model_cifar_reduced_ker, reduce_dim=True, num_runs=10) 
+    #run_random_state(model=model_cifar_ker, reduce_dim=False, num_runs=10) 
+    #run_random_state(model=model_cifar_reduced_ker, reduce_dim=True, num_runs=10)
+
+    augmenting_image_ax(transforms.ColorJitter(brightness=0.7, contrast=0.5, saturation=0.2))
+    augmenting_image_ax(transforms.RandomRotation(30))
