@@ -83,11 +83,11 @@ def model_choosing():
 
     #exe_model.execute_model_fast(data_set_test=cifar_test, data_set_train=cifar_train, model=model_cifar_activ,
     #                             batch_size=5000, data_name='cifar_ker', num_epoch=400, lr=0.001, calc_interval=8)
-
+    """
     exe_model.execute_model_fast(data_set_test=cifar_test, data_set_train=cifar_train, model=model_cifar_reduced_activ,
                                  batch_size=5000, data_name='cifar_reduced_ker', num_epoch=600, lr=0.005,
                                  calc_interval=12)
-
+    """
 
 if __name__ == "__main__":
     match data_name:
