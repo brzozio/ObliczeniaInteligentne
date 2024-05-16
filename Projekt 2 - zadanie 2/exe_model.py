@@ -11,18 +11,18 @@ from sklearn.metrics import confusion_matrix, accuracy_score, silhouette_score
 from voronoi import plot_decision_boundary, voronoi
 from scipy.spatial import Voronoi
 import torch.nn as nn
-from model import CNN_tanh
+from model import CNN_tanh, CNN_leaky_relu
 import os
 
 
-def execute_model(data_set, model, batch_size, data_name, train: bool = False, continue_train: bool = False):
-    num_epochs            = 10_000
+def execute_model(data_set, model, batch_size, data_name, num_epochs: int = 200, lr: float = 0.01, train: bool = False, continue_train: bool = False):
+    num_epochs            = num_epochs
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f'CUDA VERSION: {torch.version.cuda}')
     print(f'DEVICE RUNING: {device}')
 
     criteria = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.01)
+    optimizer = optim.Adam(model.parameters(), lr=lr)
 
     if continue_train is True:
         model.load_state_dict(load_model(f'model_{data_name}.pth'))
@@ -89,6 +89,7 @@ def execute_model(data_set, model, batch_size, data_name, train: bool = False, c
         sb.heatmap(confusion_matrix(targets_cpu,predicted_classes_cpu), annot=True, cmap='Blues', fmt='g')
         plt.xlabel('Predicted labels')
         plt.ylabel('True labels')
+        plt.title(f"Conf Matrix - {data_name}")
         plt.show()
         
         accuracy = accuracy_score(predicted_classes_cpu, targets_cpu)
@@ -105,3 +106,5 @@ def execute_model(data_set, model, batch_size, data_name, train: bool = False, c
             
             vor = Voronoi(data_set.data.cpu())
             voronoi(vor=vor, etykiety=predicted_classes_cpu)
+
+

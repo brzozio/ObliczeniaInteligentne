@@ -135,7 +135,7 @@ def cifar10_to_cnn(device, train, transforming):
     
     return cifars
 
-def run_random_state(reduce_dim, num_runs) -> None:
+def run_random_state(model, reduce_dim, num_runs) -> None:
     print(f'RUNNING: {device}')
     df_avg_acc = pd.DataFrame({
         'all': [],
@@ -150,9 +150,7 @@ def run_random_state(reduce_dim, num_runs) -> None:
         '1000': []
     })
     
-    model = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=8, cnv1_out_channels=16,
-                        reduce_to_dim2=reduce_dim, lin0_out_size=20, lin1_out_size=10,
-                        convolution_kernel=5, pooling_kernel=2)
+    
     save_model(model.state_dict(), f'RUN_10_TIMES____START_DICT_CIFAR10.pth')
     
     augmentations = [basic, rotate, color_jitter]
@@ -308,6 +306,11 @@ def run_random_state(reduce_dim, num_runs) -> None:
 
 
 if __name__ == "__main__":
+
+    model_cifar_ker         = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=15, cnv1_out_channels=16, lin0_out_size=128, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=False)
+    model_cifar_reduced_ker = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=10, cnv1_out_channels=16, lin0_out_size=20, lin1_out_size=10, convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=True)
+
     print('RUNNING FILE RUN TRAINING')
     #run_random_state(reduce_dim=False, num_runs=2) 
-    run_random_state(reduce_dim=True, num_runs=2) 
+    run_random_state(model=model_cifar_ker, reduce_dim=False, num_runs=10) 
+    run_random_state(model=model_cifar_reduced_ker, reduce_dim=True, num_runs=10) 
