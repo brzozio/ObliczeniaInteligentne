@@ -86,13 +86,6 @@ def visualize_data_distribution(model, transform=None, fname=None):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.double()
     model.eval()
-    
-    cifar = datasets.CIFAR10(
-        root='data',
-        train=True,
-        download=True
-    )
-    to_tensor = transforms.ToTensor()
 
     # First 100 images without augmentation
     #images_100 = cifar.data[:100]
@@ -100,25 +93,37 @@ def visualize_data_distribution(model, transform=None, fname=None):
     #images_tensored = torch.stack([to_tensor(images_100[i]) for i in range(len(images_100))]).double()
     #features_100 = model.extract(images_tensored).cpu()
     #plot_decision_boundary(X=features_100, func=lambda X: model.forward(X), tolerance=0.1)
-    
+
     cifar = datasets.CIFAR10(
         root='data',
         train=True,
-        download=True
+        download=True,
+        transform=transforms.Compose([
+                  transforms.ToTensor(),
+                  transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+            ])
     )
-    images_1000 = cifar.data[:100]
-    if transform:
-        augmented_images_list = []
-        for i in range(10):
-            for image in images_1000:
-                augmented_image = transform(transforms.ToPILImage()(image))
-                augmented_images_list.append(augmented_image)
-    print(f'SIZE: {len(augmented_images_list)}')
-    
-    features_1000 = model.extract(augmented_images_list_tensors)
-    plot_decision_boundary(X=features_1000, func=lambda X: model.forward(X), tolerance=0.1)
-    
+    cifar.transform(cifar.data[:100])
+    ims_raw = cifar.data[:100]
+    print(ims_raw)
+    images_1000 = np.zeros((1000, 32, 32, 3))
 
+    if transform:
+        for im in range(100):
+            for aug in range(10):
+                images_1000[im*10+aug] = transform(transforms.ToPILImage()(ims_raw[im]))
+    print(f'SIZE: {len(images_1000)}')
+
+    augmented_images_list_tensors = torch.from_numpy(images_1000)
+    augmented_images_list_tensors = torch.permute(augmented_images_list_tensors, (0, 3, 1, 2))
+    print(augmented_images_list_tensors.size())
+
+    features_1000 = model.extract(augmented_images_list_tensors)
+    #plot_decision_boundary(X=features_1000, func=lambda X: model.forward(X), tolerance=0.1)
+
+    features_100 = torch.from_numpy(ims_raw)
+    features_100 = torch.permute(features_100, (0, 3, 1, 2))
+    plot_decision_boundary(X=features_100, func=lambda X: model.forward(X), tolerance=0.1)
     if fname is None:
         plt.show()
     else:
@@ -318,5 +323,5 @@ if __name__ == "__main__":
 
     #augmenting_image_ax(transforms.ColorJitter(brightness=0.7, contrast=0.5, saturation=0.2))
     #augmenting_image_ax(transforms.RandomRotation(30))
-    model_cifar_reduced_ker.load_state_dict(load_model('model_cifar_reduced_ker.pth'))
+    model_cifar_reduced_ker.load_state_dict(load_model('model_model_cifar_reduced_ker.pth'))
     visualize_data_distribution(model=model_cifar_reduced_ker, transform=transforms.RandomRotation(20))
