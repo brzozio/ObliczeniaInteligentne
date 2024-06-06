@@ -22,7 +22,6 @@ if index != -1:
    path_data = path_data + "\\data"
 
 print(path_data)
-print(path_data)
 
 
 class CustomDataset(Dataset):
