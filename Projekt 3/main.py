@@ -155,8 +155,11 @@ def explain_saliency(model, data, target):
     print(f"Saliency -> Target shape: {target.shape}")
 
     # Check a single sample if needed
-    single_data = data[0]
-    single_target = target[0]
+    single_data = data[0].unsqueeze(0)
+    single_target = target[0].unsqueeze(0)
+
+
+    
     
     print(f"Saliency -> Single data shape: {single_data.shape}")
     print(f"Saliency -> Single target shape: {single_target.shape}")
@@ -197,7 +200,7 @@ if __name__ == "__main__":
     '''
 
 
-    #explain_saliency(model=model_CNN_cifar, data=data_CNN_cifar.data, target=data_CNN_cifar.targets)
-    explain_saliency(model=model_MLP_mnist_conv, data=data_MLP_mnist_conv.data, target=data_MLP_mnist_conv.targets)
+    explain_saliency(model=model_CNN_cifar, data=data_CNN_cifar.data, target=data_CNN_cifar.targets)
+    #explain_saliency(model=model_MLP_mnist_conv, data=data_MLP_mnist_conv.data, target=data_MLP_mnist_conv.targets)
 
     
