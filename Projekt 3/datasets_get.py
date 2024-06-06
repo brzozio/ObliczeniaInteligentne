@@ -11,7 +11,15 @@ from sklearn.manifold import TSNE
 from joblib import dump, load
 import torchvision
 from torch.utils.data import DataLoader
+import os
 
+repo_name = "ObliczeniaInteligentne"
+path_script = os.path.dirname(os.path.realpath(__file__))
+index = path_script.find(repo_name)
+path_data = path_script
+if index != -1:
+   path_data = path_script[:index + len(repo_name)]
+   path_data = path_data + "\\data"
 
 class CustomDataset(Dataset):
     def __init__(self, data, targets, device):
@@ -38,13 +46,13 @@ transform_cifar10 = transforms.Compose([
 
 
 def mnist_to_cnn(device, train):
-    mnist           = datasets.MNIST(root='data', train=train, download=True, transform=transform_mnist)
+    mnist           = datasets.MNIST(root=path_data, train=train, download=True, transform=transform_mnist)
     mnists          = CustomDataset(data=mnist.data, targets=mnist.targets, device=device)
     mnists.data     = mnists.data.view(-1,1,28,28)
     return mnists
 
 def cifar10_to_cnn(device, train):
-    cifar           = torchvision.datasets.CIFAR10(root='./data', train=train, download=True, transform=transform_cifar10)
+    cifar           = torchvision.datasets.CIFAR10(root=path_data, train=train, download=True, transform=transform_cifar10)
     cifars          = CustomDataset(data=cifar.data, targets=cifar.targets, device=device)
     print(cifars.data.size())
     # cifars.data     = cifars.data.reshape(-1,32,32,3)
@@ -55,8 +63,8 @@ def cifar10_to_cnn(device, train):
 
 def mnist_extr_conv(device, train, testtrain): #Conv
     #Getting data from .txt file
-    mnist  = datasets.MNIST(root='data', train=train, download=True, transform=transforms.ToTensor())
-    data = np.genfromtxt(f"C:\\Users\\Michał\\Documents\\STUDIA\\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\Projekt 2 - zadanie 1\\mean_digit_convolution_{testtrain}_data.txt", delimiter=";")
+    mnist  = datasets.MNIST(root=path_data, train=train, download=True, transform=transforms.ToTensor())
+    data = np.genfromtxt(path_data+"\\mean_digit_convolution_{testtrain}_data.txt", delimiter=";")
     print(f"TESTTRAIN: {testtrain}")
     print(f"MNIST TARGET SIZE: {mnist.targets.size()}")
     #mnists = CustomDataset(data=data, targets=mnist.targets, device=device)
@@ -66,8 +74,8 @@ def mnist_extr_conv(device, train, testtrain): #Conv
 
 def mnist_extr_diff(device, train, testtrain): #Diff
     #Getting data from .txt file
-    mnist  = datasets.MNIST(root='data', train=train, download=True, transform=transforms.ToTensor())
-    data = np.genfromtxt(f"C:\\Users\\Michał\\Documents\\STUDIA\\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\\I sem\\Obliczenia inteligentne\\Projekt 2 - zadanie 1\\differential_{testtrain}_data.txt", delimiter=";")
+    mnist  = datasets.MNIST(root=path_data, train=train, download=True, transform=transforms.ToTensor())
+    data = np.genfromtxt(path_data+"\\differential_{testtrain}_data.txt", delimiter=";")
     mnists = CustomDataset(data=data, targets=mnist.targets, device=device)
     return mnists
 
