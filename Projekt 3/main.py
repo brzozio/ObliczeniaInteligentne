@@ -41,6 +41,7 @@ from captum.attr import IntegratedGradients
 from captum.attr import Saliency
 from captum.attr import LayerGradCam
 from captum.attr import Lime
+from captum.attr import GuidedBackprop
 import seaborn as sb
 from sklearn.metrics import confusion_matrix, accuracy_score
 import torch.nn as nn
@@ -121,70 +122,13 @@ def loading_state_dict():
     model_MLP_mnist_conv.load_state_dict(torch.load('./Projekt 3/models/MLP_mnist_extr_conv.pth'))
     #model_MLP_mnist_diff.load_state_dict(torch.load('./Projekt 3/models/MLP_mnist_extr_diff.pth'))
 
-def explain_lime(model, data, target, feature_names):
-    model.eval()
-    lime = Lime(model)
-    attr = lime.attribute(data, target=target)
-    attr = attr.detach().numpy()
-
-    viz.visualize_text([attr], feature_names, title="LIME Attribution")
-
-def explain_gradCAM(model, data, target, layer):
-    model.double()
-    model.to(device)
-    model.eval()
-    gradcam = LayerGradCam(model, layer)
-    attr = gradcam.attribute(data, target=target)
-    attr = attr.detach().numpy()
-
-    viz.visualize_image_attr(attr, data.permute(1, 2, 0).numpy(), method="heat_map", title="GradCAM Attribution")
 
 def explain_saliency(model, data, target):
     model.double()  # Ensure the model is using double precision if required
     model.to(device)
     model.eval()
     
-    # Ensure input requires gradients
-    if not data.requires_grad:
-        data.requires_grad = True
-
-    saliency = Saliency(model)
-    
-    # Check the shape of data
-    print(f"Saliency -> Data shape: {data.shape}")
-    print(f"Saliency -> Target shape: {target.shape}")
-
-    # Check a single sample if needed
-    single_data = data[0].unsqueeze(0)
-    single_target = target[0].unsqueeze(0)
-
-    
-    print(f"Saliency -> Single data shape: {single_data.shape}")
-    print(f"Saliency -> Single target shape: {single_target.shape}")
-
-    # Perform Saliency attribution
-    try:
-        attr = saliency.attribute(single_data, target=single_target, abs=True)
-        attr = attr.detach().cpu().numpy()
-
-        # Visualize the attribution
-        fig, ax = plt.subplots(figsize=(5, 5))
-        viz.visualize_image_attr(attr, single_data.cpu().detach().numpy(), method="heat_map", title="Saliency Attribution", plt_fig_axis=(fig, ax))
-        plt.show()
-    except RuntimeError as e:
-        print(f"Saliency -> RuntimeError: {e}")
-        # Print intermediate shapes and any other debug information here if needed
-
-def explain_integrated_gradients(model, data, target, baseline=None):
-    model.double()
-    model.to(device)
-    model.eval()
-    integrated_gradients = IntegratedGradients(model)
-    attr = integrated_gradients.attribute(data, baseline, target=target, n_steps=50)
-    attr = attr.detach().numpy()
-
-    viz.visualize_image_attr(attr, data.permute(1, 2, 0).numpy(), method="heat_map", title="Integrated Gradients Attribution")
-
+  
 
 if __name__ == "__main__":
     loading_state_dict()
@@ -199,6 +143,6 @@ if __name__ == "__main__":
 
 
     #explain_saliency(model=model_CNN_cifar, data=data_CNN_cifar.data, target=data_CNN_cifar.targets)
-    #explain_saliency(model=model_MLP_mnist_conv, data=data_MLP_mnist_conv.data, target=data_MLP_mnist_conv.targets)
+    explain_saliency(model=model_MLP_iris, data=data_MLP_iris.data, target=0)
 
-    explain_integrated_gradients(model=model_MLP_iris, data=data_MLP_iris.data[0], target=data_MLP_iris.targets[0])    
+    #explain_integrated_gradients(model=model_MLP_iris, data=data_MLP_iris.data[0], target=data_MLP_iris.targets[0])    
