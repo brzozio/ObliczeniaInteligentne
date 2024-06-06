@@ -13,13 +13,17 @@ import torchvision
 from torch.utils.data import DataLoader
 import os
 
-repo_name = "ObliczeniaInteligentne"
+repo_name = "nteligentne"
 path_script = os.path.dirname(os.path.realpath(__file__))
 index = path_script.find(repo_name)
 path_data = path_script
 if index != -1:
    path_data = path_script[:index + len(repo_name)]
    path_data = path_data + "\\data"
+
+print(path_data)
+print(path_data)
+
 
 class CustomDataset(Dataset):
     def __init__(self, data, targets, device):
