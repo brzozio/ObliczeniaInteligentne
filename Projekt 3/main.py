@@ -140,14 +140,39 @@ def explain_gradCAM(model, data, target, layer):
     viz.visualize_image_attr(attr, data.permute(1, 2, 0).numpy(), method="heat_map", title="GradCAM Attribution")
 
 def explain_saliency(model, data, target):
-    model.double()
+    model.double()  # Ensure the model is using double precision if required
     model.to(device)
     model.eval()
-    saliency = Saliency(model)
-    attr = saliency.attribute(data, target=target, abs=True)
-    attr = attr.detach().numpy()
+    
+    # Ensure input requires gradients
+    if not data.requires_grad:
+        data.requires_grad = True
 
-    viz.visualize_image_attr(attr, data.permute(1, 2, 0).numpy(), method="heat_map", title="Saliency Attribution")
+    saliency = Saliency(model)
+    
+    # Check the shape of data
+    print(f"Saliency -> Data shape: {data.shape}")
+    print(f"Saliency -> Target shape: {target.shape}")
+
+    # Check a single sample if needed
+    single_data = data[0]
+    single_target = target[0]
+    
+    print(f"Saliency -> Single data shape: {single_data.shape}")
+    print(f"Saliency -> Single target shape: {single_target.shape}")
+
+    # Perform Saliency attribution
+    try:
+        attr = saliency.attribute(single_data, target=single_target, abs=True)
+        attr = attr.detach().cpu().numpy()
+
+        # Visualize the attribution
+        fig, ax = plt.subplots(figsize=(5, 5))
+        viz.visualize_image_attr(attr, single_data.cpu().detach().numpy(), method="heat_map", title="Saliency Attribution", plt_fig_axis=(fig, ax))
+        plt.show()
+    except RuntimeError as e:
+        print(f"Saliency -> RuntimeError: {e}")
+        # Print intermediate shapes and any other debug information here if needed
 
 def explain_integrated_gradients(model, data, target, baseline=None):
     model.double()
@@ -172,6 +197,7 @@ if __name__ == "__main__":
     '''
 
 
-    explain_saliency(model=model_CNN_cifar, data=data_CNN_cifar.data[1], target=data_CNN_cifar.targets[1])
+    #explain_saliency(model=model_CNN_cifar, data=data_CNN_cifar.data, target=data_CNN_cifar.targets)
+    explain_saliency(model=model_MLP_mnist_conv, data=data_MLP_mnist_conv.data, target=data_MLP_mnist_conv.targets)
 
     
