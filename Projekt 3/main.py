@@ -200,7 +200,8 @@ if __name__ == "__main__":
     '''
 
 
-    explain_saliency(model=model_CNN_cifar, data=data_CNN_cifar.data, target=data_CNN_cifar.targets)
+    #explain_saliency(model=model_CNN_cifar, data=data_CNN_cifar.data, target=data_CNN_cifar.targets)
     #explain_saliency(model=model_MLP_mnist_conv, data=data_MLP_mnist_conv.data, target=data_MLP_mnist_conv.targets)
 
+    explain_saliency(model=model_MLP_mnist_conv, data=data_MLP_mnist_conv.data, target=data_MLP_mnist_conv.targets)
     
