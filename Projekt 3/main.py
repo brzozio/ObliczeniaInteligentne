@@ -30,7 +30,7 @@
         Przykład Użycia: Użyj GuidedGradCAM z Captum, aby zidentyfikować kluczowe obszary na obrazach CIFAR10 wpływające na klasyfikację.
 """
 import datasets_get
-from model_CNN import CNN_tanh
+from model_CNN import CNN_tanh_compose as CNN_tanh
 from model_MLP import MLP
 import numpy as np 
 import pandas as pd
@@ -147,7 +147,7 @@ def get_attributions(model, input_tensor, target_class, method="saliency"):
     elif method == "guided_gradcam":
         target_layer = model.conv1
         guided_gc = GuidedGradCam(model, target_layer)
-        attribution = guided_gc.attribute(input_tensor, target=target_class)
+        attribution = guided_gc.attribute(input_tensor[1:1024], target=target_class[1:1024])
     print(f'ATTRIBUTION for {method} is: {attribution}, shape: {attribution.shape}, size: {attribution.dim}')
     return attribution
 
@@ -162,15 +162,17 @@ def visualize_attributions(attributions, input_tensor, method="saliency"):
         plt.show()
         
     elif method == "guided_gradcam":
-        _ = viz.visualize_image_attr(
-            np.transpose(attributions.squeeze(0).cpu().detach().numpy(), (1, 2, 0)),
-            np.transpose(input_tensor.squeeze(0).cpu().detach().numpy(), (1, 2, 0)),
-            method="blended_heat_map",
-            sign="absolute_value",
-            show_colorbar=True,
-            title="Guided GradCAM",
-        )
-
+        _, ax = plt.subplots(3,2)
+        ax[0,0].imshow(input_tensor[0][0].cpu().detach().numpy(), cmap='gray')
+        ax[0,1].imshow(attributions[0][0].cpu().detach().numpy())
+        
+        ax[1,0].imshow(input_tensor[1][2].cpu().detach().numpy(), cmap='gray')
+        ax[1,1].imshow(attributions[1][2].cpu().detach().numpy())
+        
+        ax[2,0].imshow(input_tensor[2][2].cpu().detach().numpy(), cmap='gray')
+        ax[2,1].imshow(attributions[2][2].cpu().detach().numpy())
+        plt.show()
+       
 
 
 def execute_model_fast(data_set_train, model, batch_size, num_epoch: int = 1600,
@@ -247,8 +249,8 @@ if __name__ == "__main__":
     #saliency_attributions = get_attributions(model=model_MLP_breast_cancer, input_tensor=data_MLP_breast_cancer.data[0], target_class=data_MLP_breast_cancer.targets[0], method="saliency")
     #visualize_attributions(saliency_attributions, input_tensor=data_MLP_breast_cancer.data, method="saliency")
   
-    saliency_attributions = get_attributions(model=model_MLP_iris, input_tensor=data_MLP_iris.data, target_class=data_MLP_iris.targets, method="saliency")
-    visualize_attributions(saliency_attributions, input_tensor=data_MLP_iris.data, method="saliency")
+    #saliency_attributions = get_attributions(model=model_MLP_iris, input_tensor=data_MLP_iris.data, target_class=data_MLP_iris.targets, method="saliency")
+    #visualize_attributions(saliency_attributions, input_tensor=data_MLP_iris.data, method="saliency")
   
     # saliency_attributions = get_attributions(model=model_MLP_wine, input_tensor=data_MLP_wine.data[0], target_class=data_MLP_wine.targets[0], method="saliency")
     #visualize_attributions(saliency_attributions, input_tensor=data_MLP_wine.data, method="saliency")
@@ -262,8 +264,8 @@ if __name__ == "__main__":
     #visualize_attributions(saliency_attributions, input_tensor=data_MLP_mnist_conv.data, method="saliency")
 
     # Guided GradCAM
-     #saliency_attributions = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data[0], target_class=data_CNN_cifar.targets[0], method="guided_gradcam")
-    #visualize_attributions(saliency_attributions, input_tensor=data_CNN_cifar.data, method="guided_gradcam")
+    saliency_attributions = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="guided_gradcam")
+    visualize_attributions(saliency_attributions, input_tensor=data_CNN_cifar.data, method="guided_gradcam")
     
     #saliency_attributions = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data[0], target_class=data_CNN_mnist.targets[0], method="guided_gradcam")
     #visualize_attributions(saliency_attributions, input_tensor=data_CNN_mnist.data, method="guided_gradcam")
