@@ -143,11 +143,11 @@ def get_attributions(model, input_tensor, target_class, method="saliency"):
 
     if method == "saliency":
         saliency = Saliency(model)
-        attribution = saliency.attribute(input_tensor, target=target_class)
+        attribution = saliency.attribute(input_tensor[0:1023], target=target_class[0:1023])
     elif method == "guided_gradcam":
         target_layer = model.conv1
         guided_gc = GuidedGradCam(model, target_layer)
-        attribution = guided_gc.attribute(input_tensor[1:1024], target=target_class[1:1024])
+        attribution = guided_gc.attribute(input_tensor[0:1023], target=target_class[0:1023])
     print(f'ATTRIBUTION for {method} is: {attribution}, shape: {attribution.shape}, size: {attribution.dim}')
     return attribution
 
@@ -164,13 +164,13 @@ def visualize_attributions(attributions, input_tensor, method="saliency"):
     elif method == "guided_gradcam":
         _, ax = plt.subplots(3,2)
         ax[0,0].imshow(input_tensor[0][0].cpu().detach().numpy(), cmap='gray')
-        ax[0,1].imshow(attributions[0][0].cpu().detach().numpy())
+        ax[0,1].imshow(attributions[0][0].cpu().detach().numpy(), cmap='hot')
         
-        ax[1,0].imshow(input_tensor[1][2].cpu().detach().numpy(), cmap='gray')
-        ax[1,1].imshow(attributions[1][2].cpu().detach().numpy())
+        ax[1,0].imshow(input_tensor[1][0].cpu().detach().numpy(), cmap='gray')
+        ax[1,1].imshow(attributions[1][0].cpu().detach().numpy(), cmap='hot')
         
-        ax[2,0].imshow(input_tensor[2][2].cpu().detach().numpy(), cmap='gray')
-        ax[2,1].imshow(attributions[2][2].cpu().detach().numpy())
+        ax[2,0].imshow(input_tensor[2][0].cpu().detach().numpy(), cmap='gray')
+        ax[2,1].imshow(attributions[2][0].cpu().detach().numpy(), cmap='hot')
         plt.show()
        
 
@@ -235,37 +235,35 @@ if __name__ == "__main__":
 
     =====================
     '''
-    #TEST MODEL - model saved as a whole object    
-    #saliency_attributions = get_attributions(model=modeltest, input_tensor=data_CNN_mnist.data[0], target_class=data_CNN_mnist.targets[0], method="saliency")
-    #visualize_attributions(saliency_attributions, input_tensor=data_CNN_mnist.data, method="saliency")
-    
     # Saliency
-    #saliency_attributions = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data[0], target_class=data_CNN_cifar.targets[0], method="saliency")
+    #saliency_attributions = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="saliency")
     #visualize_attributions(saliency_attributions, input_tensor=data_CNN_cifar.data, method="saliency")
     
-    #saliency_attributions = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data[0], target_class=data_CNN_mnist.targets[0], method="saliency")
+    #saliency_attributions = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="saliency")
     #visualize_attributions(saliency_attributions, input_tensor=data_CNN_mnist.data, method="saliency")
-    
-    #saliency_attributions = get_attributions(model=model_MLP_breast_cancer, input_tensor=data_MLP_breast_cancer.data[0], target_class=data_MLP_breast_cancer.targets[0], method="saliency")
-    #visualize_attributions(saliency_attributions, input_tensor=data_MLP_breast_cancer.data, method="saliency")
+    """
+    DZIAŁA
+
+    saliency_attributions = get_attributions(model=model_MLP_breast_cancer, input_tensor=data_MLP_breast_cancer.data, target_class=data_MLP_breast_cancer.targets, method="saliency")
+    visualize_attributions(saliency_attributions, input_tensor=data_MLP_breast_cancer.data, method="saliency")
   
-    #saliency_attributions = get_attributions(model=model_MLP_iris, input_tensor=data_MLP_iris.data, target_class=data_MLP_iris.targets, method="saliency")
-    #visualize_attributions(saliency_attributions, input_tensor=data_MLP_iris.data, method="saliency")
+    saliency_attributions = get_attributions(model=model_MLP_iris, input_tensor=data_MLP_iris.data, target_class=data_MLP_iris.targets, method="saliency")
+    visualize_attributions(saliency_attributions, input_tensor=data_MLP_iris.data, method="saliency")
   
-    # saliency_attributions = get_attributions(model=model_MLP_wine, input_tensor=data_MLP_wine.data[0], target_class=data_MLP_wine.targets[0], method="saliency")
-    #visualize_attributions(saliency_attributions, input_tensor=data_MLP_wine.data, method="saliency")
+    saliency_attributions = get_attributions(model=model_MLP_wine, input_tensor=data_MLP_wine.data, target_class=data_MLP_wine.targets, method="saliency")
+    visualize_attributions(saliency_attributions, input_tensor=data_MLP_wine.data, method="saliency")
     
-    #saliency_attributions = get_attributions(model=model_MLP_mnist_conv, input_tensor=data_MLP_mnist_conv.data[0], target_class=data_MLP_mnist_conv.targets[0], method="saliency")
-    #visualize_attributions(saliency_attributions, input_tensor=data_MLP_mnist_conv.data, method="saliency")
+    saliency_attributions = get_attributions(model=model_MLP_mnist_conv, input_tensor=data_MLP_mnist_conv.data, target_class=data_MLP_mnist_conv.targets, method="saliency")
+    visualize_attributions(saliency_attributions, input_tensor=data_MLP_mnist_conv.data, method="saliency")
     
-    #saliency_attributions = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="saliency")
-    #visualize_attributions(saliency_attributions, input_tensor=data_MLP_mnist_diff.data, method="saliency")
-    #saliency_attributions = get_attributions(model=model_MLP_mnist_conv, input_tensor=data_MLP_mnist_conv.data, target_class=data_MLP_mnist_conv.targets, method="saliency")
-    #visualize_attributions(saliency_attributions, input_tensor=data_MLP_mnist_conv.data, method="saliency")
+    saliency_attributions = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="saliency")
+    visualize_attributions(saliency_attributions, input_tensor=data_MLP_mnist_diff.data, method="saliency")
 
     # Guided GradCAM
     saliency_attributions = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="guided_gradcam")
-    visualize_attributions(saliency_attributions, input_tensor=data_CNN_cifar.data, method="guided_gradcam")
+    visualize_attributions(saliency_attributions, input_tensor=data_CNN_cifar.data,  method="guided_gradcam")
     
-    #saliency_attributions = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data[0], target_class=data_CNN_mnist.targets[0], method="guided_gradcam")
-    #visualize_attributions(saliency_attributions, input_tensor=data_CNN_mnist.data, method="guided_gradcam")
+    saliency_attributions = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="guided_gradcam")
+    visualize_attributions(saliency_attributions, input_tensor=data_CNN_mnist.data,  method="guided_gradcam")
+    """
+    
