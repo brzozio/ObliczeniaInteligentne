@@ -37,12 +37,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import torch
 from captum.attr import visualization as viz
-from captum.attr import IntegratedGradients
-from captum.attr import Saliency
-from captum.attr import LayerGradCam
-from captum.attr import Lime
-from captum.attr import GuidedBackprop
-from captum.attr import GuidedGradCam
+from captum.attr import IntegratedGradients, GuidedGradCam, Saliency, LayerGradCam, Lime, GuidedBackprop, FeatureAblation
 import seaborn as sb
 from sklearn.metrics import confusion_matrix, accuracy_score
 import torch.nn as nn
@@ -76,8 +71,6 @@ data_CNN_mnist          = datasets_get.mnist_to_cnn(device, True)
 data_CNN_cifar          = datasets_get.cifar10_to_cnn(device, True)
 
 modeltest = torch.load("./Projekt 3/models/modeltest.pth")
-
-
 def execute_model(data_set, model, data_name):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f'CUDA VERSION: {torch.version.cuda}')
@@ -117,8 +110,17 @@ def execute_model(data_set, model, data_name):
     
     accuracy = accuracy_score(predicted_classes_cpu, targets_cpu)
     print(f'ACCURACY SCORE FOR {data_name}: {accuracy:.4f}')
-       
 
+def testing_models_eval():
+    execute_model(data_set=data_CNN_mnist, model=model_CNN_mnist, data_name='CNN_mnist')
+    execute_model(data_set=data_CNN_cifar, model=model_CNN_cifar, data_name='CNN_cifar')
+    execute_model(data_set=data_MLP_iris, model=model_MLP_iris, data_name='MLP_iris')
+    execute_model(data_set=data_MLP_wine, model=model_MLP_wine, data_name='MLP_wine')
+    execute_model(data_set=data_MLP_breast_cancer, model=model_MLP_breast_cancer, data_name='MLP_breast_cancer')
+    execute_model(data_set=data_MLP_mnist_conv, model=model_MLP_mnist_conv, data_name='MLP_mnist_extr_conv')
+    execute_model(data_set=data_MLP_mnist_diff, model=model_MLP_mnist_diff, data_name='MLP_mnist_extr_diff')
+
+   
 def loading_state_dict():
     model_CNN_mnist.load_state_dict(torch.load('./Projekt 3/models/CNN_mnist.pth'))
     model_CNN_cifar.load_state_dict(torch.load('./Projekt 3/models/CNN_cifar.pth'))
@@ -128,18 +130,13 @@ def loading_state_dict():
     model_MLP_mnist_conv.load_state_dict(torch.load('./Projekt 3/models/MLP_mnist_extr_conv.pth'))
     model_MLP_mnist_diff.load_state_dict(torch.load('./Projekt 3/models/MLP_mnist_extr_diff.pth'))
 
-
-
+#Atrybucje
 def get_attributions(model, input_tensor, target_class, method="saliency"):
     model.double()
     model.eval()
     model.to(device)
 
     input_tensor = input_tensor.requires_grad_(True)
-    #if isinstance(input_tensor, torch.Tensor):
-    #    target_class = int(target_class.item())
-    #    print(f'target class after item(): {target_class}')
-    #target_class = int(target_class.item())
 
     if method == "saliency":
         saliency = Saliency(model)
@@ -148,20 +145,33 @@ def get_attributions(model, input_tensor, target_class, method="saliency"):
         target_layer = model.conv1
         guided_gc = GuidedGradCam(model, target_layer)
         attribution = guided_gc.attribute(input_tensor[0:1023], target=target_class[0:1023])
+    elif method == "lime":
+        lime = Lime(model)
+        attribution = lime.attribute(input_tensor[0:5], target=target_class[0:5])
+    elif method == "feature_ablation":
+        ftr_abl = FeatureAblation(model)
+        attribution = ftr_abl.attribute(input_tensor[0:10], target=target_class[0:10])
+    elif method == "integrated_gradients":
+        integrated_gradients = IntegratedGradients(model)
+        attribution = integrated_gradients.attribute(input_tensor[0:10], target=target_class[0:10])
+    else:
+        raise ValueError(f"Unknown method was specified: {method}")
+
     print(f'ATTRIBUTION for {method} is: {attribution}, shape: {attribution.shape}, size: {attribution.dim}')
     return attribution
 
-def visualize_attributions(attributions, input_tensor, method="saliency"):
-    if method == "saliency":
+def visualize_attributions(attributions, input_tensor, model_name, method="saliency", target_tensor=None):
+    if method == "saliency" or method == "feature_ablation" or method == "integrated_gradients":
         #WORKING
         plt.figure(figsize=(10, 5))
         sb.barplot(x=range(len(attributions[0])), y=attributions[0].cpu().detach().numpy())
         plt.xlabel('Feature Index')
         plt.ylabel('Attribution')
-        plt.title('Saliency Map for MLP')
+        plt.title(f'{method} for {model_name} - Target: [{target_tensor[0]}]')
         plt.show()
         
-    elif method == "guided_gradcam":
+    elif method == "guided_gradcam" or method == "lime":
+        #WORKING
         _, ax = plt.subplots(3,2)
         ax[0,0].imshow(input_tensor[0][0].cpu().detach().numpy(), cmap='gray')
         ax[0,1].imshow(attributions[0][0].cpu().detach().numpy(), cmap='hot')
@@ -172,98 +182,55 @@ def visualize_attributions(attributions, input_tensor, method="saliency"):
         ax[2,0].imshow(input_tensor[2][0].cpu().detach().numpy(), cmap='gray')
         ax[2,1].imshow(attributions[2][0].cpu().detach().numpy(), cmap='hot')
         plt.show()
-       
 
 
-def execute_model_fast(data_set_train, model, batch_size, num_epoch: int = 1600,
-                       lr: float = 0.001, calc_interval : int = 16) -> None:
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f'CUDA VERSION: {torch.version.cuda}')
-    print(f'DEVICE RUNING: {device}')
-
-    criteria = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=lr)
-        
-    model.to(device)
-    model.train()
-    model.double()
-    num_epoch = num_epoch - (num_epoch % calc_interval)
-
-    data_loader = DataLoader(data_set_train, batch_size=batch_size, shuffle=True)
-    print(f'DATA SIZE: {data_set_train.data.size()}')
-
-    for epoch in range(num_epoch):
-        for batch in data_loader:
-            data, target = batch['data'], batch['target']
-            outputs = model.extract(data)
-            outputs = model.forward(outputs)
-            loss = criteria(outputs, target)
-            
-            optimizer.zero_grad()   # Zerowanie gradientów, aby git auniknąć akumulacji w kolejnych krokach
-            loss.backward()         # Backpropagation: Obliczenie gradientów
-            optimizer.step()        # Aktualizacja wag
-        
-        print(f"Epoch [{epoch+1}/{num_epoch}]")
-
-        torch.save(model, f'./Projekt 3/models/modeltest.pth')
-    
 
 if __name__ == "__main__":
     loading_state_dict()
-    #execute_model_fast(data_set_train=data_CNN_mnist, model=model_CNN_mnist, batch_size=2048, num_epoch=20)
-    '''
-    =====================
-    NIE DZIALA 
-
-    execute_model(data_set=data_CNN_mnist, model=model_CNN_mnist, data_name='CNN_mnist')
-    execute_model(data_set=data_CNN_cifar, model=model_CNN_cifar, data_name='CNN_cifar')
-
-    =====================
-
-    =====================
-    DZIAŁA 
-
-    execute_model(data_set=data_MLP_iris, model=model_MLP_iris, data_name='MLP_iris')
-
-    execute_model(data_set=data_MLP_wine, model=model_MLP_wine, data_name='MLP_wine')
-
-    execute_model(data_set=data_MLP_breast_cancer, model=model_MLP_breast_cancer, data_name='MLP_breast_cancer')
-
-    execute_model(data_set=data_MLP_mnist_conv, model=model_MLP_mnist_conv, data_name='MLP_mnist_extr_conv')
-
-    execute_model(data_set=data_MLP_mnist_diff, model=model_MLP_mnist_diff, data_name='MLP_mnist_extr_diff')
-
-    =====================
-    '''
-    # Saliency
-    #saliency_attributions = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="saliency")
-    #visualize_attributions(saliency_attributions, input_tensor=data_CNN_cifar.data, method="saliency")
     
-    #saliency_attributions = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="saliency")
-    #visualize_attributions(saliency_attributions, input_tensor=data_CNN_mnist.data, method="saliency")
+    #Saliency Map oblicza gradienty wyniku modelu względem cech wejściowych, aby stworzyć mapę, która pokazuje, które cechy najbardziej wpływają na wynik modelu.
+    #Guided Grad-CAM łączy Grad-CAM (Gradient-weighted Class Activation Mapping) z Guided Backpropagation, aby wygenerować wizualizację, która pokazuje, które części obrazu najbardziej wpływają na decyzję modelu.
+    #Lime - Lime (Local Interpretable Model-agnostic Explanations) działa poprzez tworzenie prostego modelu liniowego w okolicy punktu, który chcemy wyjaśnić, aby zrozumieć, jak różne cechy wpływają na wynik modelu.
+    #Integrated Gradients oblicza średnią gradientów modelu względem cech wejściowych na ścieżce od punktu początkowego (np. zerowego wektora) do rzeczywistego punktu wejściowego, aby uzyskać wyjaśnienie wpływu cech
+    #Feature Ablation mierzy wpływ każdej cechy na wynik modelu poprzez sukcesywne usuwanie (ablacja) każdej cechy i obserwowanie zmiany w wyniku modelu.
+ 
     """
-    DZIAŁA
-
+    #Saliency Map oblicza gradienty wyniku modelu względem cech wejściowych, aby stworzyć mapę, która pokazuje, które cechy najbardziej wpływają na wynik modelu.
     saliency_attributions = get_attributions(model=model_MLP_breast_cancer, input_tensor=data_MLP_breast_cancer.data, target_class=data_MLP_breast_cancer.targets, method="saliency")
-    visualize_attributions(saliency_attributions, input_tensor=data_MLP_breast_cancer.data, method="saliency")
+    visualize_attributions(saliency_attributions, input_tensor=data_MLP_breast_cancer.data, model_name="MLP Breast Cancer", method="saliency", target_tensor=data_MLP_breast_cancer.targets)
   
     saliency_attributions = get_attributions(model=model_MLP_iris, input_tensor=data_MLP_iris.data, target_class=data_MLP_iris.targets, method="saliency")
-    visualize_attributions(saliency_attributions, input_tensor=data_MLP_iris.data, method="saliency")
+    visualize_attributions(saliency_attributions, input_tensor=data_MLP_iris.data, model_name="MLP Iris", method="saliency", target_tensor=data_MLP_iris.targets)
   
     saliency_attributions = get_attributions(model=model_MLP_wine, input_tensor=data_MLP_wine.data, target_class=data_MLP_wine.targets, method="saliency")
-    visualize_attributions(saliency_attributions, input_tensor=data_MLP_wine.data, method="saliency")
+    visualize_attributions(saliency_attributions, input_tensor=data_MLP_wine.data, model_name="MLP Wine", method="saliency", target_tensor=data_MLP_wine.targets)
     
     saliency_attributions = get_attributions(model=model_MLP_mnist_conv, input_tensor=data_MLP_mnist_conv.data, target_class=data_MLP_mnist_conv.targets, method="saliency")
-    visualize_attributions(saliency_attributions, input_tensor=data_MLP_mnist_conv.data, method="saliency")
+    visualize_attributions(saliency_attributions, input_tensor=data_MLP_mnist_conv.data, model_name="MLP Mnist Conv", method="saliency", target_tensor=data_MLP_mnist_conv.targets)
     
     saliency_attributions = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="saliency")
-    visualize_attributions(saliency_attributions, input_tensor=data_MLP_mnist_diff.data, method="saliency")
+    visualize_attributions(saliency_attributions, input_tensor=data_MLP_mnist_diff.data, model_name="MLP Mnist Diff", method="saliency", target_tensor=data_MLP_mnist_diff.targets)
 
-    # Guided GradCAM
-    saliency_attributions = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="guided_gradcam")
-    visualize_attributions(saliency_attributions, input_tensor=data_CNN_cifar.data,  method="guided_gradcam")
+    # Guided Grad-CAM łączy Grad-CAM (Gradient-weighted Class Activation Mapping) z Guided Backpropagation, aby wygenerować wizualizację, która pokazuje, które części obrazu najbardziej wpływają na decyzję modelu.
+    gradcam_attr = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="guided_gradcam")
+    visualize_attributions(gradcam_attr, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="guided_gradcam")
     
-    saliency_attributions = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="guided_gradcam")
-    visualize_attributions(saliency_attributions, input_tensor=data_CNN_mnist.data,  method="guided_gradcam")
+    gradcam_attr = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="guided_gradcam")
+    visualize_attributions(gradcam_attr, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="guided_gradcam")
+
+    #Lime - Lime (Local Interpretable Model-agnostic Explanations) działa poprzez tworzenie prostego modelu liniowego w okolicy punktu, który chcemy wyjaśnić, aby zrozumieć, jak różne cechy wpływają na wynik modelu.
+    lime_attr = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="lime")
+    visualize_attributions(lime_attr, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="lime")
+    
+    lime_attr = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="lime")
+    visualize_attributions(lime_attr, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="lime")
     """
+    #Integrated Gradients oblicza średnią gradientów modelu względem cech wejściowych na ścieżce od punktu początkowego (np. zerowego wektora) do rzeczywistego punktu wejściowego, aby uzyskać wyjaśnienie wpływu cech
+    intrgrad_attr = get_attributions(model=model_MLP_wine, input_tensor=data_MLP_wine.data, target_class=data_MLP_wine.targets, method="integrated_gradients")
+    visualize_attributions(intrgrad_attr, input_tensor=data_MLP_wine.data, model_name="MLP Wine", method="integrated_gradients", target_tensor=data_MLP_wine.targets)
+
+    #Feature Ablation mierzy wpływ każdej cechy na wynik modelu poprzez sukcesywne usuwanie (ablacja) każdej cechy i obserwowanie zmiany w wyniku modelu.
+    featurueabl_attr = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="feature_ablation")
+    visualize_attributions(featurueabl_attr, input_tensor=data_MLP_mnist_diff.data, model_name="MLP Mnist Diff", method="feature_ablation", target_tensor=data_MLP_mnist_diff.targets)
+
     
