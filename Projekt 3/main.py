@@ -1,34 +1,3 @@
-"""
-    1. MLP dla zbioru danych Iris
-        Technika: Lime
-        Opis: Lime pozwala na lokalne wyjaśnienia decyzji modelu, poprzez zastąpienie modelu nieliniowego modelem liniowym dla małych perturbacji danych wejściowych.
-        Przykład Użycia: Użyj funkcji Lime z Captum, aby wyjaśnić decyzje modelu dla poszczególnych przykładów z zbioru danych Iris.
-    
-    2. MLP dla zbioru danych Wine
-        Technika: Integrated Gradients
-        Opis: Metoda Integrated Gradients polega na obliczeniu gradientów modelu w odniesieniu do wartości referencyjnych, co pomaga w zrozumieniu, które cechy najbardziej wpływają na decyzje modelu.
-        Przykład Użycia: Użyj IntegratedGradients z Captum, aby wyjaśnić, które cechy win mają największy wpływ na klasyfikację.
-    
-    3. MLP dla zbioru danych Breast Cancer
-        Technika: Saliency
-        Opis: Saliency maps pomagają zidentyfikować, które wejścia są najbardziej krytyczne dla decyzji modelu poprzez obliczenie pierwszych pochodnych modelu.
-        Przykład Użycia: Użyj Saliency z Captum, aby zobaczyć, które cechy wpływają na diagnozę raka piersi.
-    
-    4. Sieci dla zbioru danych MNIST
-        MLP z ekstrakcją cech:
-            Technika: Feature Ablation
-            Opis: Feature Ablation polega na systematycznym usuwaniu każdej cechy i obserwacji wpływu na wynik modelu, co pomaga zrozumieć ważność poszczególnych cech.
-            Przykład Użycia: Użyj FeatureAblation z Captum, aby ocenić wpływ poszczególnych cech na klasyfikację cyfr.
-        CNN:
-            Technika: Gradient Shap
-            Opis: Gradient Shap łączy gradienty z metodą Shapley Values, co pozwala na bardziej precyzyjne wyjaśnienie wpływu cech na decyzje modelu.
-            Przykład Użycia: Użyj GradientShap z Captum, aby wyjaśnić, które piksele w obrazach cyfr są najważniejsze dla klasyfikacji.
-    
-    5. CNN dla zbioru danych CIFAR10
-        Technika: Guided GradCAM
-        Opis: Guided GradCAM łączy GradCAM z Guided Backpropagation, co pozwala na tworzenie wysoce interpretowalnych map ciepła, które pokazują, które regiony obrazu są najważniejsze dla decyzji modelu.
-        Przykład Użycia: Użyj GuidedGradCAM z Captum, aby zidentyfikować kluczowe obszary na obrazach CIFAR10 wpływające na klasyfikację.
-"""
 import datasets_get
 from model import CNN_tanh_compose as CNN_tanh
 from model import MLP
@@ -91,6 +60,23 @@ cifar10_classes = {
     8: "Ship",
     9: "Truck"
 }
+iris_classes = {
+    0: "Iris-setosa",
+    1: "Iris-versicolor",
+    2: "Iris-virginica"
+}
+breast_cancer_classes = {
+    0: "Benign",
+    1: "Malignant"
+}
+wine_classes = {
+    0: "Wine Class 0",
+    1: "Wine Class 1",
+    2: "Wine Class 2"
+}
+
+
+
 
 def execute_model(data_set, model, data_name):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -166,13 +152,13 @@ def get_attributions(model, input_tensor, target_class, method="saliency"):
         attribution = guided_gc.attribute(input_tensor[0:1023], target=target_class[0:1023])
     elif method == "lime":
         lime = Lime(model)
-        attribution = lime.attribute(input_tensor[0:5], target=target_class[0:5])
+        attribution = lime.attribute(input_tensor[0:100], target=target_class[0:100])
     elif method == "feature_ablation":
         ftr_abl = FeatureAblation(model)
-        attribution = ftr_abl.attribute(input_tensor[0:10], target=target_class[0:10])
+        attribution = ftr_abl.attribute(input_tensor[0:100], target=target_class[0:100])
     elif method == "integrated_gradients":
         integrated_gradients = IntegratedGradients(model)
-        attribution = integrated_gradients.attribute(input_tensor[0:10], target=target_class[0:10])
+        attribution = integrated_gradients.attribute(input_tensor[0:100], target=target_class[0:100])
     else:
         raise ValueError(f"Unknown method was specified: {method}")
 
@@ -188,17 +174,23 @@ def tensor_to_attribution_heatmap(tensor):
 
 
 
-def visualize_attributions(attributions, input_tensor, model_name, method="saliency", target_tensor=None, example_datum=[0,1,2]):
+def visualize_attributions(attributions, input_tensor, model_name, method=None, target_tensor=None, example_datum=[0,1,2,3,4,5,6,7,8]):
 
     matplotlib.rcParams.update({'font.size': 7})
 
-    if method == "saliency" or method == "feature_ablation" or method == "integrated_gradients":
+    if method == "saliency_barplot" or method == "integrated_gradients_barplot": #Bar-plot
         #WORKING
+        pred_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_pred_targets.joblib")
         plt.figure(figsize=(10, 5))
         sb.barplot(x=range(len(attributions[example_datum[0]])), y=attributions[example_datum[0]].cpu().detach().numpy())
         plt.xlabel('Feature Index')
         plt.ylabel('Attribution')
-        plt.title(f'{method} for {model_name} - Target: [{target_tensor[0]}]')
+        if model_name.split()[1] == "iris":
+            plt.title(f'{method} for {model_name} - Predicted: [{iris_classes[pred_class[0]]}]')
+        elif model_name.split()[1] == "wine":
+            plt.title(f'{method} for {model_name} - Predicted: [{wine_classes[pred_class[0]]}]')
+        elif model_name.split()[1] == "breast":
+            plt.title(f'{method} for {model_name} - Predicted: [{breast_cancer_classes[pred_class[0]]}]')
         plt.show()
         
     elif method == "guided_gradcam_separate_ch":
@@ -230,18 +222,30 @@ def visualize_attributions(attributions, input_tensor, model_name, method="salie
 
         plt.show()
         
-    elif method == "guided_gradcam":
+    elif method == "guided_gradcam" or method == "saliency_2" or method == "feature_ablation" or method == "lime":
         #WORKING
-        _, ax = plt.subplots(3,2, figsize=[5,8])
+        _, ax = plt.subplots(3,6, figsize=[5,8])
         pred_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_pred_targets.joblib")
         if model_name.split()[1] == "Cifar":
             ax[0,0].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[0]]]}")
             ax[1,0].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[1]]]}")
             ax[2,0].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[2]]]}")
+            ax[0,2].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[3]]]}")
+            ax[1,2].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[4]]]}")
+            ax[2,2].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[5]]]}")
+            ax[0,4].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[6]]]}")
+            ax[1,4].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[7]]]}")
+            ax[2,4].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[8]]]}")
         else: 
             ax[0,0].set_title(f"predicted class: {pred_class[example_datum[0]]}")
             ax[1,0].set_title(f"predicted class: {pred_class[example_datum[1]]}")
             ax[2,0].set_title(f"predicted class: {pred_class[example_datum[2]]}")
+            ax[0,2].set_title(f"predicted class: {pred_class[example_datum[3]]}")
+            ax[1,2].set_title(f"predicted class: {pred_class[example_datum[4]]}")
+            ax[2,2].set_title(f"predicted class: {pred_class[example_datum[5]]}")
+            ax[0,4].set_title(f"predicted class: {pred_class[example_datum[6]]}")
+            ax[1,4].set_title(f"predicted class: {pred_class[example_datum[7]]}")
+            ax[2,4].set_title(f"predicted class: {pred_class[example_datum[8]]}")
 
 
         format_to_im = lambda tensor : \
@@ -256,24 +260,31 @@ def visualize_attributions(attributions, input_tensor, model_name, method="salie
         ax[2,0].imshow(format_to_im(input_tensor[example_datum[2]]))        
         ax[2,1].imshow(tensor_to_attribution_heatmap(attributions[example_datum[2]]), cmap='seismic', vmin=-1.0, vmax=1.0)
         
+        ax[0,2].imshow(format_to_im(input_tensor[example_datum[3]]))
+        ax[0,3].imshow(tensor_to_attribution_heatmap(attributions[example_datum[3]]), cmap='seismic', vmin=-1.0, vmax=1.0)
+
+        ax[1,2].imshow(format_to_im(input_tensor[example_datum[4]]))
+        ax[1,3].imshow(tensor_to_attribution_heatmap(attributions[example_datum[4]]), cmap='seismic', vmin=-1.0, vmax=1.0)
+        
+        ax[2,2].imshow(format_to_im(input_tensor[example_datum[5]]))        
+        ax[2,3].imshow(tensor_to_attribution_heatmap(attributions[example_datum[5]]), cmap='seismic', vmin=-1.0, vmax=1.0)
+        
+        ax[0,4].imshow(format_to_im(input_tensor[example_datum[6]]))
+        ax[0,5].imshow(tensor_to_attribution_heatmap(attributions[example_datum[6]]), cmap='seismic', vmin=-1.0, vmax=1.0)
+
+        ax[1,4].imshow(format_to_im(input_tensor[example_datum[7]]))
+        ax[1,5].imshow(tensor_to_attribution_heatmap(attributions[example_datum[7]]), cmap='seismic', vmin=-1.0, vmax=1.0)
+        
+        ax[2,4].imshow(format_to_im(input_tensor[example_datum[8]]))        
+        ax[2,5].imshow(tensor_to_attribution_heatmap(attributions[example_datum[8]]), cmap='seismic', vmin=-1.0, vmax=1.0)
+        
 
         for i in range(3):
-            for j in range(2):
+            for j in range(6):
                 ax[i,j].tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
                 ax[i,j].tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
-        plt.show()
-
-    elif method == "lime":
-        #WORKING
-        _, ax = plt.subplots(3,1)
-        ax[0].imshow(attributions[example_datum[0]][0].cpu().detach().numpy(), cmap='seismic')
-        ax[1].imshow(attributions[example_datum[1]][0].cpu().detach().numpy(), cmap='seismic')
-        ax[2].imshow(attributions[example_datum[2]][0].cpu().detach().numpy(), cmap='seismic')
         
-        for i in range(3):
-            ax[i].tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
-            ax[i].tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
-            
+        plt.suptitle(f"xAI for {model_name}, Method: {method}", fontname= 'Arial', fontsize = 20, fontweight = 'bold')
         plt.show()
 
     elif method == "differential":
@@ -304,58 +315,56 @@ def visualize_attributions(attributions, input_tensor, model_name, method="salie
 
 
 
-if __name__ == "__main__":
-    loading_state_dict()
+def explain_CNN():
+    lime_attr = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="lime")
+    visualize_attributions(lime_attr, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="lime", example_datum=[5,8,13,67,15,17,32,45,23])
 
-    #Saliency Map oblicza gradienty wyniku modelu względem cech wejściowych, aby stworzyć mapę, która pokazuje, które cechy najbardziej wpływają na wynik modelu.
-    #Guided Grad-CAM łączy Grad-CAM (Gradient-weighted Class Activation Mapping) z Guided Backpropagation, aby wygenerować wizualizację, która pokazuje, które części obrazu najbardziej wpływają na decyzję modelu.
-    #Lime - Lime (Local Interpretable Model-agnostic Explanations) działa poprzez tworzenie prostego modelu liniowego w okolicy punktu, który chcemy wyjaśnić, aby zrozumieć, jak różne cechy wpływają na wynik modelu.
-    #Integrated Gradients oblicza średnią gradientów modelu względem cech wejściowych na ścieżce od punktu początkowego (np. zerowego wektora) do rzeczywistego punktu wejściowego, aby uzyskać wyjaśnienie wpływu cech
-    #Feature Ablation mierzy wpływ każdej cechy na wynik modelu poprzez sukcesywne usuwanie (ablacja) każdej cechy i obserwowanie zmiany w wyniku modelu.
- 
-    """
-    #Saliency Map oblicza gradienty wyniku modelu względem cech wejściowych, aby stworzyć mapę, która pokazuje, które cechy najbardziej wpływają na wynik modelu.
-    saliency_attributions = get_attributions(model=model_MLP_breast_cancer, input_tensor=data_MLP_breast_cancer.data, target_class=data_MLP_breast_cancer.targets, method="saliency")
-    visualize_attributions(saliency_attributions, input_tensor=data_MLP_breast_cancer.data, model_name="MLP Breast Cancer", method="saliency", target_tensor=data_MLP_breast_cancer.targets)
+    lime_attr = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="lime")
+    visualize_attributions(lime_attr, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="lime", example_datum=[5,8,13,67,15,17,32,45,23])
+
+    ablation = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="feature_ablation")
+    visualize_attributions(ablation, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="feature_ablation", example_datum=[5,8,13,67,15,17,32,45,23])
+
+    gradcam_attr = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="feature_ablation")
+    visualize_attributions(gradcam_attr, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="feature_ablation", example_datum=[5,8,13,67,15,17,32,45,23])
   
-    saliency_attributions = get_attributions(model=model_MLP_iris, input_tensor=data_MLP_iris.data, target_class=data_MLP_iris.targets, method="saliency")
-    visualize_attributions(saliency_attributions, input_tensor=data_MLP_iris.data, model_name="MLP Iris", method="saliency", target_tensor=data_MLP_iris.targets)
-  
-    saliency_attributions = get_attributions(model=model_MLP_wine, input_tensor=data_MLP_wine.data, target_class=data_MLP_wine.targets, method="saliency")
-    visualize_attributions(saliency_attributions, input_tensor=data_MLP_wine.data, model_name="MLP Wine", method="saliency", target_tensor=data_MLP_wine.targets)
-    
-    saliency_attributions = get_attributions(model=model_MLP_mnist_conv, input_tensor=data_MLP_mnist_conv.data, target_class=data_MLP_mnist_conv.targets, method="saliency")
-    visualize_attributions(saliency_attributions, input_tensor=data_MLP_mnist_conv.data, model_name="MLP Mnist Conv", method="saliency", target_tensor=data_MLP_mnist_conv.targets)
-    
-    saliency_attributions = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="saliency")
-    visualize_attributions(saliency_attributions, input_tensor=data_MLP_mnist_diff.data, model_name="MLP Mnist Diff", method="saliency", target_tensor=data_MLP_mnist_diff.targets)
-
-    # Guided Grad-CAM łączy Grad-CAM (Gradient-weighted Class Activation Mapping) z Guided Backpropagation, aby wygenerować wizualizację, która pokazuje, które części obrazu najbardziej wpływają na decyzję modelu.
-
     
     gradcam_attr = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="guided_gradcam")
-    visualize_attributions(gradcam_attr, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="guided_gradcam", example_datum=[5,8,13])
+    visualize_attributions(gradcam_attr, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="guided_gradcam", example_datum=[5,8,13,67,15,17,32,45,23])
     
     gradcam_attr = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="guided_gradcam")
-    visualize_attributions(gradcam_attr, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="guided_gradcam", example_datum=[5,8,13])
-    """
+    visualize_attributions(gradcam_attr, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="guided_gradcam", example_datum=[5,8,13,67,15,17,32,45,23])
 
+
+def explain_MLP():
+    saliency_attr = get_attributions(model=model_MLP_iris, input_tensor=data_MLP_iris.data, target_class=data_MLP_iris.targets, method="saliency")
+    visualize_attributions(saliency_attr, input_tensor=data_MLP_iris.data, model_name="MLP iris",  method="saliency_barplot", example_datum=[5,8,13,67,15,17,32,45,23])
+    saliency_attr = get_attributions(model=model_MLP_wine, input_tensor=data_MLP_wine.data, target_class=data_MLP_wine.targets, method="saliency")
+    visualize_attributions(saliency_attr, input_tensor=data_MLP_wine.data, model_name="MLP wine",  method="saliency_barplot", example_datum=[5,8,13,67,15,17,32,45,23])
+    saliency_attr = get_attributions(model=model_MLP_breast_cancer, input_tensor=data_MLP_breast_cancer.data, target_class=data_MLP_breast_cancer.targets, method="saliency")
+    visualize_attributions(saliency_attr, input_tensor=data_MLP_breast_cancer.data, model_name="MLP breast cancer",  method="saliency_barplot", example_datum=[5,8,13,67,15,17,32,45,23])
     gradcam_attr = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="saliency")
     visualize_attributions(gradcam_attr, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="differential", example_datum=[5,8,13])
-    
-    #Lime - Lime (Local Interpretable Model-agnostic Explanations) działa poprzez tworzenie prostego modelu liniowego w okolicy punktu, który chcemy wyjaśnić, aby zrozumieć, jak różne cechy wpływają na wynik modelu.
-    #lime_attr = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="lime")
-    #visualize_attributions(lime_attr, input_tensor=data_MLP_mnist_diff.data, model_name="MLP Mnist Diff",  method="lime")
-    
-    #lime_attr = get_attributions(model=model_MLP_mnist_conv, input_tensor=data_MLP_mnist_conv.data, target_class=data_MLP_mnist_conv.targets, method="lime")
-    #visualize_attributions(lime_attr, input_tensor=data_MLP_mnist_conv.data, model_name="MLP Mnist Conv",  method="lime")
+   
+
+
+
+if __name__ == "__main__":
+    """
+    Saliency Map oblicza gradienty wyniku modelu względem cech wejściowych, aby stworzyć mapę, która pokazuje, które cechy najbardziej wpływają na wynik modelu.
+    Guided Grad-CAM łączy Grad-CAM (Gradient-weighted Class Activation Mapping) z Guided Backpropagation, aby wygenerować wizualizację, która pokazuje, które części obrazu najbardziej wpływają na decyzję modelu.
+    Lime - Lime (Local Interpretable Model-agnostic Explanations) działa poprzez tworzenie prostego modelu liniowego w okolicy punktu, który chcemy wyjaśnić, aby zrozumieć, jak różne cechy wpływają na wynik modelu.
+    Integrated Gradients oblicza średnią gradientów modelu względem cech wejściowych na ścieżce od punktu początkowego (np. zerowego wektora) do rzeczywistego punktu wejściowego, aby uzyskać wyjaśnienie wpływu cech
+    Feature Ablation mierzy wpływ każdej cechy na wynik modelu poprzez sukcesywne usuwanie (ablacja) każdej cechy i obserwowanie zmiany w wyniku modelu.
         
-    #Integrated Gradients oblicza średnią gradientów modelu względem cech wejściowych na ścieżce od punktu początkowego (np. zerowego wektora) do rzeczywistego punktu wejściowego, aby uzyskać wyjaśnienie wpływu cech
-    #intrgrad_attr = get_attributions(model=model_MLP_wine, input_tensor=data_MLP_wine.data, target_class=data_MLP_wine.targets, method="integrated_gradients")
-    #visualize_attributions(intrgrad_attr, input_tensor=data_MLP_wine.data, model_name="MLP Wine", method="integrated_gradients", target_tensor=data_MLP_wine.targets)
-
-    #Feature Ablation mierzy wpływ każdej cechy na wynik modelu poprzez sukcesywne usuwanie (ablacja) każdej cechy i obserwowanie zmiany w wyniku modelu.
-    #featurueabl_attr = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="feature_ablation")
-    #visualize_attributions(featurueabl_attr, input_tensor=data_MLP_mnist_diff.data, model_name="MLP Mnist Diff", method="feature_ablation", target_tensor=data_MLP_mnist_diff.targets)
-
+        CNN Models:                     guided gradcam, saliency and feature ablation
+        MLP Iris, Wine, Breast cancer:  saliency (barplot)
+        MLP Mnist Diff:                 feature_ablation (barplot)
+        MLP Mnist Conv:                 saliency (barplot)
     
+    """
+    loading_state_dict()
+    explain_MLP()
+    #explain_CNN()
+ 
+  
