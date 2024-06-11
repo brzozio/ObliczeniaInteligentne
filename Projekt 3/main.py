@@ -98,8 +98,8 @@ def execute_model(data_set, model, data_name):
     probabilities = softmax(outputs)
     predicted_classes = torch.argmax(probabilities, dim=1)
 
-    print(f'PREDICTED CLASSES: {predicted_classes}')
-    print(f"ORIGINAL CLASSES: {data_set.targets}")
+    #print(f'PREDICTED CLASSES: {predicted_classes}')
+    #print(f"ORIGINAL CLASSES: {data_set.targets}")
 
 
     plt.figure(figsize=(10, 7))        
@@ -162,8 +162,17 @@ def get_attributions(model, input_tensor, target_class, method="saliency"):
     else:
         raise ValueError(f"Unknown method was specified: {method}")
 
-    print(f'ATTRIBUTION for {method} is: {attribution}, shape: {attribution.shape}, size: {attribution.dim}')
+    #print(f'ATTRIBUTION for {method} is: {attribution}, shape: {attribution.shape}, size: {attribution.dim}')
     return attribution
+
+def tensor_to_attribution_heatmap(tensor):
+    out = tensor.cpu().detach()
+    for channel in range(1, out.size(0), 1):
+        out[0] += out[channel]
+    out = out[0] * 100
+    return out
+
+
 
 def visualize_attributions(attributions, input_tensor, model_name, method="saliency", target_tensor=None):
     if method == "saliency" or method == "feature_ablation" or method == "integrated_gradients":
@@ -175,7 +184,7 @@ def visualize_attributions(attributions, input_tensor, model_name, method="salie
         plt.title(f'{method} for {model_name} - Target: [{target_tensor[0]}]')
         plt.show()
         
-    elif method == "guided_gradcam":
+    elif method == "guided_gradcam_separate_ch":
         #WORKING
         _, ax = plt.subplots(3,4)
 
@@ -194,12 +203,30 @@ def visualize_attributions(attributions, input_tensor, model_name, method="salie
         ax[2,2].imshow(attributions[2][1].cpu().detach().numpy(), cmap='Greens')
         ax[2,3].imshow(attributions[2][2].cpu().detach().numpy(), cmap='Blues')
         plt.show()
+        
+    elif method == "guided_gradcam":
+        #WORKING
+        _, ax = plt.subplots(3,2)
+
+        format_to_im = lambda tensor : \
+            tensor.cpu().detach().numpy().transpose(1,2,0)/255
+
+        ax[0,0].imshow(format_to_im(input_tensor[0]))
+        ax[0,1].imshow(tensor_to_attribution_heatmap(attributions[0]), cmap='seismic', vmin=-1.0, vmax=1.0)
+
+        ax[1,0].imshow(format_to_im(input_tensor[21]))
+        ax[1,1].imshow(tensor_to_attribution_heatmap(attributions[21]), cmap='seismic', vmin=-1.0, vmax=1.0)
+        
+        ax[2,0].imshow(format_to_im(input_tensor[37]))
+        ax[2,1].imshow(tensor_to_attribution_heatmap(attributions[37]), cmap='seismic', vmin=-1.0, vmax=1.0)
+        plt.show()
+
     elif method == "lime":
         #WORKING
         _, ax = plt.subplots(3,1)
-        ax[0].imshow(attributions[0][0].cpu().detach().numpy(), cmap='hot')
-        ax[1].imshow(attributions[1][0].cpu().detach().numpy(), cmap='hot')
-        ax[2].imshow(attributions[2][0].cpu().detach().numpy(), cmap='hot')
+        ax[0].imshow(attributions[0][0].cpu().detach().numpy(), cmap='seismic')
+        ax[1].imshow(attributions[1][0].cpu().detach().numpy(), cmap='seismic')
+        ax[2].imshow(attributions[2][0].cpu().detach().numpy(), cmap='seismic')
         plt.show()
 
 
@@ -238,6 +265,7 @@ if __name__ == "__main__":
     
     gradcam_attr = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="guided_gradcam")
     visualize_attributions(gradcam_attr, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="guided_gradcam")
+  
     #Lime - Lime (Local Interpretable Model-agnostic Explanations) działa poprzez tworzenie prostego modelu liniowego w okolicy punktu, który chcemy wyjaśnić, aby zrozumieć, jak różne cechy wpływają na wynik modelu.
     #lime_attr = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="lime")
     #visualize_attributions(lime_attr, input_tensor=data_MLP_mnist_diff.data, model_name="MLP Mnist Diff",  method="lime")
