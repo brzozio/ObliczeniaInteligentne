@@ -187,7 +187,7 @@ def tensor_to_attribution_heatmap(tensor):
 
 
 
-def visualize_attributions(attributions, input_tensor, model_name, method="saliency", target_tensor=None, example_datum=[0,1,2]):
+def visualize_attributions(attributions, input_tensor, model_name, method="saliency", target_tensor=None, example_datum=[0,1,2,3,4,5,6,7,8]):
 
     matplotlib.rcParams.update({'font.size': 7})
 
@@ -231,16 +231,28 @@ def visualize_attributions(attributions, input_tensor, model_name, method="salie
         
     elif method == "guided_gradcam":
         #WORKING
-        _, ax = plt.subplots(3,2, figsize=[5,8])
+        _, ax = plt.subplots(3,6, figsize=[5,8])
         pred_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_pred_targets.joblib")
         if model_name.split()[1] == "Cifar":
             ax[0,0].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[0]]]}")
             ax[1,0].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[1]]]}")
             ax[2,0].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[2]]]}")
+            ax[0,2].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[3]]]}")
+            ax[1,2].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[4]]]}")
+            ax[2,2].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[5]]]}")
+            ax[0,4].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[6]]]}")
+            ax[1,4].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[7]]]}")
+            ax[2,4].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[8]]]}")
         else: 
             ax[0,0].set_title(f"predicted class: {pred_class[example_datum[0]]}")
             ax[1,0].set_title(f"predicted class: {pred_class[example_datum[1]]}")
             ax[2,0].set_title(f"predicted class: {pred_class[example_datum[2]]}")
+            ax[0,2].set_title(f"predicted class: {pred_class[example_datum[3]]}")
+            ax[1,2].set_title(f"predicted class: {pred_class[example_datum[4]]}")
+            ax[2,2].set_title(f"predicted class: {pred_class[example_datum[5]]}")
+            ax[0,4].set_title(f"predicted class: {pred_class[example_datum[6]]}")
+            ax[1,4].set_title(f"predicted class: {pred_class[example_datum[7]]}")
+            ax[2,4].set_title(f"predicted class: {pred_class[example_datum[8]]}")
 
 
         format_to_im = lambda tensor : \
@@ -255,11 +267,31 @@ def visualize_attributions(attributions, input_tensor, model_name, method="salie
         ax[2,0].imshow(format_to_im(input_tensor[example_datum[2]]))        
         ax[2,1].imshow(tensor_to_attribution_heatmap(attributions[example_datum[2]]), cmap='seismic', vmin=-1.0, vmax=1.0)
         
+        ax[0,2].imshow(format_to_im(input_tensor[example_datum[3]]))
+        ax[0,3].imshow(tensor_to_attribution_heatmap(attributions[example_datum[3]]), cmap='seismic', vmin=-1.0, vmax=1.0)
+
+        ax[1,2].imshow(format_to_im(input_tensor[example_datum[4]]))
+        ax[1,3].imshow(tensor_to_attribution_heatmap(attributions[example_datum[4]]), cmap='seismic', vmin=-1.0, vmax=1.0)
+        
+        ax[2,2].imshow(format_to_im(input_tensor[example_datum[5]]))        
+        ax[2,3].imshow(tensor_to_attribution_heatmap(attributions[example_datum[5]]), cmap='seismic', vmin=-1.0, vmax=1.0)
+        
+        ax[0,4].imshow(format_to_im(input_tensor[example_datum[6]]))
+        ax[0,5].imshow(tensor_to_attribution_heatmap(attributions[example_datum[6]]), cmap='seismic', vmin=-1.0, vmax=1.0)
+
+        ax[1,4].imshow(format_to_im(input_tensor[example_datum[7]]))
+        ax[1,5].imshow(tensor_to_attribution_heatmap(attributions[example_datum[7]]), cmap='seismic', vmin=-1.0, vmax=1.0)
+        
+        ax[2,4].imshow(format_to_im(input_tensor[example_datum[8]]))        
+        ax[2,5].imshow(tensor_to_attribution_heatmap(attributions[example_datum[8]]), cmap='seismic', vmin=-1.0, vmax=1.0)
+        
 
         for i in range(3):
-            for j in range(2):
+            for j in range(6):
                 ax[i,j].tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
                 ax[i,j].tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
+        
+        plt.suptitle(f"xAI for {model_name}, Method: {method}", fontname= 'Arial', fontsize = 20, fontweight = 'bold')
         plt.show()
 
     elif method == "lime":
@@ -307,10 +339,10 @@ if __name__ == "__main__":
 
     """
     gradcam_attr = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="guided_gradcam")
-    visualize_attributions(gradcam_attr, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="guided_gradcam", example_datum=[5,8,13])
+    visualize_attributions(gradcam_attr, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="guided_gradcam", example_datum=[5,8,13,67,15,17,32,45,23])
     
     gradcam_attr = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="guided_gradcam")
-    visualize_attributions(gradcam_attr, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="guided_gradcam", example_datum=[5,8,13])
+    visualize_attributions(gradcam_attr, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="guided_gradcam", example_datum=[5,8,13,67,15,17,32,45,23])
   
     #Lime - Lime (Local Interpretable Model-agnostic Explanations) działa poprzez tworzenie prostego modelu liniowego w okolicy punktu, który chcemy wyjaśnić, aby zrozumieć, jak różne cechy wpływają na wynik modelu.
     #lime_attr = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="lime")
