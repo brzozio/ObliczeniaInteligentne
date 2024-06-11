@@ -59,6 +59,23 @@ cifar10_classes = {
     8: "Ship",
     9: "Truck"
 }
+iris_classes = {
+    0: "Iris-setosa",
+    1: "Iris-versicolor",
+    2: "Iris-virginica"
+}
+breast_cancer_classes = {
+    0: "Benign",
+    1: "Malignant"
+}
+wine_classes = {
+    0: "Wine Class 0",
+    1: "Wine Class 1",
+    2: "Wine Class 2"
+}
+
+
+
 
 def execute_model(data_set, model, data_name):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -156,17 +173,23 @@ def tensor_to_attribution_heatmap(tensor):
 
 
 
-def visualize_attributions(attributions, input_tensor, model_name, method="saliency", target_tensor=None, example_datum=[0,1,2,3,4,5,6,7,8]):
+def visualize_attributions(attributions, input_tensor, model_name, method=None, target_tensor=None, example_datum=[0,1,2,3,4,5,6,7,8]):
 
     matplotlib.rcParams.update({'font.size': 7})
 
     if method == "saliency_barplot" or method == "integrated_gradients_barplot": #Bar-plot
         #WORKING
+        pred_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_pred_targets.joblib")
         plt.figure(figsize=(10, 5))
         sb.barplot(x=range(len(attributions[example_datum[0]])), y=attributions[example_datum[0]].cpu().detach().numpy())
         plt.xlabel('Feature Index')
         plt.ylabel('Attribution')
-        plt.title(f'{method} for {model_name} - Target: [{target_tensor[0]}]')
+        if model_name.split()[1] == "iris":
+            plt.title(f'{method} for {model_name} - Predicted: [{iris_classes[pred_class[0]]}]')
+        elif model_name.split()[1] == "wine":
+            plt.title(f'{method} for {model_name} - Predicted: [{wine_classes[pred_class[0]]}]')
+        elif model_name.split()[1] == "breast":
+            plt.title(f'{method} for {model_name} - Predicted: [{breast_cancer_classes[pred_class[0]]}]')
         plt.show()
         
     elif method == "guided_gradcam_separate_ch":
@@ -263,23 +286,7 @@ def visualize_attributions(attributions, input_tensor, model_name, method="salie
         plt.suptitle(f"xAI for {model_name}, Method: {method}", fontname= 'Arial', fontsize = 20, fontweight = 'bold')
         plt.show()
 
-
-if __name__ == "__main__":
-    loading_state_dict()
-    """
-    Saliency Map oblicza gradienty wyniku modelu względem cech wejściowych, aby stworzyć mapę, która pokazuje, które cechy najbardziej wpływają na wynik modelu.
-    Guided Grad-CAM łączy Grad-CAM (Gradient-weighted Class Activation Mapping) z Guided Backpropagation, aby wygenerować wizualizację, która pokazuje, które części obrazu najbardziej wpływają na decyzję modelu.
-    Lime - Lime (Local Interpretable Model-agnostic Explanations) działa poprzez tworzenie prostego modelu liniowego w okolicy punktu, który chcemy wyjaśnić, aby zrozumieć, jak różne cechy wpływają na wynik modelu.
-    Integrated Gradients oblicza średnią gradientów modelu względem cech wejściowych na ścieżce od punktu początkowego (np. zerowego wektora) do rzeczywistego punktu wejściowego, aby uzyskać wyjaśnienie wpływu cech
-    Feature Ablation mierzy wpływ każdej cechy na wynik modelu poprzez sukcesywne usuwanie (ablacja) każdej cechy i obserwowanie zmiany w wyniku modelu.
-        
-        CNN Models:                     guided gradcam, saliency and feature ablation
-        MLP Iris, Wine, Breast cancer:  saliency (barplot)
-        MLP Mnist Diff:                 feature_ablation (barplot)
-        MLP Mnist Conv:                 saliency (barplot)
-    
-    """
- 
+def explain_CNN():
     lime_attr = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="lime")
     visualize_attributions(lime_attr, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="lime", example_datum=[5,8,13,67,15,17,32,45,23])
 
@@ -298,4 +305,34 @@ if __name__ == "__main__":
     
     gradcam_attr = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="guided_gradcam")
     visualize_attributions(gradcam_attr, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="guided_gradcam", example_datum=[5,8,13,67,15,17,32,45,23])
+
+
+def explain_MLP():
+    saliency_attr = get_attributions(model=model_MLP_iris, input_tensor=data_MLP_iris.data, target_class=data_MLP_iris.targets, method="saliency")
+    visualize_attributions(saliency_attr, input_tensor=data_MLP_iris.data, model_name="MLP iris",  method="saliency_barplot", example_datum=[5,8,13,67,15,17,32,45,23])
+    saliency_attr = get_attributions(model=model_MLP_wine, input_tensor=data_MLP_wine.data, target_class=data_MLP_wine.targets, method="saliency")
+    visualize_attributions(saliency_attr, input_tensor=data_MLP_wine.data, model_name="MLP wine",  method="saliency_barplot", example_datum=[5,8,13,67,15,17,32,45,23])
+    saliency_attr = get_attributions(model=model_MLP_breast_cancer, input_tensor=data_MLP_breast_cancer.data, target_class=data_MLP_breast_cancer.targets, method="saliency")
+    visualize_attributions(saliency_attr, input_tensor=data_MLP_breast_cancer.data, model_name="MLP breast cancer",  method="saliency_barplot", example_datum=[5,8,13,67,15,17,32,45,23])
+
+
+
+if __name__ == "__main__":
+    """
+    Saliency Map oblicza gradienty wyniku modelu względem cech wejściowych, aby stworzyć mapę, która pokazuje, które cechy najbardziej wpływają na wynik modelu.
+    Guided Grad-CAM łączy Grad-CAM (Gradient-weighted Class Activation Mapping) z Guided Backpropagation, aby wygenerować wizualizację, która pokazuje, które części obrazu najbardziej wpływają na decyzję modelu.
+    Lime - Lime (Local Interpretable Model-agnostic Explanations) działa poprzez tworzenie prostego modelu liniowego w okolicy punktu, który chcemy wyjaśnić, aby zrozumieć, jak różne cechy wpływają na wynik modelu.
+    Integrated Gradients oblicza średnią gradientów modelu względem cech wejściowych na ścieżce od punktu początkowego (np. zerowego wektora) do rzeczywistego punktu wejściowego, aby uzyskać wyjaśnienie wpływu cech
+    Feature Ablation mierzy wpływ każdej cechy na wynik modelu poprzez sukcesywne usuwanie (ablacja) każdej cechy i obserwowanie zmiany w wyniku modelu.
+        
+        CNN Models:                     guided gradcam, saliency and feature ablation
+        MLP Iris, Wine, Breast cancer:  saliency (barplot)
+        MLP Mnist Diff:                 feature_ablation (barplot)
+        MLP Mnist Conv:                 saliency (barplot)
+    
+    """
+    loading_state_dict()
+    explain_MLP()
+    #explain_CNN()
+ 
   
