@@ -30,8 +30,8 @@
         Przykład Użycia: Użyj GuidedGradCAM z Captum, aby zidentyfikować kluczowe obszary na obrazach CIFAR10 wpływające na klasyfikację.
 """
 import datasets_get
-from model_CNN import CNN_tanh_compose as CNN_tanh
-from model_MLP import MLP
+from model import CNN_tanh_compose as CNN_tanh
+from model import MLP
 import numpy as np 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -43,6 +43,16 @@ from sklearn.metrics import confusion_matrix, accuracy_score
 import torch.nn as nn
 from torch.utils.data import DataLoader
 import torch.optim as optim
+import os
+
+repo_name = "nteligentne"
+path_script = os.path.dirname(os.path.realpath(__file__))
+index = path_script.find(repo_name)
+path_data = path_script
+if index != -1:
+   path_data = path_script[:index + len(repo_name)]
+   path_data = path_data + "\\data"
+path_models = path_script + "\\models\\"
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -70,13 +80,13 @@ data_MLP_mnist_diff     = datasets_get.mnist_extr_diff(device, False, 'test')
 data_CNN_mnist          = datasets_get.mnist_to_cnn(device, True)
 data_CNN_cifar          = datasets_get.cifar10_to_cnn(device, True)
 
-modeltest = torch.load("./Projekt 3/models/modeltest.pth")
+modeltest = torch.load(path_models + "modeltest.pth")
 def execute_model(data_set, model, data_name):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f'CUDA VERSION: {torch.version.cuda}')
     print(f'DEVICE RUNING: {device}')
 
-    model.load_state_dict(torch.load(f'./Projekt 3/models/{data_name}.pth'))
+    model.load_state_dict(torch.load(path_models + f'{data_name}.pth'))
     model.eval()
     model.double()
     model.to(device)
@@ -122,13 +132,13 @@ def testing_models_eval():
 
    
 def loading_state_dict():
-    model_CNN_mnist.load_state_dict(torch.load('./Projekt 3/models/CNN_mnist.pth'))
-    model_CNN_cifar.load_state_dict(torch.load('./Projekt 3/models/CNN_cifar.pth'))
-    model_MLP_iris.load_state_dict(torch.load('./Projekt 3/models/MLP_iris.pth'))
-    model_MLP_wine.load_state_dict(torch.load('./Projekt 3/models/MLP_wine.pth'))
-    model_MLP_breast_cancer.load_state_dict(torch.load('./Projekt 3/models/MLP_breast_cancer.pth'))
-    model_MLP_mnist_conv.load_state_dict(torch.load('./Projekt 3/models/MLP_mnist_extr_conv.pth'))
-    model_MLP_mnist_diff.load_state_dict(torch.load('./Projekt 3/models/MLP_mnist_extr_diff.pth'))
+    model_CNN_mnist.load_state_dict(torch.load(path_models + 'CNN_mnist.pth'))
+    model_CNN_cifar.load_state_dict(torch.load(path_models + 'CNN_cifar.pth'))
+    model_MLP_iris.load_state_dict(torch.load(path_models + 'MLP_iris.pth'))
+    model_MLP_wine.load_state_dict(torch.load(path_models + 'MLP_wine.pth'))
+    model_MLP_breast_cancer.load_state_dict(torch.load(path_models + 'MLP_breast_cancer.pth'))
+    model_MLP_mnist_conv.load_state_dict(torch.load(path_models + 'MLP_mnist_extr_conv.pth'))
+    model_MLP_mnist_diff.load_state_dict(torch.load(path_models + 'MLP_mnist_extr_diff.pth'))
 
 #Atrybucje
 def get_attributions(model, input_tensor, target_class, method="saliency"):
