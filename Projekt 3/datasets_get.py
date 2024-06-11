@@ -19,8 +19,7 @@ index = path_script.find(repo_name)
 path_data = path_script
 if index != -1:
    path_data = path_script[:index + len(repo_name)]
-   path_data = path_data + "\\data"
-print(path_data)
+   path_data = path_data + "\\data\\"
 
 
 class CustomDataset(Dataset):
@@ -66,7 +65,7 @@ def cifar10_to_cnn(device, train):
 def mnist_extr_conv(device, train, testtrain): #Conv
     #Getting data from .txt file
     mnist  = datasets.MNIST(root=path_data, train=train, download=True, transform=transforms.ToTensor())
-    data = np.genfromtxt(path_data+f"\\mean_digit_convolution_{testtrain}_data.txt", delimiter=";")
+    data = np.genfromtxt(path_data+f"mean_digit_convolution_{testtrain}_data.txt", delimiter=";")
     print(f"TESTTRAIN: {testtrain}")
     print(f"MNIST TARGET SIZE: {mnist.targets.size()}")
     #mnists = CustomDataset(data=data, targets=mnist.targets, device=device)
@@ -77,7 +76,7 @@ def mnist_extr_conv(device, train, testtrain): #Conv
 def mnist_extr_diff(device, train, testtrain): #Diff
     #Getting data from .txt file
     mnist  = datasets.MNIST(root=path_data, train=train, download=True, transform=transforms.ToTensor())
-    data = np.genfromtxt(path_data+f"\\differential_{testtrain}_data.txt", delimiter=";")
+    data = np.genfromtxt(path_data+f"differential_{testtrain}_data.txt", delimiter=";")
     mnists = CustomDataset(data=data, targets=mnist.targets, device=device)
     return mnists
 
