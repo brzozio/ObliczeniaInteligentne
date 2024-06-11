@@ -43,13 +43,10 @@ class CNN_tanh_compose(nn.Module):
     def forward(self, out):
 
         out = self.conv0(out)
-        print(f'conv 0 out shape: {out.shape}')
         out = F.tanh(out)
         out = self.pool(out)
-        print(f'pool out shape: {out.shape}')
 
         out = self.conv1(out)
-        print(f'conv1 out shape: {out.shape}')
         out = F.tanh(out)
 
         if not self.reduce_to_dim2:
@@ -59,10 +56,8 @@ class CNN_tanh_compose(nn.Module):
 
 
         out = self.lin0(out)
-        print(f'lin0 out shape: {out.shape}')
         out = F.relu(out)
         out = self.lin1(out)
-        print(f'lin1 out shape: {out.shape}')
 
         return out
 
