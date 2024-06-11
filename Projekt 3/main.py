@@ -34,6 +34,7 @@ from model import CNN_tanh_compose as CNN_tanh
 from model import MLP
 import numpy as np 
 import pandas as pd
+import matplotlib
 import matplotlib.pyplot as plt
 import torch
 from captum.attr import visualization as viz
@@ -187,6 +188,9 @@ def tensor_to_attribution_heatmap(tensor):
 
 
 def visualize_attributions(attributions, input_tensor, model_name, method="saliency", target_tensor=None, example_datum=[0,1,2]):
+
+    matplotlib.rcParams.update({'font.size': 7})
+
     if method == "saliency" or method == "feature_ablation" or method == "integrated_gradients":
         #WORKING
         plt.figure(figsize=(10, 5))
@@ -205,45 +209,57 @@ def visualize_attributions(attributions, input_tensor, model_name, method="salie
         ax[0,1].imshow(attributions[0][0].cpu().detach().numpy(), cmap='Reds')
         ax[0,2].imshow(attributions[0][1].cpu().detach().numpy(), cmap='Greens')
         ax[0,3].imshow(attributions[0][2].cpu().detach().numpy(), cmap='Blues')
-        ax[0,0].set_title(f"Pred class: {cifar10_classes[pred_class[0]]}")
+        ax[0,0].set_title(f"predicted class: {cifar10_classes[pred_class[0]]}")
         
         ax[1,0].imshow(input_tensor[1].cpu().detach().numpy().transpose(1,2,0)/255.0)
         ax[1,1].imshow(attributions[1][0].cpu().detach().numpy(), cmap='Reds')
         ax[1,2].imshow(attributions[1][1].cpu().detach().numpy(), cmap='Greens')
         ax[1,3].imshow(attributions[1][2].cpu().detach().numpy(), cmap='Blues')
-        ax[1,0].set_title(f"Pred class: {cifar10_classes[pred_class[1]]}")
+        ax[1,0].set_title(f"predicted class: {cifar10_classes[pred_class[1]]}")
         
         ax[2,0].imshow(input_tensor[example_datum[2]].cpu().detach().numpy().transpose(1,2,0)/255.0)
         ax[2,1].imshow(attributions[example_datum[2]][0].cpu().detach().numpy(), cmap='Reds')
         ax[2,2].imshow(attributions[example_datum[2]][1].cpu().detach().numpy(), cmap='Greens')
         ax[2,3].imshow(attributions[example_datum[2]][2].cpu().detach().numpy(), cmap='Blues')
+
+        for i in range(3):
+            for j in range(4):
+                ax[i,j].tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
+                ax[i,j].tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
+
         plt.show()
         
     elif method == "guided_gradcam":
         #WORKING
-        _, ax = plt.subplots(3,2)
+        _, ax = plt.subplots(3,2, figsize=[5,8])
         pred_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_pred_targets.joblib")
         if model_name.split()[1] == "Cifar":
-            ax[0,0].set_title(f"Pred class: {cifar10_classes[pred_class[0]]}")
-            ax[1,0].set_title(f"Pred class: {cifar10_classes[pred_class[21]]}")
-            ax[2,0].set_title(f"Pred class: {cifar10_classes[pred_class[37]]}")
+            ax[0,0].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[0]]]}")
+            ax[1,0].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[1]]]}")
+            ax[2,0].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[2]]]}")
         else: 
-            ax[0,0].set_title(f"Pred class: {pred_class[0]}")
-            ax[1,0].set_title(f"Pred class: {pred_class[21]}")
-            ax[2,0].set_title(f"Pred class: {pred_class[37]}")
+            ax[0,0].set_title(f"predicted class: {pred_class[example_datum[0]]}")
+            ax[1,0].set_title(f"predicted class: {pred_class[example_datum[1]]}")
+            ax[2,0].set_title(f"predicted class: {pred_class[example_datum[2]]}")
 
 
         format_to_im = lambda tensor : \
             tensor.cpu().detach().numpy().transpose(1,2,0)/255
-
+        
         ax[0,0].imshow(format_to_im(input_tensor[example_datum[0]]))
         ax[0,1].imshow(tensor_to_attribution_heatmap(attributions[example_datum[0]]), cmap='seismic', vmin=-1.0, vmax=1.0)
 
         ax[1,0].imshow(format_to_im(input_tensor[example_datum[1]]))
         ax[1,1].imshow(tensor_to_attribution_heatmap(attributions[example_datum[1]]), cmap='seismic', vmin=-1.0, vmax=1.0)
         
-        ax[2,0].imshow(format_to_im(input_tensor[example_datum[2]]))
+        ax[2,0].imshow(format_to_im(input_tensor[example_datum[2]]))        
         ax[2,1].imshow(tensor_to_attribution_heatmap(attributions[example_datum[2]]), cmap='seismic', vmin=-1.0, vmax=1.0)
+        
+
+        for i in range(3):
+            for j in range(2):
+                ax[i,j].tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
+                ax[i,j].tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
         plt.show()
 
     elif method == "lime":
@@ -252,6 +268,11 @@ def visualize_attributions(attributions, input_tensor, model_name, method="salie
         ax[0].imshow(attributions[example_datum[0]][0].cpu().detach().numpy(), cmap='seismic')
         ax[1].imshow(attributions[example_datum[1]][0].cpu().detach().numpy(), cmap='seismic')
         ax[2].imshow(attributions[example_datum[2]][0].cpu().detach().numpy(), cmap='seismic')
+        
+        for i in range(3):
+            ax[i].tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
+            ax[i].tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
+            
         plt.show()
 
 
