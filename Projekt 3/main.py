@@ -180,16 +180,30 @@ def visualize_attributions(attributions, input_tensor, model_name, method=None, 
     if method == "saliency_barplot" or method == "integrated_gradients_barplot": #Bar-plot
         #WORKING
         pred_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_pred_targets.joblib")
-        plt.figure(figsize=(10, 5))
-        sb.barplot(x=range(len(attributions[example_datum[0]])), y=attributions[example_datum[0]].cpu().detach().numpy())
+        if model_name.split()[1] == "iris":
+            _, ax = plt.subplots(3, 1, figsize=(10, 5))
+            sb.barplot(x=range(len(attributions[example_datum[0]])), y=attributions[example_datum[0]].cpu().detach().numpy(), ax=ax[0])
+            sb.barplot(x=range(len(attributions[example_datum[1]])), y=attributions[example_datum[1]].cpu().detach().numpy(), ax=ax[1])
+            sb.barplot(x=range(len(attributions[example_datum[2]])), y=attributions[example_datum[2]].cpu().detach().numpy(), ax=ax[2])
+            ax[0].set_title(f'{method} for {model_name} - Predicted: [{iris_classes[pred_class[example_datum[0]]]}]')
+            ax[1].set_title(f'{method} for {model_name} - Predicted: [{iris_classes[pred_class[example_datum[1]]]}]')
+            ax[2].set_title(f'{method} for {model_name} - Predicted: [{iris_classes[pred_class[example_datum[2]]]}]')
+        elif model_name.split()[1] == "wine":
+            _, ax = plt.subplots(3, 1, figsize=(10, 5))
+            sb.barplot(x=range(len(attributions[example_datum[0]])), y=attributions[example_datum[0]].cpu().detach().numpy(), ax=ax[0])
+            sb.barplot(x=range(len(attributions[example_datum[1]])), y=attributions[example_datum[1]].cpu().detach().numpy(), ax=ax[1])
+            sb.barplot(x=range(len(attributions[example_datum[2]])), y=attributions[example_datum[2]].cpu().detach().numpy(), ax=ax[2])
+            ax[0].set_title(f'{method} for {model_name} - Predicted: [{wine_classes[pred_class[example_datum[0]]]}]')
+            ax[1].set_title(f'{method} for {model_name} - Predicted: [{wine_classes[pred_class[example_datum[1]]]}]')
+            ax[2].set_title(f'{method} for {model_name} - Predicted: [{wine_classes[pred_class[example_datum[2]]]}]')
+        elif model_name.split()[1] == "breast":
+            _, ax = plt.subplots(2, 1, figsize=(10, 5))
+            sb.barplot(x=range(len(attributions[example_datum[0]])), y=attributions[example_datum[0]].cpu().detach().numpy(), ax=ax[0])
+            sb.barplot(x=range(len(attributions[example_datum[1]])), y=attributions[example_datum[1]].cpu().detach().numpy(), ax=ax[1])
+            ax[0].set_title(f'{method} for {model_name} - Predicted: [{breast_cancer_classes[pred_class[example_datum[0]]]}]')
+            ax[1].set_title(f'{method} for {model_name} - Predicted: [{breast_cancer_classes[pred_class[example_datum[1]]]}]')
         plt.xlabel('Feature Index')
         plt.ylabel('Attribution')
-        if model_name.split()[1] == "iris":
-            plt.title(f'{method} for {model_name} - Predicted: [{iris_classes[pred_class[0]]}]')
-        elif model_name.split()[1] == "wine":
-            plt.title(f'{method} for {model_name} - Predicted: [{wine_classes[pred_class[0]]}]')
-        elif model_name.split()[1] == "breast":
-            plt.title(f'{method} for {model_name} - Predicted: [{breast_cancer_classes[pred_class[0]]}]')
         plt.show()
         
     elif method == "guided_gradcam_separate_ch":
@@ -309,11 +323,11 @@ def explain_CNN():
 
 def explain_MLP():
     saliency_attr = get_attributions(model=model_MLP_iris, input_tensor=data_MLP_iris.data, target_class=data_MLP_iris.targets, method="saliency")
-    visualize_attributions(saliency_attr, input_tensor=data_MLP_iris.data, model_name="MLP iris",  method="saliency_barplot", example_datum=[5,8,13,67,15,17,32,45,23])
+    visualize_attributions(saliency_attr, input_tensor=data_MLP_iris.data, model_name="MLP iris",  method="saliency_barplot", example_datum=[0,24,90])
     saliency_attr = get_attributions(model=model_MLP_wine, input_tensor=data_MLP_wine.data, target_class=data_MLP_wine.targets, method="saliency")
-    visualize_attributions(saliency_attr, input_tensor=data_MLP_wine.data, model_name="MLP wine",  method="saliency_barplot", example_datum=[5,8,13,67,15,17,32,45,23])
+    visualize_attributions(saliency_attr, input_tensor=data_MLP_wine.data, model_name="MLP wine",  method="saliency_barplot", example_datum=[0,3,4])
     saliency_attr = get_attributions(model=model_MLP_breast_cancer, input_tensor=data_MLP_breast_cancer.data, target_class=data_MLP_breast_cancer.targets, method="saliency")
-    visualize_attributions(saliency_attr, input_tensor=data_MLP_breast_cancer.data, model_name="MLP breast cancer",  method="saliency_barplot", example_datum=[5,8,13,67,15,17,32,45,23])
+    visualize_attributions(saliency_attr, input_tensor=data_MLP_breast_cancer.data, model_name="MLP breast cancer",  method="saliency_barplot", example_datum=[0,5])
 
 
 
