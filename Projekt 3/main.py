@@ -46,6 +46,7 @@ from torch.utils.data import DataLoader
 import torch.optim as optim
 import os
 import joblib
+from matplotlib.gridspec import GridSpec
 
 repo_name = "nteligentne"
 path_script = os.path.dirname(os.path.realpath(__file__))
@@ -275,6 +276,32 @@ def visualize_attributions(attributions, input_tensor, model_name, method="salie
             
         plt.show()
 
+    elif method == "differential":
+        
+        # for image in range(ilość obrazów)
+        fig = plt.figure(figsize=(1.2, 2.38))
+        gs = GridSpec(4, 4, figure=fig) 
+        # image
+        ax1 = fig.add_subplot(gs[0:3, 0:3])
+        ax1.imshow(input_tensor[example_datum[0]][0].cpu().detach().numpy())
+        # vertical axis - 28:56
+        ax2 = fig.add_subplot(gs[0:3, 3])
+        ax2.plot(attributions[example_datum[0]][28:56].cpu().detach().numpy(), range(28))
+        # horizontal axis = 0:28
+        ax3 = fig.add_subplot(gs[3, 0:3])
+        ax3.plot(attributions[example_datum[0]][0:28].cpu().detach().numpy())
+        ax3.invert_yaxis()
+
+        ax1.tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
+        ax1.tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
+        ax2.tick_params(axis='y',which='both',left=False,right=True,labelleft=False)
+        ax3.tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
+        ax3.yaxis.tick_right()
+
+        plt.subplots_adjust(wspace=0.1, hspace=0.1)
+        plt.show()
+        # zapisz subplot
+
 
 
 if __name__ == "__main__":
@@ -305,21 +332,24 @@ if __name__ == "__main__":
 
     # Guided Grad-CAM łączy Grad-CAM (Gradient-weighted Class Activation Mapping) z Guided Backpropagation, aby wygenerować wizualizację, która pokazuje, które części obrazu najbardziej wpływają na decyzję modelu.
 
-    """
+    
     gradcam_attr = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="guided_gradcam")
     visualize_attributions(gradcam_attr, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="guided_gradcam", example_datum=[5,8,13])
     
     gradcam_attr = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="guided_gradcam")
     visualize_attributions(gradcam_attr, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="guided_gradcam", example_datum=[5,8,13])
-  
+    """
+
+    gradcam_attr = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="saliency")
+    visualize_attributions(gradcam_attr, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="differential", example_datum=[5,8,13])
+    
     #Lime - Lime (Local Interpretable Model-agnostic Explanations) działa poprzez tworzenie prostego modelu liniowego w okolicy punktu, który chcemy wyjaśnić, aby zrozumieć, jak różne cechy wpływają na wynik modelu.
     #lime_attr = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="lime")
     #visualize_attributions(lime_attr, input_tensor=data_MLP_mnist_diff.data, model_name="MLP Mnist Diff",  method="lime")
     
     #lime_attr = get_attributions(model=model_MLP_mnist_conv, input_tensor=data_MLP_mnist_conv.data, target_class=data_MLP_mnist_conv.targets, method="lime")
     #visualize_attributions(lime_attr, input_tensor=data_MLP_mnist_conv.data, model_name="MLP Mnist Conv",  method="lime")
-    
-    
+        
     #Integrated Gradients oblicza średnią gradientów modelu względem cech wejściowych na ścieżce od punktu początkowego (np. zerowego wektora) do rzeczywistego punktu wejściowego, aby uzyskać wyjaśnienie wpływu cech
     #intrgrad_attr = get_attributions(model=model_MLP_wine, input_tensor=data_MLP_wine.data, target_class=data_MLP_wine.targets, method="integrated_gradients")
     #visualize_attributions(intrgrad_attr, input_tensor=data_MLP_wine.data, model_name="MLP Wine", method="integrated_gradients", target_tensor=data_MLP_wine.targets)
