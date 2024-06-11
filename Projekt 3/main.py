@@ -44,6 +44,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 import torch.optim as optim
 import os
+import joblib
 
 repo_name = "nteligentne"
 path_script = os.path.dirname(os.path.realpath(__file__))
@@ -101,7 +102,6 @@ def execute_model(data_set, model, data_name):
     print(f'PREDICTED CLASSES: {predicted_classes}')
     print(f"ORIGINAL CLASSES: {data_set.targets}")
 
-
     plt.figure(figsize=(10, 7))        
     
     predicted_classes_cpu = predicted_classes.cpu().numpy()
@@ -115,6 +115,8 @@ def execute_model(data_set, model, data_name):
     
     accuracy = accuracy_score(predicted_classes_cpu, targets_cpu)
     print(f'ACCURACY SCORE FOR {data_name}: {accuracy:.4f}')
+    path_joblib = path_script + f"\\debug_temporaries\\{data_name}_pred_targets.joblib"
+    joblib.dump(predicted_classes_cpu, path_joblib)
 
 def testing_models_eval():
     execute_model(data_set=data_CNN_mnist, model=model_CNN_mnist, data_name='CNN_mnist')
