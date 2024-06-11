@@ -1,6 +1,6 @@
 *.docx
 *.png
-_pycache_
+__pycache__
 "C:\Users\Michał\Documents\STUDIA\II stopień, Informatyka Stosowana - inżynieria oprogramowania i uczenie maszynowe\I sem\Obliczenia inteligentne\data\cifar-10-batches-py"
 *.tar.gz
 *.gz

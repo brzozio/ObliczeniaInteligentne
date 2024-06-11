@@ -48,10 +48,6 @@ import os
 repo_name = "nteligentne"
 path_script = os.path.dirname(os.path.realpath(__file__))
 index = path_script.find(repo_name)
-path_data = path_script
-if index != -1:
-   path_data = path_script[:index + len(repo_name)]
-   path_data = path_data + "\\data"
 path_models = path_script + "\\models\\"
 
 
@@ -80,7 +76,6 @@ data_MLP_mnist_diff     = datasets_get.mnist_extr_diff(device, False, 'test')
 data_CNN_mnist          = datasets_get.mnist_to_cnn(device, True)
 data_CNN_cifar          = datasets_get.cifar10_to_cnn(device, True)
 
-modeltest = torch.load(path_models + "modeltest.pth")
 def execute_model(data_set, model, data_name):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f'CUDA VERSION: {torch.version.cuda}')
@@ -90,7 +85,7 @@ def execute_model(data_set, model, data_name):
     model.eval()
     model.double()
     model.to(device)
-    if data_name is "CNN*":
+    if data_name == "CNN*":
         outputs = model.extract(data_set.data)
         outputs = model.forward(outputs)
         print(f"OUTPUS: {outputs}")
