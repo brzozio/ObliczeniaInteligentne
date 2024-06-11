@@ -20,7 +20,6 @@ path_data = path_script
 if index != -1:
    path_data = path_script[:index + len(repo_name)]
    path_data = path_data + "\\data"
-
 print(path_data)
 
 
