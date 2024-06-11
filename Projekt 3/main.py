@@ -222,11 +222,16 @@ def visualize_attributions(attributions, input_tensor, model_name, method="salie
     elif method == "guided_gradcam":
         #WORKING
         _, ax = plt.subplots(3,2)
+        pred_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_pred_targets.joblib")
         if model_name.split()[1] == "Cifar":
-            pred_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_pred_targets.joblib")
             ax[0,0].set_title(f"Pred class: {cifar10_classes[pred_class[0]]}")
             ax[1,0].set_title(f"Pred class: {cifar10_classes[pred_class[21]]}")
             ax[2,0].set_title(f"Pred class: {cifar10_classes[pred_class[37]]}")
+        else: 
+            ax[0,0].set_title(f"Pred class: {pred_class[0]}")
+            ax[1,0].set_title(f"Pred class: {pred_class[21]}")
+            ax[2,0].set_title(f"Pred class: {pred_class[37]}")
+
 
         format_to_im = lambda tensor : \
             tensor.cpu().detach().numpy().transpose(1,2,0)/255
