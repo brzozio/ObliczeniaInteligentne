@@ -170,17 +170,31 @@ def visualize_attributions(attributions, input_tensor, model_name, method="salie
         plt.title(f'{method} for {model_name} - Target: [{target_tensor[0]}]')
         plt.show()
         
-    elif method == "guided_gradcam" or method == "lime":
+    elif method == "guided_gradcam":
         #WORKING
-        _, ax = plt.subplots(3,2)
-        ax[0,0].imshow(input_tensor[0][0].cpu().detach().numpy(), cmap='gray')
-        ax[0,1].imshow(attributions[0][0].cpu().detach().numpy(), cmap='hot')
+        _, ax = plt.subplots(3,4)
+
+        ax[0,0].imshow(input_tensor[0].cpu().detach().numpy().transpose(1,2,0)/255.0)
+        ax[0,1].imshow(attributions[0][0].cpu().detach().numpy(), cmap='Reds')
+        ax[0,2].imshow(attributions[0][1].cpu().detach().numpy(), cmap='Greens')
+        ax[0,3].imshow(attributions[0][2].cpu().detach().numpy(), cmap='Blues')
         
-        ax[1,0].imshow(input_tensor[1][0].cpu().detach().numpy(), cmap='gray')
-        ax[1,1].imshow(attributions[1][0].cpu().detach().numpy(), cmap='hot')
+        ax[1,0].imshow(input_tensor[1].cpu().detach().numpy().transpose(1,2,0)/255.0)
+        ax[1,1].imshow(attributions[1][0].cpu().detach().numpy(), cmap='Reds')
+        ax[1,2].imshow(attributions[1][1].cpu().detach().numpy(), cmap='Greens')
+        ax[1,3].imshow(attributions[1][2].cpu().detach().numpy(), cmap='Blues')
         
-        ax[2,0].imshow(input_tensor[2][0].cpu().detach().numpy(), cmap='gray')
-        ax[2,1].imshow(attributions[2][0].cpu().detach().numpy(), cmap='hot')
+        ax[2,0].imshow(input_tensor[2].cpu().detach().numpy().transpose(1,2,0)/255.0)
+        ax[2,1].imshow(attributions[2][0].cpu().detach().numpy(), cmap='Reds')
+        ax[2,2].imshow(attributions[2][1].cpu().detach().numpy(), cmap='Greens')
+        ax[2,3].imshow(attributions[2][2].cpu().detach().numpy(), cmap='Blues')
+        plt.show()
+    elif method == "lime":
+        #WORKING
+        _, ax = plt.subplots(3,1)
+        ax[0].imshow(attributions[0][0].cpu().detach().numpy(), cmap='hot')
+        ax[1].imshow(attributions[1][0].cpu().detach().numpy(), cmap='hot')
+        ax[2].imshow(attributions[2][0].cpu().detach().numpy(), cmap='hot')
         plt.show()
 
 
@@ -212,25 +226,27 @@ if __name__ == "__main__":
     visualize_attributions(saliency_attributions, input_tensor=data_MLP_mnist_diff.data, model_name="MLP Mnist Diff", method="saliency", target_tensor=data_MLP_mnist_diff.targets)
 
     # Guided Grad-CAM łączy Grad-CAM (Gradient-weighted Class Activation Mapping) z Guided Backpropagation, aby wygenerować wizualizację, która pokazuje, które części obrazu najbardziej wpływają na decyzję modelu.
+
+    """
     gradcam_attr = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="guided_gradcam")
     visualize_attributions(gradcam_attr, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="guided_gradcam")
     
     gradcam_attr = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="guided_gradcam")
     visualize_attributions(gradcam_attr, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="guided_gradcam")
-
     #Lime - Lime (Local Interpretable Model-agnostic Explanations) działa poprzez tworzenie prostego modelu liniowego w okolicy punktu, który chcemy wyjaśnić, aby zrozumieć, jak różne cechy wpływają na wynik modelu.
-    lime_attr = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="lime")
-    visualize_attributions(lime_attr, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="lime")
+    #lime_attr = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="lime")
+    #visualize_attributions(lime_attr, input_tensor=data_MLP_mnist_diff.data, model_name="MLP Mnist Diff",  method="lime")
     
-    lime_attr = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="lime")
-    visualize_attributions(lime_attr, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="lime")
-    """
+    #lime_attr = get_attributions(model=model_MLP_mnist_conv, input_tensor=data_MLP_mnist_conv.data, target_class=data_MLP_mnist_conv.targets, method="lime")
+    #visualize_attributions(lime_attr, input_tensor=data_MLP_mnist_conv.data, model_name="MLP Mnist Conv",  method="lime")
+    
+    
     #Integrated Gradients oblicza średnią gradientów modelu względem cech wejściowych na ścieżce od punktu początkowego (np. zerowego wektora) do rzeczywistego punktu wejściowego, aby uzyskać wyjaśnienie wpływu cech
-    intrgrad_attr = get_attributions(model=model_MLP_wine, input_tensor=data_MLP_wine.data, target_class=data_MLP_wine.targets, method="integrated_gradients")
-    visualize_attributions(intrgrad_attr, input_tensor=data_MLP_wine.data, model_name="MLP Wine", method="integrated_gradients", target_tensor=data_MLP_wine.targets)
+    #intrgrad_attr = get_attributions(model=model_MLP_wine, input_tensor=data_MLP_wine.data, target_class=data_MLP_wine.targets, method="integrated_gradients")
+    #visualize_attributions(intrgrad_attr, input_tensor=data_MLP_wine.data, model_name="MLP Wine", method="integrated_gradients", target_tensor=data_MLP_wine.targets)
 
     #Feature Ablation mierzy wpływ każdej cechy na wynik modelu poprzez sukcesywne usuwanie (ablacja) każdej cechy i obserwowanie zmiany w wyniku modelu.
-    featurueabl_attr = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="feature_ablation")
-    visualize_attributions(featurueabl_attr, input_tensor=data_MLP_mnist_diff.data, model_name="MLP Mnist Diff", method="feature_ablation", target_tensor=data_MLP_mnist_diff.targets)
+    #featurueabl_attr = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="feature_ablation")
+    #visualize_attributions(featurueabl_attr, input_tensor=data_MLP_mnist_diff.data, model_name="MLP Mnist Diff", method="feature_ablation", target_tensor=data_MLP_mnist_diff.targets)
 
     
