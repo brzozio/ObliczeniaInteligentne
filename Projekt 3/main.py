@@ -77,6 +77,19 @@ data_MLP_mnist_diff     = datasets_get.mnist_extr_diff(device, False, 'test')
 data_CNN_mnist          = datasets_get.mnist_to_cnn(device, True)
 data_CNN_cifar          = datasets_get.cifar10_to_cnn(device, True)
 
+cifar10_classes = {
+    0: "Airplane",
+    1: "Automobile",
+    2: "Bird",
+    3: "Cat",
+    4: "Deer",
+    5: "Dog",
+    6: "Frog",
+    7: "Horse",
+    8: "Ship",
+    9: "Truck"
+}
+
 def execute_model(data_set, model, data_name):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f'CUDA VERSION: {torch.version.cuda}')
@@ -98,9 +111,6 @@ def execute_model(data_set, model, data_name):
     softmax = torch.nn.Softmax(dim=1)
     probabilities = softmax(outputs)
     predicted_classes = torch.argmax(probabilities, dim=1)
-
-    #print(f'PREDICTED CLASSES: {predicted_classes}')
-    #print(f"ORIGINAL CLASSES: {data_set.targets}")
 
     plt.figure(figsize=(10, 7))        
     
@@ -188,17 +198,20 @@ def visualize_attributions(attributions, input_tensor, model_name, method="salie
         
     elif method == "guided_gradcam_separate_ch":
         #WORKING
+        pred_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_pred_targets.joblib")
         _, ax = plt.subplots(3,4)
 
-        ax[0,0].imshow(input_tensor[example_datum[0]].cpu().detach().numpy().transpose(1,2,0)/255.0)
-        ax[0,1].imshow(attributions[example_datum[0]][0].cpu().detach().numpy(), cmap='Reds')
-        ax[0,2].imshow(attributions[example_datum[0]][1].cpu().detach().numpy(), cmap='Greens')
-        ax[0,3].imshow(attributions[example_datum[0]][2].cpu().detach().numpy(), cmap='Blues')
+        ax[0,0].imshow(input_tensor[0].cpu().detach().numpy().transpose(1,2,0)/255.0)
+        ax[0,1].imshow(attributions[0][0].cpu().detach().numpy(), cmap='Reds')
+        ax[0,2].imshow(attributions[0][1].cpu().detach().numpy(), cmap='Greens')
+        ax[0,3].imshow(attributions[0][2].cpu().detach().numpy(), cmap='Blues')
+        ax[0,0].set_title(f"Pred class: {cifar10_classes[pred_class[0]]}")
         
-        ax[1,0].imshow(input_tensor[example_datum[1]].cpu().detach().numpy().transpose(1,2,0)/255.0)
-        ax[1,1].imshow(attributions[example_datum[1]][0].cpu().detach().numpy(), cmap='Reds')
-        ax[1,2].imshow(attributions[example_datum[1]][1].cpu().detach().numpy(), cmap='Greens')
-        ax[1,3].imshow(attributions[example_datum[1]][2].cpu().detach().numpy(), cmap='Blues')
+        ax[1,0].imshow(input_tensor[1].cpu().detach().numpy().transpose(1,2,0)/255.0)
+        ax[1,1].imshow(attributions[1][0].cpu().detach().numpy(), cmap='Reds')
+        ax[1,2].imshow(attributions[1][1].cpu().detach().numpy(), cmap='Greens')
+        ax[1,3].imshow(attributions[1][2].cpu().detach().numpy(), cmap='Blues')
+        ax[1,0].set_title(f"Pred class: {cifar10_classes[pred_class[1]]}")
         
         ax[2,0].imshow(input_tensor[example_datum[2]].cpu().detach().numpy().transpose(1,2,0)/255.0)
         ax[2,1].imshow(attributions[example_datum[2]][0].cpu().detach().numpy(), cmap='Reds')
@@ -209,6 +222,16 @@ def visualize_attributions(attributions, input_tensor, model_name, method="salie
     elif method == "guided_gradcam":
         #WORKING
         _, ax = plt.subplots(3,2)
+        pred_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_pred_targets.joblib")
+        if model_name.split()[1] == "Cifar":
+            ax[0,0].set_title(f"Pred class: {cifar10_classes[pred_class[0]]}")
+            ax[1,0].set_title(f"Pred class: {cifar10_classes[pred_class[21]]}")
+            ax[2,0].set_title(f"Pred class: {cifar10_classes[pred_class[37]]}")
+        else: 
+            ax[0,0].set_title(f"Pred class: {pred_class[0]}")
+            ax[1,0].set_title(f"Pred class: {pred_class[21]}")
+            ax[2,0].set_title(f"Pred class: {pred_class[37]}")
+
 
         format_to_im = lambda tensor : \
             tensor.cpu().detach().numpy().transpose(1,2,0)/255
@@ -235,7 +258,7 @@ def visualize_attributions(attributions, input_tensor, model_name, method="salie
 
 if __name__ == "__main__":
     loading_state_dict()
-    
+
     #Saliency Map oblicza gradienty wyniku modelu względem cech wejściowych, aby stworzyć mapę, która pokazuje, które cechy najbardziej wpływają na wynik modelu.
     #Guided Grad-CAM łączy Grad-CAM (Gradient-weighted Class Activation Mapping) z Guided Backpropagation, aby wygenerować wizualizację, która pokazuje, które części obrazu najbardziej wpływają na decyzję modelu.
     #Lime - Lime (Local Interpretable Model-agnostic Explanations) działa poprzez tworzenie prostego modelu liniowego w okolicy punktu, który chcemy wyjaśnić, aby zrozumieć, jak różne cechy wpływają na wynik modelu.
