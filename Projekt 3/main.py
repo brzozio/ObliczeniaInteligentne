@@ -77,6 +77,19 @@ data_MLP_mnist_diff     = datasets_get.mnist_extr_diff(device, False, 'test')
 data_CNN_mnist          = datasets_get.mnist_to_cnn(device, True)
 data_CNN_cifar          = datasets_get.cifar10_to_cnn(device, True)
 
+cifar10_classes = {
+    0: "Airplane",
+    1: "Automobile",
+    2: "Bird",
+    3: "Cat",
+    4: "Deer",
+    5: "Dog",
+    6: "Frog",
+    7: "Horse",
+    8: "Ship",
+    9: "Truck"
+}
+
 def execute_model(data_set, model, data_name):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f'CUDA VERSION: {torch.version.cuda}')
@@ -179,22 +192,27 @@ def visualize_attributions(attributions, input_tensor, model_name, method="salie
         
     elif method == "guided_gradcam":
         #WORKING
+        pred_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_pred_targets.joblib")
         _, ax = plt.subplots(3,4)
 
         ax[0,0].imshow(input_tensor[0].cpu().detach().numpy().transpose(1,2,0)/255.0)
         ax[0,1].imshow(attributions[0][0].cpu().detach().numpy(), cmap='Reds')
         ax[0,2].imshow(attributions[0][1].cpu().detach().numpy(), cmap='Greens')
         ax[0,3].imshow(attributions[0][2].cpu().detach().numpy(), cmap='Blues')
+        ax[0,0].set_title(f"Pred class: {cifar10_classes[pred_class[0]]}")
         
         ax[1,0].imshow(input_tensor[1].cpu().detach().numpy().transpose(1,2,0)/255.0)
         ax[1,1].imshow(attributions[1][0].cpu().detach().numpy(), cmap='Reds')
         ax[1,2].imshow(attributions[1][1].cpu().detach().numpy(), cmap='Greens')
         ax[1,3].imshow(attributions[1][2].cpu().detach().numpy(), cmap='Blues')
+        ax[1,0].set_title(f"Pred class: {cifar10_classes[pred_class[1]]}")
         
         ax[2,0].imshow(input_tensor[2].cpu().detach().numpy().transpose(1,2,0)/255.0)
         ax[2,1].imshow(attributions[2][0].cpu().detach().numpy(), cmap='Reds')
         ax[2,2].imshow(attributions[2][1].cpu().detach().numpy(), cmap='Greens')
         ax[2,3].imshow(attributions[2][2].cpu().detach().numpy(), cmap='Blues')
+        ax[2,0].set_title(f"Pred class: {cifar10_classes[pred_class[2]]}")
+
         plt.show()
     elif method == "lime":
         #WORKING
@@ -208,7 +226,7 @@ def visualize_attributions(attributions, input_tensor, model_name, method="salie
 
 if __name__ == "__main__":
     loading_state_dict()
-    
+
     #Saliency Map oblicza gradienty wyniku modelu względem cech wejściowych, aby stworzyć mapę, która pokazuje, które cechy najbardziej wpływają na wynik modelu.
     #Guided Grad-CAM łączy Grad-CAM (Gradient-weighted Class Activation Mapping) z Guided Backpropagation, aby wygenerować wizualizację, która pokazuje, które części obrazu najbardziej wpływają na decyzję modelu.
     #Lime - Lime (Local Interpretable Model-agnostic Explanations) działa poprzez tworzenie prostego modelu liniowego w okolicy punktu, który chcemy wyjaśnić, aby zrozumieć, jak różne cechy wpływają na wynik modelu.
@@ -235,11 +253,12 @@ if __name__ == "__main__":
     # Guided Grad-CAM łączy Grad-CAM (Gradient-weighted Class Activation Mapping) z Guided Backpropagation, aby wygenerować wizualizację, która pokazuje, które części obrazu najbardziej wpływają na decyzję modelu.
 
     """
-    gradcam_attr = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="guided_gradcam")
-    visualize_attributions(gradcam_attr, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="guided_gradcam")
+   # gradcam_attr = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="guided_gradcam")
+    #visualize_attributions(gradcam_attr, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="guided_gradcam")
+   
+    gradcam_attr = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="saliency")
+    visualize_attributions(gradcam_attr, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="saliency_2")
     
-    gradcam_attr = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="guided_gradcam")
-    visualize_attributions(gradcam_attr, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="guided_gradcam")
     #Lime - Lime (Local Interpretable Model-agnostic Explanations) działa poprzez tworzenie prostego modelu liniowego w okolicy punktu, który chcemy wyjaśnić, aby zrozumieć, jak różne cechy wpływają na wynik modelu.
     #lime_attr = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="lime")
     #visualize_attributions(lime_attr, input_tensor=data_MLP_mnist_diff.data, model_name="MLP Mnist Diff",  method="lime")
