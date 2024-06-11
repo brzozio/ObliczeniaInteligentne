@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 from captum.attr import Saliency
 import matplotlib.pyplot as plt
 import numpy as np
-from model_CNN import CNN_tanh_compose
+from model import CNN_tanh_compose
 import os
 
 repo_name = "nteligentne"

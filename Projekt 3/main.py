@@ -176,11 +176,11 @@ def tensor_to_attribution_heatmap(tensor):
 
 
 
-def visualize_attributions(attributions, input_tensor, model_name, method="saliency", target_tensor=None):
+def visualize_attributions(attributions, input_tensor, model_name, method="saliency", target_tensor=None, example_datum=[0,1,2]):
     if method == "saliency" or method == "feature_ablation" or method == "integrated_gradients":
         #WORKING
         plt.figure(figsize=(10, 5))
-        sb.barplot(x=range(len(attributions[0])), y=attributions[0].cpu().detach().numpy())
+        sb.barplot(x=range(len(attributions[example_datum[0]])), y=attributions[example_datum[0]].cpu().detach().numpy())
         plt.xlabel('Feature Index')
         plt.ylabel('Attribution')
         plt.title(f'{method} for {model_name} - Target: [{target_tensor[0]}]')
@@ -190,20 +190,20 @@ def visualize_attributions(attributions, input_tensor, model_name, method="salie
         #WORKING
         _, ax = plt.subplots(3,4)
 
-        ax[0,0].imshow(input_tensor[0].cpu().detach().numpy().transpose(1,2,0)/255.0)
-        ax[0,1].imshow(attributions[0][0].cpu().detach().numpy(), cmap='Reds')
-        ax[0,2].imshow(attributions[0][1].cpu().detach().numpy(), cmap='Greens')
-        ax[0,3].imshow(attributions[0][2].cpu().detach().numpy(), cmap='Blues')
+        ax[0,0].imshow(input_tensor[example_datum[0]].cpu().detach().numpy().transpose(1,2,0)/255.0)
+        ax[0,1].imshow(attributions[example_datum[0]][0].cpu().detach().numpy(), cmap='Reds')
+        ax[0,2].imshow(attributions[example_datum[0]][1].cpu().detach().numpy(), cmap='Greens')
+        ax[0,3].imshow(attributions[example_datum[0]][2].cpu().detach().numpy(), cmap='Blues')
         
-        ax[1,0].imshow(input_tensor[1].cpu().detach().numpy().transpose(1,2,0)/255.0)
-        ax[1,1].imshow(attributions[1][0].cpu().detach().numpy(), cmap='Reds')
-        ax[1,2].imshow(attributions[1][1].cpu().detach().numpy(), cmap='Greens')
-        ax[1,3].imshow(attributions[1][2].cpu().detach().numpy(), cmap='Blues')
+        ax[1,0].imshow(input_tensor[example_datum[1]].cpu().detach().numpy().transpose(1,2,0)/255.0)
+        ax[1,1].imshow(attributions[example_datum[1]][0].cpu().detach().numpy(), cmap='Reds')
+        ax[1,2].imshow(attributions[example_datum[1]][1].cpu().detach().numpy(), cmap='Greens')
+        ax[1,3].imshow(attributions[example_datum[1]][2].cpu().detach().numpy(), cmap='Blues')
         
-        ax[2,0].imshow(input_tensor[2].cpu().detach().numpy().transpose(1,2,0)/255.0)
-        ax[2,1].imshow(attributions[2][0].cpu().detach().numpy(), cmap='Reds')
-        ax[2,2].imshow(attributions[2][1].cpu().detach().numpy(), cmap='Greens')
-        ax[2,3].imshow(attributions[2][2].cpu().detach().numpy(), cmap='Blues')
+        ax[2,0].imshow(input_tensor[example_datum[2]].cpu().detach().numpy().transpose(1,2,0)/255.0)
+        ax[2,1].imshow(attributions[example_datum[2]][0].cpu().detach().numpy(), cmap='Reds')
+        ax[2,2].imshow(attributions[example_datum[2]][1].cpu().detach().numpy(), cmap='Greens')
+        ax[2,3].imshow(attributions[example_datum[2]][2].cpu().detach().numpy(), cmap='Blues')
         plt.show()
         
     elif method == "guided_gradcam":
@@ -213,22 +213,22 @@ def visualize_attributions(attributions, input_tensor, model_name, method="salie
         format_to_im = lambda tensor : \
             tensor.cpu().detach().numpy().transpose(1,2,0)/255
 
-        ax[0,0].imshow(format_to_im(input_tensor[0]))
-        ax[0,1].imshow(tensor_to_attribution_heatmap(attributions[0]), cmap='seismic', vmin=-1.0, vmax=1.0)
+        ax[0,0].imshow(format_to_im(input_tensor[example_datum[0]]))
+        ax[0,1].imshow(tensor_to_attribution_heatmap(attributions[example_datum[0]]), cmap='seismic', vmin=-1.0, vmax=1.0)
 
-        ax[1,0].imshow(format_to_im(input_tensor[21]))
-        ax[1,1].imshow(tensor_to_attribution_heatmap(attributions[21]), cmap='seismic', vmin=-1.0, vmax=1.0)
+        ax[1,0].imshow(format_to_im(input_tensor[example_datum[1]]))
+        ax[1,1].imshow(tensor_to_attribution_heatmap(attributions[example_datum[1]]), cmap='seismic', vmin=-1.0, vmax=1.0)
         
-        ax[2,0].imshow(format_to_im(input_tensor[37]))
-        ax[2,1].imshow(tensor_to_attribution_heatmap(attributions[37]), cmap='seismic', vmin=-1.0, vmax=1.0)
+        ax[2,0].imshow(format_to_im(input_tensor[example_datum[2]]))
+        ax[2,1].imshow(tensor_to_attribution_heatmap(attributions[example_datum[2]]), cmap='seismic', vmin=-1.0, vmax=1.0)
         plt.show()
 
     elif method == "lime":
         #WORKING
         _, ax = plt.subplots(3,1)
-        ax[0].imshow(attributions[0][0].cpu().detach().numpy(), cmap='seismic')
-        ax[1].imshow(attributions[1][0].cpu().detach().numpy(), cmap='seismic')
-        ax[2].imshow(attributions[2][0].cpu().detach().numpy(), cmap='seismic')
+        ax[0].imshow(attributions[example_datum[0]][0].cpu().detach().numpy(), cmap='seismic')
+        ax[1].imshow(attributions[example_datum[1]][0].cpu().detach().numpy(), cmap='seismic')
+        ax[2].imshow(attributions[example_datum[2]][0].cpu().detach().numpy(), cmap='seismic')
         plt.show()
 
 
@@ -263,10 +263,10 @@ if __name__ == "__main__":
 
     """
     gradcam_attr = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="guided_gradcam")
-    visualize_attributions(gradcam_attr, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="guided_gradcam")
+    visualize_attributions(gradcam_attr, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="guided_gradcam", example_datum=[5,8,13])
     
     gradcam_attr = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="guided_gradcam")
-    visualize_attributions(gradcam_attr, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="guided_gradcam")
+    visualize_attributions(gradcam_attr, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="guided_gradcam", example_datum=[5,8,13])
   
     #Lime - Lime (Local Interpretable Model-agnostic Explanations) działa poprzez tworzenie prostego modelu liniowego w okolicy punktu, który chcemy wyjaśnić, aby zrozumieć, jak różne cechy wpływają na wynik modelu.
     #lime_attr = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="lime")
