@@ -15,6 +15,7 @@ from torch.utils.data import DataLoader
 import torch.optim as optim
 import os
 import joblib
+from matplotlib.gridspec import GridSpec
 
 repo_name = "nteligentne"
 path_script = os.path.dirname(os.path.realpath(__file__))
@@ -300,6 +301,34 @@ def visualize_attributions(attributions, input_tensor, model_name, method=None, 
         plt.suptitle(f"xAI for {model_name}, Method: {method}", fontname= 'Arial', fontsize = 20, fontweight = 'bold')
         plt.show()
 
+    elif method == "differential":
+        
+        # for image in range(ilość obrazów)
+        fig = plt.figure(figsize=(1.2, 2.38))
+        gs = GridSpec(4, 4, figure=fig) 
+        # image
+        ax1 = fig.add_subplot(gs[0:3, 0:3])
+        ax1.imshow(input_tensor[example_datum[0]][0].cpu().detach().numpy())
+        # vertical axis - 28:56
+        ax2 = fig.add_subplot(gs[0:3, 3])
+        ax2.plot(attributions[example_datum[0]][28:56].cpu().detach().numpy(), range(28))
+        # horizontal axis = 0:28
+        ax3 = fig.add_subplot(gs[3, 0:3])
+        ax3.plot(attributions[example_datum[0]][0:28].cpu().detach().numpy())
+        ax3.invert_yaxis()
+
+        ax1.tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
+        ax1.tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
+        ax2.tick_params(axis='y',which='both',left=False,right=True,labelleft=False)
+        ax3.tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
+        ax3.yaxis.tick_right()
+
+        plt.subplots_adjust(wspace=0.1, hspace=0.1)
+        plt.show()
+        # zapisz subplot
+
+
+
 def explain_CNN():
     lime_attr = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="lime")
     visualize_attributions(lime_attr, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="lime", example_datum=[5,8,13,67,15,17,32,45,23])
@@ -327,7 +356,7 @@ def explain_MLP():
     saliency_attr = get_attributions(model=model_MLP_wine, input_tensor=data_MLP_wine.data, target_class=data_MLP_wine.targets, method="saliency")
     visualize_attributions(saliency_attr, input_tensor=data_MLP_wine.data, model_name="MLP wine",  method="saliency_barplot", example_datum=[0,3,4])
     saliency_attr = get_attributions(model=model_MLP_breast_cancer, input_tensor=data_MLP_breast_cancer.data, target_class=data_MLP_breast_cancer.targets, method="saliency")
-    visualize_attributions(saliency_attr, input_tensor=data_MLP_breast_cancer.data, model_name="MLP breast cancer",  method="saliency_barplot", example_datum=[0,5])
+    visualize_attributions(saliency_attr, input_tensor=data_MLP_breast_cancer.data, model_name="MLP breast cancer",  method="saliency_barplot", example_datum=[5,8,13,67,15,17,32,45,23])
 
 
 
