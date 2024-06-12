@@ -7,7 +7,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import torch
 from captum.attr import visualization as viz
-from captum.attr import IntegratedGradients, GuidedGradCam, Saliency, LayerGradCam, Lime, GuidedBackprop, FeatureAblation
+from captum.attr import IntegratedGradients, GuidedGradCam, Saliency, LayerGradCam, Lime, GuidedBackprop, FeatureAblation, ShapleyValueSampling
 import seaborn as sb
 from sklearn.metrics import confusion_matrix, accuracy_score
 import torch.nn as nn
@@ -202,6 +202,9 @@ def get_attributions(model, input_tensor, target_class, method="saliency"):
     elif method == "integrated_gradients":
         integrated_gradients = IntegratedGradients(model)
         attribution = integrated_gradients.attribute(input_tensor[0:300], target=target_class[0:300])
+    elif method == "shapley":
+        shapley_value_sampling = ShapleyValueSampling(model)
+        attribution = shapley_value_sampling.attribute(input_tensor[0:300], target=target_class[0:300])
     else:
         raise ValueError(f"Unknown method was specified: {method}")
 
