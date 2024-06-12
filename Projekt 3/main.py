@@ -159,13 +159,13 @@ def execute_model(data_set, model, data_name):
     
 
 def testing_models_eval():
-    execute_model(data_set=data_CNN_mnist, model=model_CNN_mnist, data_name='CNN_mnist')
-    execute_model(data_set=data_CNN_cifar, model=model_CNN_cifar, data_name='CNN_cifar')
-    execute_model(data_set=data_MLP_iris, model=model_MLP_iris, data_name='MLP_iris')
-    execute_model(data_set=data_MLP_wine, model=model_MLP_wine, data_name='MLP_wine')
-    execute_model(data_set=data_MLP_breast_cancer, model=model_MLP_breast_cancer, data_name='MLP_breast_cancer')
+    #execute_model(data_set=data_CNN_mnist, model=model_CNN_mnist, data_name='CNN_mnist')
+    #execute_model(data_set=data_CNN_cifar, model=model_CNN_cifar, data_name='CNN_cifar')
+    #execute_model(data_set=data_MLP_iris, model=model_MLP_iris, data_name='MLP_iris')
+    #execute_model(data_set=data_MLP_wine, model=model_MLP_wine, data_name='MLP_wine')
+    #execute_model(data_set=data_MLP_breast_cancer, model=model_MLP_breast_cancer, data_name='MLP_breast_cancer')
     execute_model(data_set=data_MLP_mnist_conv, model=model_MLP_mnist_conv, data_name='MLP_mnist_extr_conv')
-    execute_model(data_set=data_MLP_mnist_diff, model=model_MLP_mnist_diff, data_name='MLP_mnist_extr_diff')
+    #execute_model(data_set=data_MLP_mnist_diff, model=model_MLP_mnist_diff, data_name='MLP_mnist_extr_diff')
 
    
 def loading_state_dict():
@@ -268,102 +268,20 @@ def visualize_attributions(attributions, input_tensor, model_name, method=None, 
             ax[1].set_ylim([np.min(attributions[example_datum].cpu().detach().numpy().flatten()), np.max(attributions[example_datum].cpu().detach().numpy().flatten())])
         elif model_name.split()[1] == "Mnist":
             pred_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_{model_name.split()[2]}_pred_targets.joblib")
+            prob_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_{model_name.split()[2]}_prob_targets.joblib")
             _, ax = plt.subplots(5, 4, figsize=(10, 5))
             plt.subplots_adjust(hspace=0.55)
 
             print(f'Pred class: {pred_class[example_datum[0]]}, orig: {target_tensor[example_datum[0]]} for model: {model_name.split()[0]}_{model_name.split()[1]}_{model_name.split()[2]}_pred_targets')
-            """for index in range(10):
+        
+            for index in range(10):
                 sb.barplot(x=[0,1,2,3,4,5,6,7,8,9], y=attributions[example_datum[index]].cpu().detach().numpy(), ax=ax[index//2,(index%2)*2+1])
-                ax[index//2,(index%2)*2+1].set_title(f'{method} for {model_name} - Predicted: [{pred_class[example_datum[index]]}] Orig: [{target_tensor[example_datum[index]]}]')
+                ax[index//2,(index%2)*2+1].set_title(f'Predicted: [{pred_class[example_datum[9]]}] Orig: [{target_tensor[example_datum[9]]}], Probability: [{prob_class[example_datum[0]]:.4f}]', fontsize=12, fontweight = 'bold')
                 ax[index//2,(index%2)*2].imshow(input_tensor[example_datum[index]][0].cpu().detach().numpy())
                 ax[index//2,(index%2)*2].tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
                 ax[index//2,(index%2)*2].tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
                 ax[index//2,(index%2)*2+1].set_ylabel('Attribution')
                 ax[index//2, (index%2)*2+1].set_ylim([np.min(attributions[example_datum].cpu().detach().numpy().flatten()), np.max(attributions[example_datum].cpu().detach().numpy().flatten())])
-
-            """
-            sb.barplot(x=[0,1,2,3,4,5,6,7,8,9], y=attributions[example_datum[0]].cpu().detach().numpy(), ax=ax[0,1])
-            ax[0,1].set_title(f'Predicted: [{pred_class[example_datum[0]]}] Orig: [{target_tensor[example_datum[0]]}]')
-            ax[0,0].imshow(input_tensor[example_datum[0]][0].cpu().detach().numpy())
-            ax[0,0].tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
-            ax[0,0].tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
-            ax[0,1].set_ylabel('Attribution')
-            ax[0, 1].set_ylim([np.min(attributions[example_datum].cpu().detach().numpy().flatten()), np.max(attributions[example_datum].cpu().detach().numpy().flatten())])
-           
-            sb.barplot(x=[0,1,2,3,4,5,6,7,8,9], y=attributions[example_datum[1]].cpu().detach().numpy(), ax=ax[1,1])
-            ax[1,1].set_title(f'Predicted: [{pred_class[example_datum[1]]}] Orig: [{target_tensor[example_datum[1]]}]')
-            ax[1,0].imshow(input_tensor[example_datum[1]][0].cpu().detach().numpy())
-            ax[1,0].tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
-            ax[1,0].tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
-            ax[1,1].set_ylabel('Attribution')
-            ax[1, 1].set_ylim([np.min(attributions[example_datum].cpu().detach().numpy().flatten()), np.max(attributions[example_datum].cpu().detach().numpy().flatten())])
-           
-            sb.barplot(x=[0,1,2,3,4,5,6,7,8,9], y=attributions[example_datum[2]].cpu().detach().numpy(), ax=ax[2,1])
-            ax[2,1].set_title(f'Predicted: [{pred_class[example_datum[2]]}] Orig: [{target_tensor[example_datum[2]]}]')
-            ax[2,0].imshow(input_tensor[example_datum[2]][0].cpu().detach().numpy())
-            ax[2,0].tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
-            ax[2,0].tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
-            ax[2,1].set_ylabel('Attribution')
-            ax[2, 1].set_ylim([np.min(attributions[example_datum].cpu().detach().numpy().flatten()), np.max(attributions[example_datum].cpu().detach().numpy().flatten())])
-           
-            sb.barplot(x=[0,1,2,3,4,5,6,7,8,9], y=attributions[example_datum[3]].cpu().detach().numpy(), ax=ax[3,1])
-            ax[3,1].set_title(f'Predicted: [{pred_class[example_datum[3]]}] Orig: [{target_tensor[example_datum[3]]}]')
-            ax[3,0].imshow(input_tensor[example_datum[3]][0].cpu().detach().numpy()) 
-            ax[3,0].tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
-            ax[3,0].tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
-            ax[3,1].set_ylabel('Attribution')
-            ax[3, 1].set_ylim([np.min(attributions[example_datum].cpu().detach().numpy().flatten()), np.max(attributions[example_datum].cpu().detach().numpy().flatten())])
-           
-            sb.barplot(x=[0,1,2,3,4,5,6,7,8,9], y=attributions[example_datum[4]].cpu().detach().numpy(), ax=ax[4,1])
-            ax[4,1].set_title(f'Predicted: [{pred_class[example_datum[4]]}] Orig: [{target_tensor[example_datum[4]]}]')
-            ax[4,0].imshow(input_tensor[example_datum[4]][0].cpu().detach().numpy()) 
-            ax[4,0].tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
-            ax[4,0].tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
-            ax[4,1].set_ylabel('Attribution')
-            ax[4, 1].set_ylim([np.min(attributions[example_datum].cpu().detach().numpy().flatten()), np.max(attributions[example_datum].cpu().detach().numpy().flatten())])
-            
-            sb.barplot(x=[0,1,2,3,4,5,6,7,8,9], y=attributions[example_datum[5]].cpu().detach().numpy(), ax=ax[0,3])
-            ax[0,3].set_title(f'Predicted: [{pred_class[example_datum[5]]}] Orig: [{target_tensor[example_datum[5]]}]')
-            ax[0,2].imshow(input_tensor[example_datum[5]][0].cpu().detach().numpy())
-            ax[0,2].tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
-            ax[0,2].tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
-            ax[0,3].set_ylabel('Attribution')
-            ax[0, 3].set_ylim([np.min(attributions[example_datum].cpu().detach().numpy().flatten()), np.max(attributions[example_datum].cpu().detach().numpy().flatten())])
-           
-            sb.barplot(x=[0,1,2,3,4,5,6,7,8,9], y=attributions[example_datum[6]].cpu().detach().numpy(), ax=ax[1,3])
-            ax[1,3].set_title(f'Predicted: [{pred_class[example_datum[6]]}] Orig: [{target_tensor[example_datum[6]]}]')
-            ax[1,2].imshow(input_tensor[example_datum[6]][0].cpu().detach().numpy())
-            ax[1,2].tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
-            ax[1,2].tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
-            ax[1,3].set_ylabel('Attribution')
-            ax[1, 3].set_ylim([np.min(attributions[example_datum].cpu().detach().numpy().flatten()), np.max(attributions[example_datum].cpu().detach().numpy().flatten())])
-           
-            sb.barplot(x=[0,1,2,3,4,5,6,7,8,9], y=attributions[example_datum[7]].cpu().detach().numpy(), ax=ax[2,3])
-            ax[2,3].set_title(f'Predicted: [{pred_class[example_datum[7]]}] Orig: [{target_tensor[example_datum[7]]}]')
-            ax[2,2].imshow(input_tensor[example_datum[7]][0].cpu().detach().numpy())
-            ax[2,2].tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
-            ax[2,2].tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
-            ax[2,3].set_ylabel('Attribution')
-            ax[2, 3].set_ylim([np.min(attributions[example_datum].cpu().detach().numpy().flatten()), np.max(attributions[example_datum].cpu().detach().numpy().flatten())])
-           
-            sb.barplot(x=[0,1,2,3,4,5,6,7,8,9], y=attributions[example_datum[8]].cpu().detach().numpy(), ax=ax[3,3])
-            ax[3,3].set_title(f'Predicted: [{pred_class[example_datum[8]]}] Orig: [{target_tensor[example_datum[8]]}]')
-            ax[3,2].imshow(input_tensor[example_datum[8]][0].cpu().detach().numpy())
-            ax[3,2].tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
-            ax[3,2].tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
-            ax[3,3].set_ylabel('Attribution')
-            ax[3, 3].set_ylim([np.min(attributions[example_datum].cpu().detach().numpy().flatten()), np.max(attributions[example_datum].cpu().detach().numpy().flatten())])
-           
-            sb.barplot(x=[0,1,2,3,4,5,6,7,8,9], y=attributions[example_datum[9]].cpu().detach().numpy(), ax=ax[4,3])
-            ax[4,3].set_title(f'Predicted: [{pred_class[example_datum[9]]}] Orig: [{target_tensor[example_datum[9]]}]')
-            ax[4,2].imshow(input_tensor[example_datum[9]][0].cpu().detach().numpy())
-            ax[4,2].tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
-            ax[4,2].tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
-            ax[4,3].set_ylabel('Attribution')
-            ax[4, 3].set_ylim([np.min(attributions[example_datum].cpu().detach().numpy().flatten()), np.max(attributions[example_datum].cpu().detach().numpy().flatten())])
-            
-            
-
 
         plt.xlabel('Feature')
         if method == "saliency_barplot":
