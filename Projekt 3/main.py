@@ -65,6 +65,7 @@ iris_classes = {
     1: "Iris-versicolor",
     2: "Iris-virginica"
 }
+
 breast_cancer_classes = {
     0: "Benign",
     1: "Malignant"
@@ -219,19 +220,19 @@ def tensor_to_attribution_heatmap(tensor):
 def visualize_attributions(attributions, input_tensor, model_name, method=None, target_tensor=None, example_datum=[0,1,2,3,4,5,6,7,8]):
 
     matplotlib.rcParams.update({'font.size': 7})
-    prob_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_prob_targets.joblib")
 
     if method == "saliency_barplot" or method == "integrated_gradients_barplot" or method ==  "feature_ablation_barplot": #Bar-plot
         #WORKING
         if model_name.split()[1] == "iris":
             pred_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_pred_targets.joblib")
+            prob_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_prob_targets.joblib")
             _, ax = plt.subplots(3, 1, figsize=(10, 5))
             sb.barplot(x=iris_features, y=attributions[example_datum[0]].cpu().detach().numpy(), ax=ax[0])
             sb.barplot(x=iris_features, y=attributions[example_datum[1]].cpu().detach().numpy(), ax=ax[1])
             sb.barplot(x=iris_features, y=attributions[example_datum[2]].cpu().detach().numpy(), ax=ax[2])
-            ax[0].set_title(f'{method} for {model_name} - Predicted: [{iris_classes[pred_class[example_datum[0]]]}]')
-            ax[1].set_title(f'{method} for {model_name} - Predicted: [{iris_classes[pred_class[example_datum[1]]]}]')
-            ax[2].set_title(f'{method} for {model_name} - Predicted: [{iris_classes[pred_class[example_datum[2]]]}]')
+            ax[0].set_title(f'Predicted: [{iris_classes[pred_class[example_datum[0]]]}], Orig: [{iris_classes[target_tensor[example_datum[0]].item()]}], Probability: [{prob_class[example_datum[0]]:.4f}]', fontsize=12, fontweight = 'bold')
+            ax[1].set_title(f'Predicted: [{iris_classes[pred_class[example_datum[1]]]}], Orig: [{iris_classes[target_tensor[example_datum[1]].item()]}], Probability: [{prob_class[example_datum[1]]:.4f}]', fontsize=12, fontweight = 'bold')
+            ax[2].set_title(f'Predicted: [{iris_classes[pred_class[example_datum[2]]]}], Orig: [{iris_classes[target_tensor[example_datum[2]].item()]}], Probability: [{prob_class[example_datum[2]]:.4f}]', fontsize=12, fontweight = 'bold')
             ax[0].set_ylabel('Attribution')
             ax[1].set_ylabel('Attribution')
             ax[2].set_ylabel('Attribution')
@@ -240,13 +241,14 @@ def visualize_attributions(attributions, input_tensor, model_name, method=None, 
             ax[2].set_ylim([np.min(attributions[example_datum].cpu().detach().numpy().flatten()), np.max(attributions[example_datum].cpu().detach().numpy().flatten())])
         elif model_name.split()[1] == "wine":
             pred_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_pred_targets.joblib")
+            prob_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_prob_targets.joblib")
             _, ax = plt.subplots(3, 1, figsize=(10, 5))
             sb.barplot(x=wine_features, y=attributions[example_datum[0]].cpu().detach().numpy(), ax=ax[0])
             sb.barplot(x=wine_features, y=attributions[example_datum[1]].cpu().detach().numpy(), ax=ax[1])
             sb.barplot(x=wine_features, y=attributions[example_datum[2]].cpu().detach().numpy(), ax=ax[2])
-            ax[0].set_title(f'{method} for {model_name} - Predicted: [{wine_classes[pred_class[example_datum[0]]]}]')
-            ax[1].set_title(f'{method} for {model_name} - Predicted: [{wine_classes[pred_class[example_datum[1]]]}]')
-            ax[2].set_title(f'{method} for {model_name} - Predicted: [{wine_classes[pred_class[example_datum[2]]]}]')
+            ax[0].set_title(f'Predicted: [{wine_classes[pred_class[example_datum[0]]]}], Orig: [{wine_classes[target_tensor[example_datum[0]].item()]}], Probability: [{prob_class[example_datum[0]]:.4f}]', fontsize=12, fontweight = 'bold')
+            ax[1].set_title(f'Predicted: [{wine_classes[pred_class[example_datum[1]]]}], Orig: [{wine_classes[target_tensor[example_datum[1]].item()]}], Probability: [{prob_class[example_datum[1]]:.4f}]', fontsize=12, fontweight = 'bold')
+            ax[2].set_title(f'Predicted: [{wine_classes[pred_class[example_datum[2]]]}], Orig: [{wine_classes[target_tensor[example_datum[2]].item()]}], Probability: [{prob_class[example_datum[2]]:.4f}]', fontsize=12, fontweight = 'bold')
             ax[0].set_ylabel('Attribution')
             ax[1].set_ylabel('Attribution')
             ax[2].set_ylabel('Attribution')
@@ -254,12 +256,13 @@ def visualize_attributions(attributions, input_tensor, model_name, method=None, 
             ax[1].set_ylim([np.min(attributions[example_datum].cpu().detach().numpy().flatten()), np.max(attributions[example_datum].cpu().detach().numpy().flatten())])
             ax[2].set_ylim([np.min(attributions[example_datum].cpu().detach().numpy().flatten()), np.max(attributions[example_datum].cpu().detach().numpy().flatten())])
         elif model_name.split()[1] == "breast":
+            prob_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_{model_name.split()[2]}_prob_targets.joblib")
             pred_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_pred_targets.joblib")
             _, ax = plt.subplots(2, 1, figsize=(10, 5))
             sb.barplot(x=breast_cancer_features, y=attributions[example_datum[0]].cpu().detach().numpy(), ax=ax[0])
             sb.barplot(x=breast_cancer_features, y=attributions[example_datum[1]].cpu().detach().numpy(), ax=ax[1])
-            ax[0].set_title(f'{method} for {model_name} - Predicted: [{breast_cancer_classes[pred_class[example_datum[0]]]}]')
-            ax[1].set_title(f'{method} for {model_name} - Predicted: [{breast_cancer_classes[pred_class[example_datum[1]]]}]')
+            ax[0].set_title(f'Predicted: [{breast_cancer_classes[pred_class[example_datum[0]]]}] Orig: [{breast_cancer_classes[target_tensor[example_datum[0]].item()]}], Probability: [{prob_class[example_datum[0]]:.4f}]', fontsize=12, fontweight = 'bold')
+            ax[1].set_title(f'Predicted: [{breast_cancer_classes[pred_class[example_datum[1]]]}] Orig: [{breast_cancer_classes[target_tensor[example_datum[1]].item()]}], Probability: [{prob_class[example_datum[1]]:.4f}]', fontsize=12, fontweight = 'bold')
             ax[0].tick_params(axis='x', rotation=90)
             ax[1].tick_params(axis='x', rotation=90)
             plt.subplots_adjust(hspace=0.4)
@@ -359,6 +362,7 @@ def visualize_attributions(attributions, input_tensor, model_name, method=None, 
 
     elif method == "diff_feature_ablation" or method == "diff_saliency_map":
         pred_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_{model_name.split()[2]}_pred_targets.joblib")
+        prob_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_{model_name.split()[2]}_prob_targets.joblib")
         
         fig_min = attributions[example_datum].cpu().detach().numpy().min() - 0.1
         fig_max = attributions[example_datum].cpu().detach().numpy().max() + 0.1
@@ -419,17 +423,17 @@ def explain_CNN():
 def explain_MLP():
     
     # saliency_attr = get_attributions(model=model_MLP_iris, input_tensor=data_MLP_iris.data, target_class=data_MLP_iris.targets, method="saliency")
-    # visualize_attributions(saliency_attr, input_tensor=data_MLP_iris.data, model_name="MLP iris",  method="saliency_barplot", example_datum=[0,50,100])
+    # visualize_attributions(saliency_attr, input_tensor=data_MLP_iris.data, model_name="MLP iris",  method="saliency_barplot", target_tensor=data_MLP_iris.targets,  example_datum=[0,50,100])
     # saliency_attr = get_attributions(model=model_MLP_wine, input_tensor=data_MLP_wine.data, target_class=data_MLP_wine.targets, method="saliency")
-    # visualize_attributions(saliency_attr, input_tensor=data_MLP_wine.data, model_name="MLP wine",  method="saliency_barplot", example_datum=[0,60,130])
-    # saliency_attr = get_attributions(model=model_MLP_breast_cancer, input_tensor=data_MLP_breast_cancer.data, target_class=data_MLP_breast_cancer.targets, method="saliency")
-    # visualize_attributions(saliency_attr, input_tensor=data_MLP_breast_cancer.data, model_name="MLP breast cancer",  method="saliency_barplot", example_datum=[0,213])
+    # visualize_attributions(saliency_attr, input_tensor=data_MLP_wine.data, model_name="MLP wine",  method="saliency_barplot", target_tensor=data_MLP_wine.targets,  example_datum=[0,60,130])
+     saliency_attr = get_attributions(model=model_MLP_breast_cancer, input_tensor=data_MLP_breast_cancer.data, target_class=data_MLP_breast_cancer.targets, method="saliency")
+     visualize_attributions(saliency_attr, input_tensor=data_MLP_breast_cancer.data, model_name="MLP breast cancer", target_tensor=data_MLP_breast_cancer.targets, method="saliency_barplot", example_datum=[0,21])
     
-    saliency_attr = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="saliency")
-    visualize_attributions(saliency_attr, input_tensor=data_CNN_mnist.data, model_name="MLP Mnist Diff",  method="diff_saliency_map", target_tensor=data_MLP_mnist_diff.targets, example_datum=[3,5,1,32,4,8,98,36,84,7])
+    #saliency_attr = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="saliency")
+    #visualize_attributions(saliency_attr, input_tensor=data_CNN_mnist.data, model_name="MLP Mnist Diff",  method="diff_saliency_map", target_tensor=data_MLP_mnist_diff.targets, example_datum=[3,5,1,32,4,8,98,36,84,7])
 
-    saliency_attr = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="feature_ablation")
-    visualize_attributions(saliency_attr, input_tensor=data_CNN_mnist.data, model_name="MLP Mnist Diff",  method="diff_feature_ablation", target_tensor=data_MLP_mnist_diff.targets, example_datum=[3,5,1,32,4,8,98,36,84,7])
+    #saliency_attr = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="feature_ablation")
+    #visualize_attributions(saliency_attr, input_tensor=data_CNN_mnist.data, model_name="MLP Mnist Diff",  method="diff_feature_ablation", target_tensor=data_MLP_mnist_diff.targets, example_datum=[3,5,1,32,4,8,98,36,84,7])
     
     # saliency_attr = get_attributions(model=model_MLP_mnist_conv, input_tensor=data_MLP_mnist_conv.data, target_class=data_MLP_mnist_conv.targets, method="saliency")
     # visualize_attributions(saliency_attr, input_tensor=data_CNN_mnist.data, model_name="MLP Mnist Conv",  method="saliency_barplot", target_tensor=data_MLP_mnist_conv.targets, example_datum=[3,5,1,32,4,8,98,36,84,7])
