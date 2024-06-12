@@ -275,6 +275,8 @@ def visualize_attributions(attributions, input_tensor, model_name, method=None, 
                 ax[plot_nr,0].imshow(input_tensor[example_datum[plot_nr]][0].cpu().detach().numpy())
                 ax[plot_nr,0].tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
                 ax[plot_nr,0].tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
+                ax[plot_nr, 1].set_ylim([np.min(attributions[example_datum].cpu().detach().numpy().flatten()), np.max(attributions[example_datum].cpu().detach().numpy().flatten())])
+                print(f"MIN: [{np.min(attributions.cpu().detach().numpy().flatten())}], MAX: [{np.max(attributions.cpu().detach().numpy().flatten())}]")
 
         plt.xlabel('Feature')
         if method == "saliency_barplot":
@@ -437,17 +439,17 @@ def explain_MLP():
     #visualize_attributions(saliency_attr, input_tensor=data_MLP_wine.data, model_name="MLP wine",  method="saliency_barplot", example_datum=[0,60,130])
     #saliency_attr = get_attributions(model=model_MLP_breast_cancer, input_tensor=data_MLP_breast_cancer.data, target_class=data_MLP_breast_cancer.targets, method="saliency")
     #visualize_attributions(saliency_attr, input_tensor=data_MLP_breast_cancer.data, model_name="MLP breast cancer",  method="saliency_barplot", example_datum=[0,213])
-    saliency_attr = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="saliency")
-    visualize_attributions(saliency_attr, input_tensor=data_CNN_mnist.data, model_name="MLP Mnist Diff",  method="diff_saliency_map", target_tensor=data_MLP_mnist_diff.targets, example_datum=[3,5,1,32,4,8,98,36,84,7])
+    #saliency_attr = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="saliency")
+    #visualize_attributions(saliency_attr, input_tensor=data_CNN_mnist.data, model_name="MLP Mnist Diff",  method="diff_saliency_map", target_tensor=data_MLP_mnist_diff.targets, example_datum=[3,5,1,32,4,8,98,36,84,7])
 
-    saliency_attr = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="feature_ablation")
-    visualize_attributions(saliency_attr, input_tensor=data_CNN_mnist.data, model_name="MLP Mnist Diff",  method="diff_feature_ablation", target_tensor=data_MLP_mnist_diff.targets, example_datum=[3,5,1,32,4,8,98,36,84,7])
+    #saliency_attr = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="feature_ablation")
+    #visualize_attributions(saliency_attr, input_tensor=data_CNN_mnist.data, model_name="MLP Mnist Diff",  method="diff_feature_ablation", target_tensor=data_MLP_mnist_diff.targets, example_datum=[3,5,1,32,4,8,98,36,84,7])
     
-    #saliency_attr = get_attributions(model=model_MLP_mnist_conv, input_tensor=data_MLP_mnist_conv.data, target_class=data_MLP_mnist_conv.targets, method="saliency")
-    #visualize_attributions(saliency_attr, input_tensor=data_CNN_mnist.data, model_name="MLP Mnist Conv",  method="saliency_barplot", target_tensor=data_MLP_mnist_conv.targets, example_datum=[3,5,1,32,4,8,98,36,84,7])
+    saliency_attr = get_attributions(model=model_MLP_mnist_conv, input_tensor=data_MLP_mnist_conv.data, target_class=data_MLP_mnist_conv.targets, method="saliency")
+    visualize_attributions(saliency_attr, input_tensor=data_CNN_mnist.data, model_name="MLP Mnist Conv",  method="saliency_barplot", target_tensor=data_MLP_mnist_conv.targets, example_datum=[3,5,1,32,4,8,98,36,84,7])
     
-    #saliency_attr = get_attributions(model=model_MLP_mnist_conv, input_tensor=data_MLP_mnist_conv.data, target_class=data_MLP_mnist_conv.targets, method="feature_ablation")
-    #visualize_attributions(saliency_attr, input_tensor=data_CNN_mnist.data, model_name="MLP Mnist Conv",  method="feature_ablation_barplot", target_tensor=data_MLP_mnist_conv.targets, example_datum=[3,5,1,32,4,8,98,36,84,7])
+    saliency_attr = get_attributions(model=model_MLP_mnist_conv, input_tensor=data_MLP_mnist_conv.data, target_class=data_MLP_mnist_conv.targets, method="feature_ablation")
+    visualize_attributions(saliency_attr, input_tensor=data_CNN_mnist.data, model_name="MLP Mnist Conv",  method="feature_ablation_barplot", target_tensor=data_MLP_mnist_conv.targets, example_datum=[3,5,1,32,4,8,98,36,84,7])
 
 
 
