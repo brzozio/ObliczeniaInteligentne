@@ -195,11 +195,11 @@ def get_attributions(model, input_tensor, target_class, method="saliency"):
 
     if method == "saliency":
         saliency = Saliency(model)
-        attribution = saliency.attribute(input_tensor[0:1023], target=target_class[0:1023])
+        attribution = saliency.attribute(input_tensor[0:100], target=target_class[0:100])
     elif method == "guided_gradcam":
         target_layer = model.conv1
         guided_gc = GuidedGradCam(model, target_layer)
-        attribution = guided_gc.attribute(input_tensor[0:1023], target=target_class[0:1023])
+        attribution = guided_gc.attribute(input_tensor[0:100], target=target_class[0:100])
     elif method == "lime":
         lime = Lime(model)
         attribution = lime.attribute(input_tensor[0:100], target=target_class[0:100])
@@ -219,7 +219,7 @@ def tensor_to_attribution_heatmap(tensor):
     out = tensor.cpu().detach()
     for channel in range(1, out.size(0), 1):
         out[0] += out[channel]
-    out = out[0] * 100
+    out = out[0]
     return out
 
 
@@ -321,56 +321,60 @@ def visualize_attributions(attributions, input_tensor, model_name, method=None, 
             print(f"Pred class: {pred_class[example_datum[index]]} Orig class: {target_tensor[example_datum[index]]} for model: {model_name.split()[0]}_{model_name.split()[1]}_pred_targets")
             
         if model_name.split()[1] == "Cifar":
-            ax[0,0].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[0]]]}")
-            ax[1,0].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[1]]]}")
-            ax[2,0].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[2]]]}")
-            ax[0,2].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[3]]]}")
-            ax[1,2].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[4]]]}")
-            ax[2,2].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[5]]]}")
-            ax[0,4].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[6]]]}")
-            ax[1,4].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[7]]]}")
-            ax[2,4].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[8]]]}")
+            ax[0,0].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[0]]]}", fontsize = 12, fontweight = 'bold')
+            ax[1,0].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[1]]]}", fontsize = 12, fontweight = 'bold')
+            ax[2,0].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[2]]]}", fontsize = 12, fontweight = 'bold')
+            ax[0,2].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[3]]]}", fontsize = 12, fontweight = 'bold')
+            ax[1,2].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[4]]]}", fontsize = 12, fontweight = 'bold')
+            ax[2,2].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[5]]]}", fontsize = 12, fontweight = 'bold')
+            ax[0,4].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[6]]]}", fontsize = 12, fontweight = 'bold')
+            ax[1,4].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[7]]]}", fontsize = 12, fontweight = 'bold')
+            ax[2,4].set_title(f"predicted class: {cifar10_classes[pred_class[example_datum[8]]]}", fontsize = 12, fontweight = 'bold')
         else: 
-            ax[0,0].set_title(f"predicted class: {pred_class[example_datum[0]]}")
-            ax[1,0].set_title(f"predicted class: {pred_class[example_datum[1]]}")
-            ax[2,0].set_title(f"predicted class: {pred_class[example_datum[2]]}")
-            ax[0,2].set_title(f"predicted class: {pred_class[example_datum[3]]}")
-            ax[1,2].set_title(f"predicted class: {pred_class[example_datum[4]]}")
-            ax[2,2].set_title(f"predicted class: {pred_class[example_datum[5]]}")
-            ax[0,4].set_title(f"predicted class: {pred_class[example_datum[6]]}")
-            ax[1,4].set_title(f"predicted class: {pred_class[example_datum[7]]}")
-            ax[2,4].set_title(f"predicted class: {pred_class[example_datum[8]]}")
+            ax[0,0].set_title(f"predicted class: {pred_class[example_datum[0]]}", fontsize = 12, fontweight = 'bold')
+            ax[1,0].set_title(f"predicted class: {pred_class[example_datum[1]]}", fontsize = 12, fontweight = 'bold')
+            ax[2,0].set_title(f"predicted class: {pred_class[example_datum[2]]}", fontsize = 12, fontweight = 'bold')
+            ax[0,2].set_title(f"predicted class: {pred_class[example_datum[3]]}", fontsize = 12, fontweight = 'bold')
+            ax[1,2].set_title(f"predicted class: {pred_class[example_datum[4]]}", fontsize = 12, fontweight = 'bold')
+            ax[2,2].set_title(f"predicted class: {pred_class[example_datum[5]]}", fontsize = 12, fontweight = 'bold')
+            ax[0,4].set_title(f"predicted class: {pred_class[example_datum[6]]}", fontsize = 12, fontweight = 'bold')
+            ax[1,4].set_title(f"predicted class: {pred_class[example_datum[7]]}", fontsize = 12, fontweight = 'bold')
+            ax[2,4].set_title(f"predicted class: {pred_class[example_datum[8]]}", fontsize = 12, fontweight = 'bold')
 
 
         format_to_im = lambda tensor : \
             tensor.cpu().detach().numpy().transpose(1,2,0)/255
         
+        fig_min = abs(attributions[example_datum].cpu().detach().numpy().min())
+        fig_max = abs(attributions[example_datum].cpu().detach().numpy().max())
+        if fig_max < fig_min: fig_max = fig_min
+
         ax[0,0].imshow(format_to_im(input_tensor[example_datum[0]]))
-        ax[0,1].imshow(tensor_to_attribution_heatmap(attributions[example_datum[0]]), cmap='seismic', vmin=-1.0, vmax=1.0)
+        ax[0,1].imshow(tensor_to_attribution_heatmap(attributions[example_datum[0]])/fig_max, cmap='seismic', vmin=-1.0, vmax=1.0)
 
         ax[1,0].imshow(format_to_im(input_tensor[example_datum[1]]))
-        ax[1,1].imshow(tensor_to_attribution_heatmap(attributions[example_datum[1]]), cmap='seismic', vmin=-1.0, vmax=1.0)
+        ax[1,1].imshow(tensor_to_attribution_heatmap(attributions[example_datum[1]])/fig_max, cmap='seismic', vmin=-1.0, vmax=1.0)
         
         ax[2,0].imshow(format_to_im(input_tensor[example_datum[2]]))        
-        ax[2,1].imshow(tensor_to_attribution_heatmap(attributions[example_datum[2]]), cmap='seismic', vmin=-1.0, vmax=1.0)
+        ax[2,1].imshow(tensor_to_attribution_heatmap(attributions[example_datum[2]])/fig_max, cmap='seismic', vmin=-1.0, vmax=1.0)
         
         ax[0,2].imshow(format_to_im(input_tensor[example_datum[3]]))
-        ax[0,3].imshow(tensor_to_attribution_heatmap(attributions[example_datum[3]]), cmap='seismic', vmin=-1.0, vmax=1.0)
+        ax[0,3].imshow(tensor_to_attribution_heatmap(attributions[example_datum[3]])/fig_max, cmap='seismic', vmin=-1.0, vmax=1.0)
 
         ax[1,2].imshow(format_to_im(input_tensor[example_datum[4]]))
-        ax[1,3].imshow(tensor_to_attribution_heatmap(attributions[example_datum[4]]), cmap='seismic', vmin=-1.0, vmax=1.0)
+        ax[1,3].imshow(tensor_to_attribution_heatmap(attributions[example_datum[4]])/fig_max, cmap='seismic', vmin=-1.0, vmax=1.0)
         
         ax[2,2].imshow(format_to_im(input_tensor[example_datum[5]]))        
-        ax[2,3].imshow(tensor_to_attribution_heatmap(attributions[example_datum[5]]), cmap='seismic', vmin=-1.0, vmax=1.0)
+        ax[2,3].imshow(tensor_to_attribution_heatmap(attributions[example_datum[5]])/fig_max, cmap='seismic', vmin=-1.0, vmax=1.0)
         
         ax[0,4].imshow(format_to_im(input_tensor[example_datum[6]]))
-        ax[0,5].imshow(tensor_to_attribution_heatmap(attributions[example_datum[6]]), cmap='seismic', vmin=-1.0, vmax=1.0)
+        ax[0,5].imshow(tensor_to_attribution_heatmap(attributions[example_datum[6]])/fig_max, cmap='seismic', vmin=-1.0, vmax=1.0)
 
         ax[1,4].imshow(format_to_im(input_tensor[example_datum[7]]))
-        ax[1,5].imshow(tensor_to_attribution_heatmap(attributions[example_datum[7]]), cmap='seismic', vmin=-1.0, vmax=1.0)
+        ax[1,5].imshow(tensor_to_attribution_heatmap(attributions[example_datum[7]])/fig_max, cmap='seismic', vmin=-1.0, vmax=1.0)
         
         ax[2,4].imshow(format_to_im(input_tensor[example_datum[8]]))        
-        ax[2,5].imshow(tensor_to_attribution_heatmap(attributions[example_datum[8]]), cmap='seismic', vmin=-1.0, vmax=1.0)
+        ax[2,5].imshow(tensor_to_attribution_heatmap(attributions[example_datum[8]])/fig_max, cmap='seismic', vmin=-1.0, vmax=1.0)
         
 
         for i in range(3):
@@ -422,18 +426,18 @@ def explain_CNN():
 
     ablation = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="feature_ablation")
     visualize_attributions(ablation, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="feature_ablation", target_tensor=data_CNN_cifar.targets, example_datum=[5,8,13,67,15,17,32,45,23])
-    #ablation = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="feature_ablation")
-    #visualize_attributions(ablation, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="feature_ablation", target_tensor=data_CNN_mnist.targets, example_datum=[5,65,32,98,12,15,74,13,31])
+    ablation = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="feature_ablation")
+    visualize_attributions(ablation, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="feature_ablation", target_tensor=data_CNN_mnist.targets, example_datum=[5,65,32,98,12,15,74,13,31])
    
-    #saliency = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="saliency")
-    #visualize_attributions(saliency, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="saliency_image", target_tensor=data_CNN_mnist.targets, example_datum=[5,65,32,98,12,15,74,13,31])
+    saliency = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="saliency")
+    visualize_attributions(saliency, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="saliency_image", target_tensor=data_CNN_mnist.targets, example_datum=[5,65,32,98,12,15,74,13,31])
     saliency = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="saliency")
     visualize_attributions(saliency, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="saliency_image", target_tensor=data_CNN_cifar.targets, example_datum=[5,8,13,67,15,17,32,45,23])
     
     gradcam_attr = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="guided_gradcam")
     visualize_attributions(gradcam_attr, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="guided_gradcam", target_tensor=data_CNN_cifar.targets, example_datum=[5,8,13,67,15,17,32,45,23])
-    #gradcam_attr = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="guided_gradcam")
-    #visualize_attributions(gradcam_attr, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="guided_gradcam", target_tensor=data_CNN_mnist.targets, example_datum=[5,65,32,98,12,15,74,13,31])
+    gradcam_attr = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="guided_gradcam")
+    visualize_attributions(gradcam_attr, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="guided_gradcam", target_tensor=data_CNN_mnist.targets, example_datum=[5,65,32,98,12,15,74,13,31])
 
 
 def explain_MLP():
@@ -474,7 +478,7 @@ if __name__ == "__main__":
     
     """
     loading_state_dict()
-    explain_MLP()
-    #explain_CNN()
+    #explain_MLP()
+    explain_CNN()
  
   
