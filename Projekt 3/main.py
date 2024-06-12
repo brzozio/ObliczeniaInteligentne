@@ -385,6 +385,11 @@ def visualize_attributions(attributions, input_tensor, model_name, method=None, 
 
     elif method == "diff_feature_ablation" or method == "diff_saliency_map":
         pred_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_{model_name.split()[2]}_pred_targets.joblib")
+        
+        fig_min = attributions[example_datum].cpu().detach().numpy().min() - 0.1
+        fig_max = attributions[example_datum].cpu().detach().numpy().max() + 0.1
+        
+
         for example in range(len(example_datum)):
             print(f"pred class: {pred_class[example_datum[example]]} for model {model_name.split()[0]}_{model_name.split()[1]}_{model_name.split()[2]}_pred_targets.joblib")
             fig = plt.figure(figsize=(5, 5))
@@ -399,8 +404,10 @@ def visualize_attributions(attributions, input_tensor, model_name, method=None, 
             # horizontal axis = 0:28
             ax3 = fig.add_subplot(gs[3, 0:3])
             ax3.plot(attributions[example_datum[example]][0:28].cpu().detach().numpy())
+            
+            ax2.set_xlim([fig_min,fig_max])
+            ax3.set_ylim([fig_min,fig_max])
             ax3.invert_yaxis()
-
             ax1.tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
             ax1.tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
             ax2.tick_params(axis='y',which='both',left=False,right=True,labelleft=False)
