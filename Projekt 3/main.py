@@ -74,6 +74,55 @@ wine_classes = {
     1: "Wine Class 1",
     2: "Wine Class 2"
 }
+iris_features = ['sepal length (cm)','sepal width (cm)','petal length (cm)','petal width (cm)']
+wine_features = [
+    'alcohol', 
+    'malic_acid', 
+    'ash', 
+    'alcalinity_of_ash', 
+    'magnesium', 
+    'total_phenols', 
+    'flavanoids', 
+    'nonflavanoid_phenols', 
+    'proanthocyanins', 
+    'color_intensity', 
+    'hue', 
+    'od280/od315_of_diluted_wines', 
+    'proline'
+]
+
+breast_cancer_features = [
+    'mean radius', 
+    'mean texture', 
+    'mean perimeter', 
+    'mean area', 
+    'mean smoothness', 
+    'mean compactness', 
+    'mean concavity', 
+    'mean concave points', 
+    'mean symmetry', 
+    'mean fractal dimension', 
+    'radius error', 
+    'texture error', 
+    'perimeter error', 
+    'area error', 
+    'smoothness error', 
+    'compactness error', 
+    'concavity error', 
+    'concave points error', 
+    'symmetry error', 
+    'fractal dimension error', 
+    'worst radius', 
+    'worst texture', 
+    'worst perimeter', 
+    'worst area', 
+    'worst smoothness', 
+    'worst compactness', 
+    'worst concavity', 
+    'worst concave points', 
+    'worst symmetry', 
+    'worst fractal dimension'
+]
 
 
 def execute_model(data_set, model, data_name):
@@ -181,26 +230,29 @@ def visualize_attributions(attributions, input_tensor, model_name, method=None, 
         pred_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_pred_targets.joblib")
         if model_name.split()[1] == "iris":
             _, ax = plt.subplots(3, 1, figsize=(10, 5))
-            sb.barplot(x=range(len(attributions[example_datum[0]])), y=attributions[example_datum[0]].cpu().detach().numpy(), ax=ax[0])
-            sb.barplot(x=range(len(attributions[example_datum[1]])), y=attributions[example_datum[1]].cpu().detach().numpy(), ax=ax[1])
-            sb.barplot(x=range(len(attributions[example_datum[2]])), y=attributions[example_datum[2]].cpu().detach().numpy(), ax=ax[2])
+            sb.barplot(x=iris_features, y=attributions[example_datum[0]].cpu().detach().numpy(), ax=ax[0])
+            sb.barplot(x=iris_features, y=attributions[example_datum[1]].cpu().detach().numpy(), ax=ax[1])
+            sb.barplot(x=iris_features, y=attributions[example_datum[2]].cpu().detach().numpy(), ax=ax[2])
             ax[0].set_title(f'{method} for {model_name} - Predicted: [{iris_classes[pred_class[example_datum[0]]]}]')
             ax[1].set_title(f'{method} for {model_name} - Predicted: [{iris_classes[pred_class[example_datum[1]]]}]')
             ax[2].set_title(f'{method} for {model_name} - Predicted: [{iris_classes[pred_class[example_datum[2]]]}]')
         elif model_name.split()[1] == "wine":
             _, ax = plt.subplots(3, 1, figsize=(10, 5))
-            sb.barplot(x=range(len(attributions[example_datum[0]])), y=attributions[example_datum[0]].cpu().detach().numpy(), ax=ax[0])
-            sb.barplot(x=range(len(attributions[example_datum[1]])), y=attributions[example_datum[1]].cpu().detach().numpy(), ax=ax[1])
-            sb.barplot(x=range(len(attributions[example_datum[2]])), y=attributions[example_datum[2]].cpu().detach().numpy(), ax=ax[2])
+            sb.barplot(x=wine_features, y=attributions[example_datum[0]].cpu().detach().numpy(), ax=ax[0])
+            sb.barplot(x=wine_features, y=attributions[example_datum[1]].cpu().detach().numpy(), ax=ax[1])
+            sb.barplot(x=wine_features, y=attributions[example_datum[2]].cpu().detach().numpy(), ax=ax[2])
             ax[0].set_title(f'{method} for {model_name} - Predicted: [{wine_classes[pred_class[example_datum[0]]]}]')
             ax[1].set_title(f'{method} for {model_name} - Predicted: [{wine_classes[pred_class[example_datum[1]]]}]')
             ax[2].set_title(f'{method} for {model_name} - Predicted: [{wine_classes[pred_class[example_datum[2]]]}]')
         elif model_name.split()[1] == "breast":
             _, ax = plt.subplots(2, 1, figsize=(10, 5))
-            sb.barplot(x=range(len(attributions[example_datum[0]])), y=attributions[example_datum[0]].cpu().detach().numpy(), ax=ax[0])
-            sb.barplot(x=range(len(attributions[example_datum[1]])), y=attributions[example_datum[1]].cpu().detach().numpy(), ax=ax[1])
+            sb.barplot(x=breast_cancer_features, y=attributions[example_datum[0]].cpu().detach().numpy(), ax=ax[0])
+            sb.barplot(x=breast_cancer_features, y=attributions[example_datum[1]].cpu().detach().numpy(), ax=ax[1])
             ax[0].set_title(f'{method} for {model_name} - Predicted: [{breast_cancer_classes[pred_class[example_datum[0]]]}]')
             ax[1].set_title(f'{method} for {model_name} - Predicted: [{breast_cancer_classes[pred_class[example_datum[1]]]}]')
+            ax[0].tick_params(axis='x', rotation=90)
+            ax[1].tick_params(axis='x', rotation=90)
+            plt.subplots_adjust(hspace=0.4)
         plt.xlabel('Feature Index')
         plt.ylabel('Attribution')
         plt.suptitle(f"xAI for {model_name}, Method: {method.split(sep='_')[0]}", fontname= 'Arial', fontsize = 20, fontweight = 'bold')
@@ -235,7 +287,7 @@ def visualize_attributions(attributions, input_tensor, model_name, method=None, 
 
         plt.show()
         
-    elif method == "guided_gradcam" or method == "saliency_2" or method == "feature_ablation" or method == "lime":
+    elif method == "guided_gradcam" or method == "saliency_image" or method == "feature_ablation" or method == "lime":
         #WORKING
         _, ax = plt.subplots(3,6, figsize=[5,8])
         pred_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_pred_targets.joblib")
@@ -329,27 +381,25 @@ def visualize_attributions(attributions, input_tensor, model_name, method=None, 
 
 
 def explain_CNN():
-    lime_attr = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="lime")
-    visualize_attributions(lime_attr, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="lime", example_datum=[5,8,13,67,15,17,32,45,23])
-
-    lime_attr = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="lime")
-    visualize_attributions(lime_attr, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="lime", example_datum=[5,8,13,67,15,17,32,45,23])
 
     ablation = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="feature_ablation")
     visualize_attributions(ablation, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="feature_ablation", example_datum=[5,8,13,67,15,17,32,45,23])
-
-    gradcam_attr = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="feature_ablation")
-    visualize_attributions(gradcam_attr, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="feature_ablation", example_datum=[5,8,13,67,15,17,32,45,23])
-  
+    ablation = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="feature_ablation")
+    visualize_attributions(ablation, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="feature_ablation", example_datum=[5,8,13,67,15,17,32,45,23])
+   
+    saliency = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="saliency")
+    visualize_attributions(saliency, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="saliency_image", example_datum=[5,8,13,67,15,17,32,45,23])
+    saliency = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="saliency")
+    visualize_attributions(saliency, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="saliency_image", example_datum=[5,8,13,67,15,17,32,45,23])
     
     gradcam_attr = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="guided_gradcam")
     visualize_attributions(gradcam_attr, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="guided_gradcam", example_datum=[5,8,13,67,15,17,32,45,23])
-    
     gradcam_attr = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="guided_gradcam")
     visualize_attributions(gradcam_attr, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="guided_gradcam", example_datum=[5,8,13,67,15,17,32,45,23])
 
 
 def explain_MLP():
+
     saliency_attr = get_attributions(model=model_MLP_iris, input_tensor=data_MLP_iris.data, target_class=data_MLP_iris.targets, method="saliency")
     visualize_attributions(saliency_attr, input_tensor=data_MLP_iris.data, model_name="MLP iris",  method="saliency_barplot", example_datum=[0,50,100])
     saliency_attr = get_attributions(model=model_MLP_wine, input_tensor=data_MLP_wine.data, target_class=data_MLP_wine.targets, method="saliency")
@@ -375,6 +425,6 @@ if __name__ == "__main__":
     """
     loading_state_dict()
     explain_MLP()
-    #explain_CNN()
+    explain_CNN()
  
   
