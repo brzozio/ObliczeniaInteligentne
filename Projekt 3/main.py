@@ -426,20 +426,23 @@ def visualize_attributions(attributions, input_tensor, model_name, method=None, 
 
 def explain_CNN():
 
-    ablation = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="feature_ablation")
-    visualize_attributions(ablation, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="feature_ablation", target_tensor=data_CNN_cifar.targets, example_datum=[5,8,13,67,15,17,32,45,23])
-    ablation = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="feature_ablation")
-    visualize_attributions(ablation, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="feature_ablation", target_tensor=data_CNN_mnist.targets, example_datum=[5,65,32,98,12,15,74,13,31])
-   
-    saliency = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="saliency")
-    visualize_attributions(saliency, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="saliency_image", target_tensor=data_CNN_mnist.targets, example_datum=[5,65,32,98,12,15,74,13,31])
-    saliency = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="saliency")
-    visualize_attributions(saliency, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="saliency_image", target_tensor=data_CNN_cifar.targets, example_datum=[5,8,13,67,15,17,32,45,23])
+    #ablation = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="feature_ablation")
+    #visualize_attributions(ablation, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="feature_ablation", target_tensor=data_CNN_cifar.targets, example_datum=[5,8,13,67,15,17,32,45,23])
     
-    gradcam_attr = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="guided_gradcam")
-    visualize_attributions(gradcam_attr, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="guided_gradcam", target_tensor=data_CNN_cifar.targets, example_datum=[5,8,13,67,15,17,32,45,23])
+    ablation = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="feature_ablation")
+    visualize_attributions(ablation, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="feature_ablation", target_tensor=data_CNN_mnist.targets, example_datum=[3,5,1,32,4,8,98,36,84,7])
+   
+    #saliency = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="saliency")
+    #visualize_attributions(saliency, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="saliency_image", target_tensor=data_CNN_cifar.targets, example_datum=[5,8,13,67,15,17,32,45,23])   
+    
+    saliency = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="saliency")
+    visualize_attributions(saliency, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="saliency_image", target_tensor=data_CNN_mnist.targets, example_datum=[3,5,1,32,4,8,98,36,84,7])
+
+    #gradcam_attr = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="guided_gradcam")
+    #visualize_attributions(gradcam_attr, input_tensor=data_CNN_cifar.data, model_name="CNN Cifar",  method="guided_gradcam", target_tensor=data_CNN_cifar.targets, example_datum=[5,8,13,67,15,17,32,45,23])
+    
     gradcam_attr = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="guided_gradcam")
-    visualize_attributions(gradcam_attr, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="guided_gradcam", target_tensor=data_CNN_mnist.targets, example_datum=[5,65,32,98,12,15,74,13,31])
+    visualize_attributions(gradcam_attr, input_tensor=data_CNN_mnist.data, model_name="CNN Mnist",  method="guided_gradcam", target_tensor=data_CNN_mnist.targets, example_datum=[3,5,1,32,4,8,98,36,84,7])
 
 
 def explain_MLP():
