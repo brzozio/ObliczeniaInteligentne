@@ -277,7 +277,11 @@ def visualize_attributions(attributions, input_tensor, model_name, method=None, 
                 ax[plot_nr,0].tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
 
         plt.xlabel('Feature')
-        plt.suptitle(f"xAI for {model_name}, Method: {method.split(sep='_')[0]}", fontname= 'Arial', fontsize = 30, fontweight = 'bold')
+        if method == "saliency_barplot":
+            plt.suptitle(f"xAI for {model_name}, Method: {method.split(sep='_')[0]}", fontname= 'Arial', fontsize = 30, fontweight = 'bold')
+        else:
+            plt.suptitle(f"xAI for {model_name}, Method: {method.split(sep='_')[0]} {method.split(sep='_')[1]}", fontname= 'Arial', fontsize = 30, fontweight = 'bold')
+
         plt.show()
         
     elif method == "guided_gradcam_separate_ch":
