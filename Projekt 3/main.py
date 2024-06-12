@@ -188,7 +188,7 @@ def get_attributions(model, input_tensor, target_class, method="saliency"):
 
     if method == "saliency":
         saliency = Saliency(model)
-        attribution = saliency.attribute(input_tensor[0:300], target=target_class[0:300])
+        attribution = saliency.attribute(input_tensor[0:300], target=target_class[0:300], abs=False)
     elif method == "guided_gradcam":
         target_layer = model.conv1
         guided_gc = GuidedGradCam(model, target_layer)
@@ -328,9 +328,7 @@ def visualize_attributions(attributions, input_tensor, model_name, method=None, 
         #WORKING
         _, ax = plt.subplots(5,4, figsize=(10,14))
         pred_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_pred_targets.joblib")
-        
-        for index in range(9):
-            print(f"Pred class: {pred_class[example_datum[index]]} Orig class: {target_tensor[example_datum[index]]} for model: {model_name.split()[0]}_{model_name.split()[1]}_pred_targets")
+        prob_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_prob_targets.joblib")
         
         class_mapping = range(10)
         if model_name.split()[1] == "Cifar":
@@ -379,7 +377,7 @@ def visualize_attributions(attributions, input_tensor, model_name, method=None, 
             # vertical axis - 28:56
             ax2 = fig.add_subplot(gs[0:3, 3])
             ax2.plot(attributions[example_datum[example]][28:56].cpu().detach().numpy(), range(28))
-            ax2.set_title(f"probability: {prob_class[example_datum[i]] :.4f}", fontsize = 10, fontweight = 'bold')
+            ax2.set_title(f"probability: {prob_class[example_datum[example]] :.4f}", fontsize = 10, fontweight = 'bold')
             # horizontal axis = 0:28
             ax3 = fig.add_subplot(gs[3, 0:3])
             ax3.plot(attributions[example_datum[example]][0:28].cpu().detach().numpy())
@@ -422,28 +420,28 @@ def explain_CNN():
 
 def explain_MLP():
     
-    # saliency_attr = get_attributions(model=model_MLP_iris, input_tensor=data_MLP_iris.data, target_class=data_MLP_iris.targets, method="saliency")
-    # visualize_attributions(saliency_attr, input_tensor=data_MLP_iris.data, model_name="MLP iris",  method="saliency_barplot", target_tensor=data_MLP_iris.targets,  example_datum=[0,50,100])
-    # saliency_attr = get_attributions(model=model_MLP_wine, input_tensor=data_MLP_wine.data, target_class=data_MLP_wine.targets, method="saliency")
-    # visualize_attributions(saliency_attr, input_tensor=data_MLP_wine.data, model_name="MLP wine",  method="saliency_barplot", target_tensor=data_MLP_wine.targets,  example_datum=[0,60,130])
-    # saliency_attr = get_attributions(model=model_MLP_breast_cancer, input_tensor=data_MLP_breast_cancer.data, target_class=data_MLP_breast_cancer.targets, method="saliency")
-    # visualize_attributions(saliency_attr, input_tensor=data_MLP_breast_cancer.data, model_name="MLP breast cancer", target_tensor=data_MLP_breast_cancer.targets, method="saliency_barplot", example_datum=[0,21])
+    saliency_attr = get_attributions(model=model_MLP_iris, input_tensor=data_MLP_iris.data, target_class=data_MLP_iris.targets, method="saliency")
+    visualize_attributions(saliency_attr, input_tensor=data_MLP_iris.data, model_name="MLP iris",  method="saliency_barplot", target_tensor=data_MLP_iris.targets,  example_datum=[0,50,100])
+    saliency_attr = get_attributions(model=model_MLP_wine, input_tensor=data_MLP_wine.data, target_class=data_MLP_wine.targets, method="saliency")
+    visualize_attributions(saliency_attr, input_tensor=data_MLP_wine.data, model_name="MLP wine",  method="saliency_barplot", target_tensor=data_MLP_wine.targets,  example_datum=[0,60,130])
+    saliency_attr = get_attributions(model=model_MLP_breast_cancer, input_tensor=data_MLP_breast_cancer.data, target_class=data_MLP_breast_cancer.targets, method="saliency")
+    visualize_attributions(saliency_attr, input_tensor=data_MLP_breast_cancer.data, model_name="MLP breast cancer", target_tensor=data_MLP_breast_cancer.targets, method="saliency_barplot", example_datum=[0,21])
 
-     int_grd = get_attributions(model=model_MLP_iris, input_tensor=data_MLP_iris.data, target_class=data_MLP_iris.targets, method="integrated_gradients")
-     visualize_attributions(int_grd, input_tensor=data_MLP_iris.data, model_name="MLP iris",  method="integrated_gradients_barplot", target_tensor=data_MLP_iris.targets,  example_datum=[0,50,100])
-     int_grd = get_attributions(model=model_MLP_wine, input_tensor=data_MLP_wine.data, target_class=data_MLP_wine.targets, method="integrated_gradients")
-     visualize_attributions(int_grd, input_tensor=data_MLP_wine.data, model_name="MLP wine",  method="integrated_gradients_barplot", target_tensor=data_MLP_wine.targets,  example_datum=[0,60,130])
-     int_grd = get_attributions(model=model_MLP_breast_cancer, input_tensor=data_MLP_breast_cancer.data, target_class=data_MLP_breast_cancer.targets, method="integrated_gradients")
-     visualize_attributions(int_grd, input_tensor=data_MLP_breast_cancer.data, model_name="MLP breast cancer", target_tensor=data_MLP_breast_cancer.targets, method="integrated_gradients_barplot", example_datum=[0,21])
+    #  int_grd = get_attributions(model=model_MLP_iris, input_tensor=data_MLP_iris.data, target_class=data_MLP_iris.targets, method="integrated_gradients")
+    #  visualize_attributions(int_grd, input_tensor=data_MLP_iris.data, model_name="MLP iris",  method="integrated_gradients_barplot", target_tensor=data_MLP_iris.targets,  example_datum=[0,50,100])
+    #  int_grd = get_attributions(model=model_MLP_wine, input_tensor=data_MLP_wine.data, target_class=data_MLP_wine.targets, method="integrated_gradients")
+    #  visualize_attributions(int_grd, input_tensor=data_MLP_wine.data, model_name="MLP wine",  method="integrated_gradients_barplot", target_tensor=data_MLP_wine.targets,  example_datum=[0,60,130])
+    #  int_grd = get_attributions(model=model_MLP_breast_cancer, input_tensor=data_MLP_breast_cancer.data, target_class=data_MLP_breast_cancer.targets, method="integrated_gradients")
+    #  visualize_attributions(int_grd, input_tensor=data_MLP_breast_cancer.data, model_name="MLP breast cancer", target_tensor=data_MLP_breast_cancer.targets, method="integrated_gradients_barplot", example_datum=[0,21])
     
-    #saliency_attr = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="saliency")
-    #visualize_attributions(saliency_attr, input_tensor=data_CNN_mnist.data, model_name="MLP Mnist Diff",  method="diff_saliency_map", target_tensor=data_MLP_mnist_diff.targets, example_datum=[3,5,1,32,4,8,98,36,84,7])
+    saliency_attr = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="saliency")
+    visualize_attributions(saliency_attr, input_tensor=data_CNN_mnist.data, model_name="MLP Mnist Diff",  method="diff_saliency_map", target_tensor=data_MLP_mnist_diff.targets, example_datum=[3,5,1,32,4,8,98,36,84,7])
 
     #saliency_attr = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="feature_ablation")
     #visualize_attributions(saliency_attr, input_tensor=data_CNN_mnist.data, model_name="MLP Mnist Diff",  method="diff_feature_ablation", target_tensor=data_MLP_mnist_diff.targets, example_datum=[3,5,1,32,4,8,98,36,84,7])
     
-    # saliency_attr = get_attributions(model=model_MLP_mnist_conv, input_tensor=data_MLP_mnist_conv.data, target_class=data_MLP_mnist_conv.targets, method="saliency")
-    # visualize_attributions(saliency_attr, input_tensor=data_CNN_mnist.data, model_name="MLP Mnist Conv",  method="saliency_barplot", target_tensor=data_MLP_mnist_conv.targets, example_datum=[3,5,1,32,4,8,98,36,84,7])
+    saliency_attr = get_attributions(model=model_MLP_mnist_conv, input_tensor=data_MLP_mnist_conv.data, target_class=data_MLP_mnist_conv.targets, method="saliency")
+    visualize_attributions(saliency_attr, input_tensor=data_CNN_mnist.data, model_name="MLP Mnist Conv",  method="saliency_barplot", target_tensor=data_MLP_mnist_conv.targets, example_datum=[3,5,1,32,4,8,98,36,84,7])
     
     # saliency_attr = get_attributions(model=model_MLP_mnist_conv, input_tensor=data_MLP_mnist_conv.data, target_class=data_MLP_mnist_conv.targets, method="feature_ablation")
     # visualize_attributions(saliency_attr, input_tensor=data_CNN_mnist.data, model_name="MLP Mnist Conv",  method="feature_ablation_barplot", target_tensor=data_MLP_mnist_conv.targets, example_datum=[3,5,1,32,4,8,98,36,84,7])
@@ -466,7 +464,7 @@ if __name__ == "__main__":
     
     """
     loading_state_dict()
-    explain_MLP()
-    #explain_CNN()
+    # explain_MLP()
+    explain_CNN()
  
   
