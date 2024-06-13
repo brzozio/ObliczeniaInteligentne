@@ -97,3 +97,12 @@ def breast_cancer(device):
     breast_cancer_dataset  = CustomDataset(data=StandardScaler().fit_transform(breast_cancer.data), targets=breast_cancer.target, device=device)
     return breast_cancer_dataset
 
+def mnist_extr_TSNE(device, train):
+  
+    mnist                = datasets.MNIST(root='data', train=train, download=True, transform=transforms.ToTensor())
+    flattened_mnist      = mnist.data.flatten(start_dim=1)
+    tsne                 = TSNE(n_components=2, random_state=42)
+    flattened_mnist_tsne = tsne.fit_transform(StandardScaler().fit_transform(flattened_mnist))
+    mnists_tsne          = CustomDataset(data=StandardScaler().fit_transform(flattened_mnist_tsne), targets=mnist.targets, device=device)
+
+    return mnists_tsne

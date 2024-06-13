@@ -39,6 +39,7 @@ model_MLP_breast_cancer = MLP(input_size=30, hidden_layer_size=15, classes=2)
 
 model_MLP_mnist_conv    = MLP(input_size=10, hidden_layer_size=40, classes=10)
 model_MLP_mnist_diff    = MLP(input_size=56, hidden_layer_size=84, classes=10)
+model_MLP_mnist_tsne    = MLP(input_size=2, hidden_layer_size=1, classes=10)
 
 data_MLP_iris           = datasets_get.iris(device)
 data_MLP_wine           = datasets_get.wine(device)
@@ -47,6 +48,7 @@ data_MLP_mnist_conv     = datasets_get.mnist_extr_conv(device, False, 'test')
 data_MLP_mnist_diff     = datasets_get.mnist_extr_diff(device, False, 'test')
 data_CNN_mnist          = datasets_get.mnist_to_cnn(device, False)
 data_CNN_cifar          = datasets_get.cifar10_to_cnn(device, False)
+data_MLP_mnist_tsne     = datasets_get.mnist_extr_TSNE(device, False)
 
 cifar10_classes = [
     "Airplane",
@@ -165,8 +167,9 @@ def testing_models_eval():
     #execute_model(data_set=data_MLP_iris, model=model_MLP_iris, data_name='MLP_iris')
     #execute_model(data_set=data_MLP_wine, model=model_MLP_wine, data_name='MLP_wine')
     #execute_model(data_set=data_MLP_breast_cancer, model=model_MLP_breast_cancer, data_name='MLP_breast_cancer')
-    execute_model(data_set=data_MLP_mnist_conv, model=model_MLP_mnist_conv, data_name='MLP_mnist_extr_conv')
+    #execute_model(data_set=data_MLP_mnist_conv, model=model_MLP_mnist_conv, data_name='MLP_mnist_extr_conv')
     #execute_model(data_set=data_MLP_mnist_diff, model=model_MLP_mnist_diff, data_name='MLP_mnist_extr_diff')
+    execute_model(data_set=data_MLP_mnist_tsne, model=model_MLP_mnist_tsne, data_name='MLP_TSNE')
 
    
 def loading_state_dict():
@@ -177,6 +180,7 @@ def loading_state_dict():
     model_MLP_breast_cancer.load_state_dict(torch.load(path_models + 'MLP_breast_cancer.pth'))
     model_MLP_mnist_conv.load_state_dict(torch.load(path_models + 'MLP_mnist_extr_conv.pth'))
     model_MLP_mnist_diff.load_state_dict(torch.load(path_models + 'MLP_mnist_extr_diff.pth'))
+    model_MLP_mnist_tsne.load_state_dict(torch.load(path_models + 'MLP_TSNE.pth'))
 
 #Atrybucje
 def get_attributions(model, input_tensor, target_class, method="saliency", data_offsets=[0]):
@@ -414,8 +418,12 @@ def explain_MLP():
     
     mnist_examples = [3,5,1,32,4,8,98,36,84,7]
 
-    saliency_attr, input_tensor, target_tensor = get_attributions(model=model_MLP_iris, input_tensor=data_MLP_iris.data, target_class=data_MLP_iris.targets, method="saliency", data_offsets=[0,50,100])
-    visualize_attributions(saliency_attr, input_tensor=input_tensor, model_name="MLP iris",  method="saliency_barplot", target_tensor=target_tensor)
+    saliency_attr, input_tensor, target_tensor = get_attributions(model=model_MLP_mnist_tsne, input_tensor=data_MLP_mnist_tsne.data, target_class=data_MLP_mnist_tsne.targets, method="saliency", data_offsets=mnist_examples)
+    visualize_attributions(saliency_attr, input_tensor=input_tensor, model_name="MLP TSNE",  method="saliency_barplot", target_tensor=target_tensor)
+    
+    
+    # saliency_attr, input_tensor, target_tensor = get_attributions(model=model_MLP_iris, input_tensor=data_MLP_iris.data, target_class=data_MLP_iris.targets, method="saliency", data_offsets=[0,50,100])
+    # visualize_attributions(saliency_attr, input_tensor=input_tensor, model_name="MLP iris",  method="saliency_barplot", target_tensor=target_tensor)
     
     # saliency_attr, input_tensor, target_tensor = get_attributions(model=model_MLP_wine, input_tensor=data_MLP_wine.data, target_class=data_MLP_wine.targets, method="saliency", data_offsets=[0,60,130])
     # visualize_attributions(saliency_attr, input_tensor=input_tensor, model_name="MLP wine",  method="saliency_barplot", target_tensor=target_tensor)
@@ -432,10 +440,10 @@ def explain_MLP():
     # int_grd, input_tensor, target_tensor  = get_attributions(model=model_MLP_breast_cancer, input_tensor=data_MLP_breast_cancer.data, target_class=data_MLP_breast_cancer.targets, method="integrated_gradients", data_offsets=[0,21])
     # visualize_attributions(int_grd, input_tensor, model_name="MLP breast cancer", target_tensor=target_tensor, method="integrated_gradients_barplot")
     
-    saliency_attr, _, _ = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="saliency", data_offsets=mnist_examples)
-    input_tensor = data_CNN_mnist.data[mnist_examples]
-    target_tensor = data_CNN_mnist.targets[mnist_examples]
-    visualize_attributions(saliency_attr, input_tensor=input_tensor, model_name="MLP Mnist Diff",  method="diff_saliency_map", target_tensor=target_tensor)
+    # saliency_attr, _, _ = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="saliency", data_offsets=mnist_examples)
+    # input_tensor = data_CNN_mnist.data[mnist_examples]
+    # target_tensor = data_CNN_mnist.targets[mnist_examples]
+    # visualize_attributions(saliency_attr, input_tensor=input_tensor, model_name="MLP Mnist Diff",  method="diff_saliency_map", target_tensor=target_tensor)
 
     #saliency_attr, _, _  = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="feature_ablation", data_offsets=mnist_examples)
     #input_tensor = data_CNN_mnist.data[mnist_examples]
