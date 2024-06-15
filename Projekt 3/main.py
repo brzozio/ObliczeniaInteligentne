@@ -48,7 +48,7 @@ data_MLP_mnist_conv     = datasets_get.mnist_extr_conv(device, False, 'test')
 data_MLP_mnist_diff     = datasets_get.mnist_extr_diff(device, False, 'test')
 data_CNN_mnist          = datasets_get.mnist_to_cnn(device, False)
 data_CNN_cifar          = datasets_get.cifar10_to_cnn(device, False)
-data_MLP_mnist_tsne     = datasets_get.mnist_extr_TSNE(device, False)
+#data_MLP_mnist_tsne     = datasets_get.mnist_extr_TSNE(device, False)
 
 cifar10_classes = [
     "Airplane",
@@ -418,27 +418,27 @@ def explain_MLP():
     
     mnist_examples = [3,5,1,32,4,8,98,36,84,7]
 
-    saliency_attr, input_tensor, target_tensor = get_attributions(model=model_MLP_mnist_tsne, input_tensor=data_MLP_mnist_tsne.data, target_class=data_MLP_mnist_tsne.targets, method="saliency", data_offsets=mnist_examples)
-    visualize_attributions(saliency_attr, input_tensor=input_tensor, model_name="MLP TSNE",  method="saliency_barplot", target_tensor=target_tensor)
+    #saliency_attr, input_tensor, target_tensor = get_attributions(model=model_MLP_mnist_tsne, input_tensor=data_MLP_mnist_tsne.data, target_class=data_MLP_mnist_tsne.targets, method="saliency", data_offsets=mnist_examples)
+    #visualize_attributions(saliency_attr, input_tensor=input_tensor, model_name="MLP TSNE",  method="saliency_barplot", target_tensor=target_tensor)
     
     
-    # saliency_attr, input_tensor, target_tensor = get_attributions(model=model_MLP_iris, input_tensor=data_MLP_iris.data, target_class=data_MLP_iris.targets, method="saliency", data_offsets=[0,50,100])
-    # visualize_attributions(saliency_attr, input_tensor=input_tensor, model_name="MLP iris",  method="saliency_barplot", target_tensor=target_tensor)
+    #saliency_attr, input_tensor, target_tensor = get_attributions(model=model_MLP_iris, input_tensor=data_MLP_iris.data, target_class=data_MLP_iris.targets, method="saliency", data_offsets=[0,50,100])
+    #visualize_attributions(saliency_attr, input_tensor=input_tensor, model_name="MLP iris",  method="saliency_barplot", target_tensor=target_tensor)
     
-    # saliency_attr, input_tensor, target_tensor = get_attributions(model=model_MLP_wine, input_tensor=data_MLP_wine.data, target_class=data_MLP_wine.targets, method="saliency", data_offsets=[0,60,130])
-    # visualize_attributions(saliency_attr, input_tensor=input_tensor, model_name="MLP wine",  method="saliency_barplot", target_tensor=target_tensor)
+    #saliency_attr, input_tensor, target_tensor = get_attributions(model=model_MLP_wine, input_tensor=data_MLP_wine.data, target_class=data_MLP_wine.targets, method="saliency", data_offsets=[0,60,130])
+    #visualize_attributions(saliency_attr, input_tensor=input_tensor, model_name="MLP wine",  method="saliency_barplot", target_tensor=target_tensor)
     
     # saliency_attr, input_tensor, target_tensor = get_attributions(model=model_MLP_breast_cancer, input_tensor=data_MLP_breast_cancer.data, target_class=data_MLP_breast_cancer.targets, method="saliency", data_offsets=[0,21])
     # visualize_attributions(saliency_attr, input_tensor=input_tensor, model_name="MLP breast cancer", target_tensor=target_tensor, method="saliency_barplot")
 
-    # int_grd, input_tensor, target_tensor  = get_attributions(model=model_MLP_iris, input_tensor=data_MLP_iris.data, target_class=data_MLP_iris.targets, method="integrated_gradients", data_offsets=, data_offsets=[0,50,100])
-    # visualize_attributions(int_grd, input_tensor, model_name="MLP iris",  method="integrated_gradients_barplot", target_tensor=target_tensor)
+    int_grd, input_tensor, target_tensor  = get_attributions(model=model_MLP_iris, input_tensor=data_MLP_iris.data, target_class=data_MLP_iris.targets, method="integrated_gradients", data_offsets=[0,50,100])
+    visualize_attributions(int_grd, input_tensor, model_name="MLP iris",  method="integrated_gradients_barplot", target_tensor=target_tensor)
     
     # int_grd, input_tensor, target_tensor  = get_attributions(model=model_MLP_wine, input_tensor=data_MLP_wine.data, target_class=data_MLP_wine.targets, method="integrated_gradients", data_offsets=, data_offsets=[0,60,130])
     # visualize_attributions(int_grd, input_tensor, model_name="MLP wine",  method="integrated_gradients_barplot", target_tensor=target_tensor)
 
-    # int_grd, input_tensor, target_tensor  = get_attributions(model=model_MLP_breast_cancer, input_tensor=data_MLP_breast_cancer.data, target_class=data_MLP_breast_cancer.targets, method="integrated_gradients", data_offsets=[0,21])
-    # visualize_attributions(int_grd, input_tensor, model_name="MLP breast cancer", target_tensor=target_tensor, method="integrated_gradients_barplot")
+    #int_grd, input_tensor, target_tensor  = get_attributions(model=model_MLP_breast_cancer, input_tensor=data_MLP_breast_cancer.data, target_class=data_MLP_breast_cancer.targets, method="integrated_gradients", data_offsets=[0,21])
+    #visualize_attributions(int_grd, input_tensor, model_name="MLP breast cancer", target_tensor=target_tensor, method="integrated_gradients_barplot")
     
     # saliency_attr, _, _ = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="saliency", data_offsets=mnist_examples)
     # input_tensor = data_CNN_mnist.data[mnist_examples]
