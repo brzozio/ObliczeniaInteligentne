@@ -365,23 +365,31 @@ def post_show_model_biases(target=0):
                         target_tensor=target_tensor, prob_class=correct_prob_target_class[0:10], pred_class=correct_pred_target_class[0:10], 
                         file_name=f"POST_shy_correct_{cifar10_classes[target]}", table_name=f"Class: {cifar10_classes[target]}, Correctly identified\n with Lowest certainty")
 
-def get_violin_plot(model, data_set, method, classes, features=None):
+def get_violin_plot(model, data_set, method, classes, features, title="", file_name="", xlabel_rotation=0):
     
 
     attribution, _, _ = get_attributions(model=model, input_tensor=data_set.data, target_class=data_set.targets, method=method)
     attribution = attribution.cpu().numpy()
-    max = np.max(attribution) + 1
-    min = np.min(attribution) - 1
+    max = np.max(attribution) + 3
+    min = np.min(attribution) - 3
 
-    _, ax = plt.subplots(len(classes),1)
+    fig, ax = plt.subplots(len(classes),1, figsize=(20,15))
 
     for target in range(len(classes)):
         _, _, indicies = extract_single_class(data_set=data_set, target=target)
-        ax[target].violinplot(attribution[indicies])
-        ax[target].set_title(f"{classes[target]}")
+        df = pd.DataFrame(attribution[indicies], columns=features)
+        sb.violinplot(data=df, ax=ax[target], scale="width")
+        ax[target].set_title(f"{classes[target]}", fontsize = 20, fontweight = 'bold')
         ax[target].set_ylim([min,max])
+        if target != len(classes) - 1:
+            ax[target].tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
 
-    plt.show()
+    ax[len(classes) - 1].tick_params(axis='x', rotation=xlabel_rotation)
+
+    fig.suptitle(title, fontsize = 30, fontweight = 'bold')
+    #plt.show()
+    plt.savefig(path_script+f"/temp/{file_name}.jpg")
+
 
 if __name__ == "__main__":
 
@@ -398,17 +406,24 @@ if __name__ == "__main__":
     model_MLP_iris          = MLP(input_size=4, hidden_layer_size=2, classes=3)
     model_MLP_iris.load_state_dict(torch.load(path_models + 'MLP_iris.pth'))
 
-    get_violin_plot(model_MLP_iris, data_MLP_iris, method="feature_ablation", classes=iris_classes)
+    get_violin_plot(model_MLP_iris, data_MLP_iris, method="feature_ablation", classes=iris_classes, features=iris_features,
+                    title="Iris Dataset - Feature Ablation\nAttribution Distributions", file_name="VIOLIN_Iris")
 
-    """
+    
     data_MLP_wine           = datasets_get.wine(device)
     model_MLP_wine          = MLP(input_size=13, hidden_layer_size=7, classes=3)
     model_MLP_wine.load_state_dict(torch.load(path_models + 'MLP_wine.pth'))
+
+    get_violin_plot(model_MLP_wine, data_MLP_wine, method="feature_ablation", classes=wine_classes, features=wine_features,
+                    title="Wine Dataset - Feature Ablation\nAttribution Distributions", file_name="VIOLIN_wine", xlabel_rotation=90)
     
     data_MLP_breast_cancer  = datasets_get.breast_cancer(device)
     model_MLP_breast_cancer = MLP(input_size=30, hidden_layer_size=15, classes=2)
     model_MLP_breast_cancer.load_state_dict(torch.load(path_models + 'MLP_breast_cancer.pth'))
-    """
+
+    get_violin_plot(model_MLP_breast_cancer, data_MLP_breast_cancer, method="feature_ablation", classes=breast_cancer_classes, features=breast_cancer_features,
+                    title="Breast Cancer Dataset - Feature Ablation\nAttribution Distributions", file_name="VIOLIN_breast_cancer", xlabel_rotation=90)
+   
     
     
  
