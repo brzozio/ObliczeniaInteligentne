@@ -25,30 +25,11 @@ path_models = path_script + "\\models\\"
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-model_CNN_mnist         = CNN_tanh(in_side_len=28, in_channels=1, cnv0_out_channels=12, 
-                                   cnv1_out_channels=16, lin0_out_size=100, lin1_out_size=10, 
-                                   convolution_kernel=3, pooling_kernel=2, reduce_to_dim2=False)
-
 model_CNN_cifar         = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=15, 
                                    cnv1_out_channels=16, lin0_out_size=128, lin1_out_size=10, 
                                    convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=False)
 
-model_MLP_iris          = MLP(input_size=4, hidden_layer_size=2, classes=3)
-model_MLP_wine          = MLP(input_size=13, hidden_layer_size=7, classes=3)
-model_MLP_breast_cancer = MLP(input_size=30, hidden_layer_size=15, classes=2)
-
-model_MLP_mnist_conv    = MLP(input_size=10, hidden_layer_size=40, classes=10)
-model_MLP_mnist_diff    = MLP(input_size=56, hidden_layer_size=84, classes=10)
-model_MLP_mnist_tsne    = MLP(input_size=2, hidden_layer_size=1, classes=10)
-
-data_MLP_iris           = datasets_get.iris(device)
-data_MLP_wine           = datasets_get.wine(device)
-data_MLP_breast_cancer  = datasets_get.breast_cancer(device)
-data_MLP_mnist_conv     = datasets_get.mnist_extr_conv(device, False, 'test')
-data_MLP_mnist_diff     = datasets_get.mnist_extr_diff(device, False, 'test')
-data_CNN_mnist          = datasets_get.mnist_to_cnn(device, False)
 data_CNN_cifar          = datasets_get.cifar10_to_cnn(device, False)
-#data_MLP_mnist_tsne     = datasets_get.mnist_extr_TSNE(device, False)
 
 cifar10_classes = [
     "Airplane",
@@ -62,125 +43,9 @@ cifar10_classes = [
     "Ship",
     "Truck"
 ]
-iris_classes = [
-    "Iris-setosa",
-    "Iris-versicolor",
-    "Iris-virginica"
-]
-
-breast_cancer_classes = [
-    "Benign",
-    "Malignant"
-]
-wine_classes = [
-    "Wine Class 0",
-    "Wine Class 1",
-    "Wine Class 2"
-]
-iris_features = [
-    'sepal length (cm)',
-    'sepal width (cm)',
-    'petal length (cm)',
-    'petal width (cm)']
-wine_features = [
-    'alcohol', 
-    'malic_acid', 
-    'ash', 
-    'alcalinity_of_ash', 
-    'magnesium', 
-    'total_phenols', 
-    'flavanoids', 
-    'nonflavanoid_phenols', 
-    'proanthocyanins', 
-    'color_intensity', 
-    'hue', 
-    'od280/od315_of_diluted_wines', 
-    'proline'
-]
-breast_cancer_features = [
-    'mean radius', 
-    'mean texture', 
-    'mean perimeter', 
-    'mean area', 
-    'mean smoothness', 
-    'mean compactness', 
-    'mean concavity', 
-    'mean concave points', 
-    'mean symmetry', 
-    'mean fractal dimension', 
-    'radius error', 
-    'texture error', 
-    'perimeter error', 
-    'area error', 
-    'smoothness error', 
-    'compactness error', 
-    'concavity error', 
-    'concave points error', 
-    'symmetry error', 
-    'fractal dimension error', 
-    'worst radius', 
-    'worst texture', 
-    'worst perimeter', 
-    'worst area', 
-    'worst smoothness', 
-    'worst compactness', 
-    'worst concavity', 
-    'worst concave points', 
-    'worst symmetry', 
-    'worst fractal dimension'
-]
-
-
-def execute_model(data_set, model, data_name):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f'CUDA VERSION: {torch.version.cuda}')
-    print(f'DEVICE RUNING: {device}')
-
-    model.load_state_dict(torch.load(path_models + f'{data_name}.pth'))
-    model.eval()
-    model.double()
-    model.to(device)
-    outputs = model.forward(data_set.data)
-
-    softmax = torch.nn.Softmax(dim=1)
-    probabilities = softmax(outputs)
-    predicted_classes = torch.argmax(probabilities, dim=1)
-
-    predicted_classes_cpu   = predicted_classes.cpu().numpy()
-    probabilities           = probabilities.cpu().detach().numpy()
-    targets_cpu             = data_set.targets.cpu().numpy()
-    
-    certainty = np.zeros(len(probabilities))
-    for i in range(len(certainty)):
-        certainty[i] = probabilities[i][predicted_classes_cpu[i]]
-
-    accuracy = accuracy_score(predicted_classes_cpu, targets_cpu)
-    print(f'ACCURACY SCORE FOR {data_name}: {accuracy:.4f}')
-
-    joblib.dump(predicted_classes_cpu, path_script + f"\\debug_temporaries\\{data_name}_pred_targets.joblib")
-    joblib.dump(certainty, path_script + f"\\debug_temporaries\\{data_name}_prob_targets.joblib")
-    
-
-def testing_models_eval():
-    execute_model(data_set=data_CNN_mnist, model=model_CNN_mnist, data_name='CNN_mnist')
-    #execute_model(data_set=data_CNN_cifar, model=model_CNN_cifar, data_name='CNN_cifar')
-    #execute_model(data_set=data_MLP_iris, model=model_MLP_iris, data_name='MLP_iris')
-    #execute_model(data_set=data_MLP_wine, model=model_MLP_wine, data_name='MLP_wine')
-    #execute_model(data_set=data_MLP_breast_cancer, model=model_MLP_breast_cancer, data_name='MLP_breast_cancer')
-    #execute_model(data_set=data_MLP_mnist_conv, model=model_MLP_mnist_conv, data_name='MLP_mnist_extr_conv')
-    #execute_model(data_set=data_MLP_mnist_diff, model=model_MLP_mnist_diff, data_name='MLP_mnist_extr_diff')
-    #execute_model(data_set=data_MLP_mnist_tsne, model=model_MLP_mnist_tsne, data_name='MLP_TSNE')
-
    
 def loading_state_dict():
-    model_CNN_mnist.load_state_dict(torch.load(path_models + 'CNN_mnist.pth'))
     model_CNN_cifar.load_state_dict(torch.load(path_models + 'CNN_cifar.pth'))
-    model_MLP_iris.load_state_dict(torch.load(path_models + 'MLP_iris.pth'))
-    model_MLP_wine.load_state_dict(torch.load(path_models + 'MLP_wine.pth'))
-    model_MLP_breast_cancer.load_state_dict(torch.load(path_models + 'MLP_breast_cancer.pth'))
-    model_MLP_mnist_conv.load_state_dict(torch.load(path_models + 'MLP_mnist_extr_conv.pth'))
-    model_MLP_mnist_diff.load_state_dict(torch.load(path_models + 'MLP_mnist_extr_diff.pth'))
-    model_MLP_mnist_tsne.load_state_dict(torch.load(path_models + 'MLP_TSNE.pth'))
 
 #Atrybucje
 def get_attributions(model, input_tensor, target_class, method="saliency", data_offsets=[0]):
@@ -226,8 +91,6 @@ def tensor_to_attribution_heatmap(tensor):
     out = out[0]
     return out
 
-
-
 def visualize_attributions(attributions, input_tensor, model_name, pred_class=None, prob_class=None, method=None, target_tensor=None):
 
     matplotlib.rcParams.update({'font.size': 7})
@@ -269,18 +132,6 @@ def visualize_attributions(attributions, input_tensor, model_name, pred_class=No
 
         class_alias = range(target_tensor.size(0))
         feature_alias = range(torch.numel(attributions)//attributions.size(0))
-
-        if model_name.split()[1] == "iris":
-            class_alias = iris_classes
-            feature_alias = iris_features            
-        elif model_name.split()[1] == "wine":
-            class_alias = wine_classes
-            feature_alias = wine_features
-        elif model_name.split()[1] == "breast":
-            class_alias = breast_cancer_classes
-            feature_alias = breast_cancer_features
-            for i in range(attributions.size(0)):
-                ax[i].tick_params(axis='x', rotation=90)
         
         pred_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_pred_targets.joblib")
         prob_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_prob_targets.joblib")
@@ -375,45 +226,10 @@ def visualize_attributions(attributions, input_tensor, model_name, pred_class=No
         plt.suptitle(f"xAI for {model_name}, Method: {method}", fontname= 'Arial', fontsize = 30, fontweight = 'bold')
         plt.savefig(path_script+f"/temp/{model_name}_{method}.jpg")
 
-
-
-
 def explain_CNN():
 
     mnist_examples = [3,5,1,32,4,8,98,36,84,7]
-    cifar_examples = [0,5,8,13,67,15,17,32,45,23]
-
-    # ablation, input_tensor, target_tensor  = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="feature_ablation", data_offsets=cifar_examples)
-    # visualize_attributions(ablation, input_tensor, model_name="CNN Cifar",  method="feature_ablation", target_tensor=target_tensor)
-    
-    # ablation, input_tensor, target_tensor  = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="feature_ablation", data_offsets=mnist_examples)
-    # visualize_attributions(ablation, input_tensor, model_name="CNN Mnist",  method="feature_ablation", target_tensor=target_tensor)
    
-    # saliency, input_tensor, target_tensor  = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="saliency", data_offsets=cifar_examples)   
-    # visualize_attributions(saliency, input_tensor, model_name="CNN Cifar",  method="saliency_image", target_tensor=target_tensor)
-    
-    # saliency, input_tensor, target_tensor  = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="saliency", data_offsets=mnist_examples)
-    # visualize_attributions(saliency, input_tensor, model_name="CNN Mnist",  method="saliency_image", target_tensor=target_tensor)
-
-    # gradcam_attr, input_tensor, target_tensor  = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="guided_gradcam", data_offsets=cifar_examples)
-    # visualize_attributions(gradcam_attr, input_tensor, model_name="CNN Cifar",  method="guided_gradcam", target_tensor=target_tensor)
-    
-    # gradcam_attr, input_tensor, target_tensor  = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="guided_gradcam", data_offsets=mnist_examples)
-    # visualize_attributions(gradcam_attr, input_tensor, model_name="CNN Mnist",  method="guided_gradcam", target_tensor=target_tensor)
-    
-    # shap_attr, input_tensor, target_tensor  = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="shapley", data_offsets=cifar_examples)
-    # visualize_attributions(shap_attr, input_tensor, model_name="CNN Cifar",  method="guided_gradcam", target_tensor=target_tensor)
-    
-    # shap_attr, input_tensor, target_tensor  = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="guided_gradcam", data_offsets=mnist_examples)
-    # visualize_attributions(shap_attr, input_tensor, model_name="CNN Mnist",  method="guided_gradcam", target_tensor=target_tensor)
-    
-    #shap_attr, input_tensor, target_tensor = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="shapley", data_offsets=cifar_examples)
-    #visualize_attributions(shap_attr, input_tensor=input_tensor, model_name="CNN Cifar",  method="shapley", target_tensor=target_tensor)
-    
-    #shap_attr, input_tensor, target_tensor = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="shapley", data_offsets=mnist_examples)
-    #visualize_attributions(shap_attr, input_tensor=input_tensor, model_name="CNN Mnist",  method="shapley", target_tensor=target_tensor)
-
-
     bird_data = []
     bird_indices = []
 
@@ -432,75 +248,9 @@ def explain_CNN():
     shap_attr, input_tensor, target_tensor = get_attributions(model=model_CNN_cifar, input_tensor=bird_data_tensor, target_class=birds_targets, method="feature_ablation", data_offsets=mnist_examples)
     visualize_attributions(shap_attr, input_tensor=input_tensor, model_name="CNN Cifar",  method="feature_ablation", target_tensor=target_tensor, prob_class=prob_bird, pred_class=pred_bird)
 
-    
-
-
-
-def explain_MLP():
-    
-    mnist_examples = [3,5,1,32,4,8,98,36,84,7]
-
-    #saliency_attr, input_tensor, target_tensor = get_attributions(model=model_MLP_mnist_tsne, input_tensor=data_MLP_mnist_tsne.data, target_class=data_MLP_mnist_tsne.targets, method="saliency", data_offsets=mnist_examples)
-    #visualize_attributions(saliency_attr, input_tensor=input_tensor, model_name="MLP TSNE",  method="saliency_barplot", target_tensor=target_tensor)
-    
-    
-    #saliency_attr, input_tensor, target_tensor = get_attributions(model=model_MLP_iris, input_tensor=data_MLP_iris.data, target_class=data_MLP_iris.targets, method="saliency", data_offsets=[0,50,100])
-    #visualize_attributions(saliency_attr, input_tensor=input_tensor, model_name="MLP iris",  method="saliency_barplot", target_tensor=target_tensor)
-    
-    #saliency_attr, input_tensor, target_tensor = get_attributions(model=model_MLP_wine, input_tensor=data_MLP_wine.data, target_class=data_MLP_wine.targets, method="saliency", data_offsets=[0,60,130])
-    #visualize_attributions(saliency_attr, input_tensor=input_tensor, model_name="MLP wine",  method="saliency_barplot", target_tensor=target_tensor)
-    
-    # saliency_attr, input_tensor, target_tensor = get_attributions(model=model_MLP_breast_cancer, input_tensor=data_MLP_breast_cancer.data, target_class=data_MLP_breast_cancer.targets, method="saliency", data_offsets=[0,21])
-    # visualize_attributions(saliency_attr, input_tensor=input_tensor, model_name="MLP breast cancer", target_tensor=target_tensor, method="saliency_barplot")
-
-    int_grd, input_tensor, target_tensor  = get_attributions(model=model_MLP_iris, input_tensor=data_MLP_iris.data, target_class=data_MLP_iris.targets, method="integrated_gradients", data_offsets=[0,50,100])
-    visualize_attributions(int_grd, input_tensor, model_name="MLP iris",  method="integrated_gradients_barplot", target_tensor=target_tensor)
-    
-    # int_grd, input_tensor, target_tensor  = get_attributions(model=model_MLP_wine, input_tensor=data_MLP_wine.data, target_class=data_MLP_wine.targets, method="integrated_gradients", data_offsets=, data_offsets=[0,60,130])
-    # visualize_attributions(int_grd, input_tensor, model_name="MLP wine",  method="integrated_gradients_barplot", target_tensor=target_tensor)
-
-    #int_grd, input_tensor, target_tensor  = get_attributions(model=model_MLP_breast_cancer, input_tensor=data_MLP_breast_cancer.data, target_class=data_MLP_breast_cancer.targets, method="integrated_gradients", data_offsets=[0,21])
-    #visualize_attributions(int_grd, input_tensor, model_name="MLP breast cancer", target_tensor=target_tensor, method="integrated_gradients_barplot")
-    
-    # saliency_attr, _, _ = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="saliency", data_offsets=mnist_examples)
-    # input_tensor = data_CNN_mnist.data[mnist_examples]
-    # target_tensor = data_CNN_mnist.targets[mnist_examples]
-    # visualize_attributions(saliency_attr, input_tensor=input_tensor, model_name="MLP Mnist Diff",  method="diff_saliency_map", target_tensor=target_tensor)
-
-    #saliency_attr, _, _  = get_attributions(model=model_MLP_mnist_diff, input_tensor=data_MLP_mnist_diff.data, target_class=data_MLP_mnist_diff.targets, method="feature_ablation", data_offsets=mnist_examples)
-    #input_tensor = data_CNN_mnist.data[mnist_examples]
-    #target_tensor = data_CNN_mnist.targets[mnist_examples]
-    #visualize_attributions(saliency_attr, input_tensor, model_name="MLP Mnist Diff",  method="diff_feature_ablation", target_tensor=target_tensor)
-    
-    # saliency_attr, _, _  = get_attributions(model=model_MLP_mnist_conv, input_tensor=data_MLP_mnist_conv.data, target_class=data_MLP_mnist_conv.targets, method="saliency", data_offsets=mnist_examples)
-    # input_tensor = data_CNN_mnist.data[mnist_examples]
-    # target_tensor = data_CNN_mnist.targets[mnist_examples]
-    #visualize_attributions(saliency_attr, input_tensor, model_name="MLP Mnist Conv",  method="saliency_barplot", target_tensor=target_tensor)
-    
-    # saliency_attr, _, _  = get_attributions(model=model_MLP_mnist_conv, input_tensor=data_MLP_mnist_conv.data, target_class=data_MLP_mnist_conv.targets, method="feature_ablation", data_offsets=mnist_examples)
-    # input_tensor = data_CNN_mnist.data[mnist_examples]
-    # target_tensor = data_CNN_mnist.targets[mnist_examples]
-    # visualize_attributions(saliency_attr, input_tensor, model_name="MLP Mnist Conv",  method="feature_ablation_barplot", target_tensor=target_tensor)
-
-
-
 if __name__ == "__main__":
-    #testing_models_eval()
-    """
-    Saliency Map oblicza gradienty wyniku modelu względem cech wejściowych, aby stworzyć mapę, która pokazuje, które cechy najbardziej wpływają na wynik modelu.
-    Guided Grad-CAM łączy Grad-CAM (Gradient-weighted Class Activation Mapping) z Guided Backpropagation, aby wygenerować wizualizację, która pokazuje, które części obrazu najbardziej wpływają na decyzję modelu.
-    Lime - Lime (Local Interpretable Model-agnostic Explanations) działa poprzez tworzenie prostego modelu liniowego w okolicy punktu, który chcemy wyjaśnić, aby zrozumieć, jak różne cechy wpływają na wynik modelu.
-    Integrated Gradients oblicza średnią gradientów modelu względem cech wejściowych na ścieżce od punktu początkowego (np. zerowego wektora) do rzeczywistego punktu wejściowego, aby uzyskać wyjaśnienie wpływu cech
-    Feature Ablation mierzy wpływ każdej cechy na wynik modelu poprzez sukcesywne usuwanie (ablacja) każdej cechy i obserwowanie zmiany w wyniku modelu.
-        
-        CNN Models:                     guided gradcam, saliency and feature ablation
-        MLP Iris, Wine, Breast cancer:  saliency (barplot)
-        MLP Mnist Diff:                 feature_ablation (barplot)
-        MLP Mnist Conv:                 saliency (barplot)
-    
-    """
+
     loading_state_dict()
-   # explain_MLP()
     explain_CNN()
  
   
