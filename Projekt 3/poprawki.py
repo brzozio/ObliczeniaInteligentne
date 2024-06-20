@@ -25,6 +25,11 @@ path_models = path_script + "\\models\\"
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+data_CNN_cifar          = datasets_get.cifar10_to_cnn(device, False)
+model_CNN_cifar         = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=15, 
+                                cnv1_out_channels=16, lin0_out_size=128, lin1_out_size=10, 
+                                convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=False)
+
 cifar10_classes = [
     "Airplane",
     "Automobile",
@@ -378,26 +383,22 @@ def get_violin_plot(model, data_set, method, classes, features, title="", file_n
     for target in range(len(classes)):
         _, _, indicies = extract_single_class(data_set=data_set, target=target)
         df = pd.DataFrame(attribution[indicies], columns=features)
-        sb.violinplot(data=df, ax=ax[target], scale="width")
+        sb.violinplot(data=df, ax=ax[target])
         ax[target].set_title(f"{classes[target]}", fontsize = 20, fontweight = 'bold')
         ax[target].set_ylim([min,max])
+        ax[target].set_ylabel("Attribution")
         if target != len(classes) - 1:
             ax[target].tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
 
     ax[len(classes) - 1].tick_params(axis='x', rotation=xlabel_rotation)
 
     fig.suptitle(title, fontsize = 30, fontweight = 'bold')
-    #plt.show()
     plt.savefig(path_script+f"/temp/{file_name}.jpg")
 
 
 if __name__ == "__main__":
 
     """
-    data_CNN_cifar          = datasets_get.cifar10_to_cnn(device, False)
-    model_CNN_cifar         = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=15, 
-                                    cnv1_out_channels=16, lin0_out_size=128, lin1_out_size=10, 
-                                    convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=False)
     model_CNN_cifar.load_state_dict(torch.load(path_models + 'CNN_cifar.pth'))
     post_show_model_biases(6)
     """
@@ -406,23 +407,34 @@ if __name__ == "__main__":
     model_MLP_iris          = MLP(input_size=4, hidden_layer_size=2, classes=3)
     model_MLP_iris.load_state_dict(torch.load(path_models + 'MLP_iris.pth'))
 
-    get_violin_plot(model_MLP_iris, data_MLP_iris, method="feature_ablation", classes=iris_classes, features=iris_features,
-                    title="Iris Dataset - Feature Ablation\nAttribution Distributions", file_name="VIOLIN_Iris")
+    get_violin_plot(model_MLP_iris, data_MLP_iris, method="saliency", classes=iris_classes, features=iris_features,
+                    title="Iris Dataset - Saliency\nAttribution Distributions", file_name="VIOLIN_Iris_zasolenie")
+
+    get_violin_plot(model_MLP_iris, data_MLP_iris, method="integrated_gradients", classes=iris_classes, features=iris_features,
+                    title="Iris Dataset - Integrated Gradients\nAttribution Distributions", file_name="VIOLIN_Iris_gradienty")
 
     
     data_MLP_wine           = datasets_get.wine(device)
     model_MLP_wine          = MLP(input_size=13, hidden_layer_size=7, classes=3)
     model_MLP_wine.load_state_dict(torch.load(path_models + 'MLP_wine.pth'))
 
-    get_violin_plot(model_MLP_wine, data_MLP_wine, method="feature_ablation", classes=wine_classes, features=wine_features,
-                    title="Wine Dataset - Feature Ablation\nAttribution Distributions", file_name="VIOLIN_wine", xlabel_rotation=90)
+    get_violin_plot(model_MLP_wine, data_MLP_wine, method="saliency", classes=wine_classes, features=wine_features,
+                    title="Wine Dataset - Saliency\nAttribution Distributions", file_name="VIOLIN_wine_zasolenie", xlabel_rotation=90)
+
+    get_violin_plot(model_MLP_wine, data_MLP_wine, method="integrated_gradients", classes=wine_classes, features=wine_features,
+                    title="Wine Dataset - Integrated Gradients\nAttribution Distributions", file_name="VIOLIN_wine_gradienty", xlabel_rotation=90)
     
     data_MLP_breast_cancer  = datasets_get.breast_cancer(device)
     model_MLP_breast_cancer = MLP(input_size=30, hidden_layer_size=15, classes=2)
     model_MLP_breast_cancer.load_state_dict(torch.load(path_models + 'MLP_breast_cancer.pth'))
 
-    get_violin_plot(model_MLP_breast_cancer, data_MLP_breast_cancer, method="feature_ablation", classes=breast_cancer_classes, features=breast_cancer_features,
-                    title="Breast Cancer Dataset - Feature Ablation\nAttribution Distributions", file_name="VIOLIN_breast_cancer", xlabel_rotation=90)
+    get_violin_plot(model_MLP_breast_cancer, data_MLP_breast_cancer, method="saliency", classes=breast_cancer_classes, features=breast_cancer_features,
+                    title="Breast Cancer Dataset - Saliency\nAttribution Distributions", file_name="VIOLIN_breast_cancer_zasolenie", xlabel_rotation=90)
+
+    get_violin_plot(model_MLP_breast_cancer, data_MLP_breast_cancer, method="integrated_gradients", classes=breast_cancer_classes, features=breast_cancer_features,
+                    title="Breast Cancer Dataset - Integrated Gradients\nAttribution Distributions", file_name="VIOLIN_breast_cancer_gradienty", xlabel_rotation=90)
+   
+    
    
     
     
