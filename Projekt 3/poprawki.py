@@ -227,81 +227,81 @@ def visualize_attributions(attributions, input_tensor, model_name, pred_class=No
         plt.suptitle(table_name, fontname= 'Arial', fontsize = 30, fontweight = 'bold')
         plt.savefig(path_script+f"/temp/{file_name}.jpg")
 
-def explain_CNN():
+def explain_CNN(target=0):
    
-    bird_data = []
-    bird_indices = []
+    target_class_data = []
+    target_class_indices = []
 
     for idx, (img, label) in enumerate(zip(data_CNN_cifar.data, data_CNN_cifar.targets)):
-        if label == 2:
-            bird_data.append(torch.tensor(img, device=device))
-            bird_indices.append(idx)
+        if label == target:
+            target_class_data.append(torch.tensor(img, device=device))
+            target_class_indices.append(idx)
 
-    bird_data_tensor = torch.stack(bird_data)
-    birds_targets = torch.tensor([label for img, label in zip(data_CNN_cifar.data, data_CNN_cifar.targets) if label == 2], device=device)
+    target_class_data_tensor = torch.stack(target_class_data)
+    target_class_targets = torch.tensor([label for img, label in zip(data_CNN_cifar.data, data_CNN_cifar.targets) if label == target], device=device)
 
     pred_class = joblib.load(path_script + f"\\debug_temporaries\\CNN_cifar_pred_targets.joblib")
-    pred_bird  = pred_class[bird_indices]
+    pred_target_class  = pred_class[target_class_indices]
     prob_class = joblib.load(path_script + f"\\debug_temporaries\\CNN_cifar_prob_targets.joblib")
-    prob_bird  = prob_class[bird_indices]
+    prob_target_class  = prob_class[target_class_indices]
 
     correct_pred_id = []
     incorrect_pred_id = []
     
-    for obj_id in range(birds_targets.size(0)):
-        if birds_targets[obj_id].cpu().numpy() == pred_bird[obj_id]:
+    for obj_id in range(target_class_targets.size(0)):
+        if target_class_targets[obj_id].cpu().numpy() == pred_target_class[obj_id]:
             correct_pred_id.append(obj_id)
         else: 
             incorrect_pred_id.append(obj_id)
 
-    correct_prob_bird = prob_bird[correct_pred_id]
-    incorrect_prob_bird = prob_bird[incorrect_pred_id]
+    correct_prob_target_class = prob_target_class[correct_pred_id]
+    incorrect_prob_target_class = prob_target_class[incorrect_pred_id]
 
-    correct_prob_sort_permutation = np.argsort(correct_prob_bird)
-    incorrect_prob_sort_permutation = np.argsort(incorrect_prob_bird)
+    correct_prob_sort_permutation = np.argsort(correct_prob_target_class)
+    incorrect_prob_sort_permutation = np.argsort(incorrect_prob_target_class)
 
-    correct_prob_bird = correct_prob_bird[correct_prob_sort_permutation]
-    incorrect_prob_bird = incorrect_prob_bird[incorrect_prob_sort_permutation]
+    correct_prob_target_class = correct_prob_target_class[correct_prob_sort_permutation]
+    incorrect_prob_target_class = incorrect_prob_target_class[incorrect_prob_sort_permutation]
 
-    correct_pred_bird = pred_bird[correct_pred_id]
-    correct_pred_bird = correct_pred_bird[correct_prob_sort_permutation]
-    incorrect_pred_bird = pred_bird[incorrect_pred_id]
-    incorrect_pred_bird = incorrect_pred_bird[incorrect_prob_sort_permutation]
+    correct_pred_target_class = pred_target_class[correct_pred_id]
+    correct_pred_target_class = correct_pred_target_class[correct_prob_sort_permutation]
+    incorrect_pred_target_class = pred_target_class[incorrect_pred_id]
+    incorrect_pred_target_class = incorrect_pred_target_class[incorrect_prob_sort_permutation]
 
-    correct_data_bird = bird_data_tensor[correct_pred_id]
-    correct_data_bird = correct_data_bird[correct_prob_sort_permutation]
-    incorrect_data_bird = bird_data_tensor[incorrect_pred_id]
-    incorrect_data_bird = incorrect_data_bird[incorrect_prob_sort_permutation]
+    correct_data_target_class = target_class_data_tensor[correct_pred_id]
+    correct_data_target_class = correct_data_target_class[correct_prob_sort_permutation]
+    incorrect_data_target_class = target_class_data_tensor[incorrect_pred_id]
+    incorrect_data_target_class = incorrect_data_target_class[incorrect_prob_sort_permutation]
 
-    correct_birds_targets = birds_targets[correct_pred_id]
-    correct_birds_targets = correct_birds_targets[correct_prob_sort_permutation]
-    incorrect_birds_targets = birds_targets[incorrect_pred_id]
-    incorrect_birds_targets = incorrect_birds_targets[incorrect_prob_sort_permutation]
+    correct_target_class_targets = target_class_targets[correct_pred_id]
+    correct_target_class_targets = correct_target_class_targets[correct_prob_sort_permutation]
+    incorrect_target_class_targets = target_class_targets[incorrect_pred_id]
+    incorrect_target_class_targets = incorrect_target_class_targets[incorrect_prob_sort_permutation]
 
     correct_size = len(correct_pred_id)
     incorrect_size = len(incorrect_pred_id)
 
-    attributes, input_tensor, target_tensor = get_attributions(model=model_CNN_cifar, input_tensor=correct_data_bird, 
-                        target_class=correct_birds_targets, method="feature_ablation", data_offsets=[-10,-9,-8,-7,-6,-5,-4,-3,-2,-1])
+    attributes, input_tensor, target_tensor = get_attributions(model=model_CNN_cifar, input_tensor=correct_data_target_class, 
+                        target_class=correct_target_class_targets, method="feature_ablation", data_offsets=[-10,-9,-8,-7,-6,-5,-4,-3,-2,-1])
     visualize_attributions(attributes, input_tensor=input_tensor, model_name="CNN Cifar", method="feature_ablation", 
-                        target_tensor=target_tensor, prob_class=correct_prob_bird[correct_size-10:correct_size], pred_class=correct_pred_bird[correct_size-10:correct_size], 
-                        file_name="confident_correct_birds", table_name="Poprawnie zidentyfikowane ptaki \nz największą pewnością")
+                        target_tensor=target_tensor, prob_class=correct_prob_target_class[correct_size-10:correct_size], pred_class=correct_pred_target_class[correct_size-10:correct_size], 
+                        file_name=f"POST_confident_correct_{cifar10_classes[target]}", table_name=f"Class: {cifar10_classes[target]}, Correctly identified\n with Highest certainty")
 
-    attributes, input_tensor, target_tensor = get_attributions(model=model_CNN_cifar, input_tensor=incorrect_data_bird, 
-                        target_class=incorrect_birds_targets, method="feature_ablation", data_offsets=[-10,-9,-8,-7,-6,-5,-4,-3,-2,-1])
+    attributes, input_tensor, target_tensor = get_attributions(model=model_CNN_cifar, input_tensor=incorrect_data_target_class, 
+                        target_class=incorrect_target_class_targets, method="feature_ablation", data_offsets=[-10,-9,-8,-7,-6,-5,-4,-3,-2,-1])
     visualize_attributions(attributes, input_tensor=input_tensor, model_name="CNN Cifar", method="feature_ablation", 
-                        target_tensor=target_tensor, prob_class=incorrect_prob_bird[incorrect_size-10:incorrect_size], pred_class=incorrect_pred_bird[incorrect_size-10:incorrect_size], 
-                        file_name="confident_incorrect_birds", table_name="Niepoprawnie zidentyfikowane ptaki \nz największą pewnością")
+                        target_tensor=target_tensor, prob_class=incorrect_prob_target_class[incorrect_size-10:incorrect_size], pred_class=incorrect_pred_target_class[incorrect_size-10:incorrect_size], 
+                        file_name=f"POST_confident_incorrect_{cifar10_classes[target]}", table_name=f"Class: {cifar10_classes[target]}, Incorrectly identified\n with Highest certainty")
 
-    attributes, input_tensor, target_tensor = get_attributions(model=model_CNN_cifar, input_tensor=correct_data_bird, 
-                        target_class=correct_birds_targets, method="feature_ablation", data_offsets=[0,1,2,3,4,5,6,7,8,9])
+    attributes, input_tensor, target_tensor = get_attributions(model=model_CNN_cifar, input_tensor=correct_data_target_class, 
+                        target_class=correct_target_class_targets, method="feature_ablation", data_offsets=[0,1,2,3,4,5,6,7,8,9])
     visualize_attributions(attributes, input_tensor=input_tensor, model_name="CNN Cifar", method="feature_ablation", 
-                        target_tensor=target_tensor, prob_class=correct_prob_bird[0:10], pred_class=correct_pred_bird[0:10], 
-                        file_name="shy_correct_birds", table_name="Poprawnie zidentyfikowane ptaki \nz najmniejszą pewnością")
+                        target_tensor=target_tensor, prob_class=correct_prob_target_class[0:10], pred_class=correct_pred_target_class[0:10], 
+                        file_name=f"POST_shy_correct_{cifar10_classes[target]}", table_name=f"Class: {cifar10_classes[target]}, Correctly identified\n with Lowest certainty")
 
 if __name__ == "__main__":
 
     loading_state_dict()
-    explain_CNN()
+    explain_CNN(6)
  
   
