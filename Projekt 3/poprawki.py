@@ -287,6 +287,18 @@ def explain_CNN():
                         target_tensor=target_tensor, prob_class=correct_prob_bird[correct_size-10:correct_size], pred_class=correct_pred_bird[correct_size-10:correct_size], 
                         file_name="confident_correct_birds", table_name="Poprawnie zidentyfikowane ptaki \nz największą pewnością")
 
+    attributes, input_tensor, target_tensor = get_attributions(model=model_CNN_cifar, input_tensor=incorrect_data_bird, 
+                        target_class=incorrect_birds_targets, method="feature_ablation", data_offsets=[-10,-9,-8,-7,-6,-5,-4,-3,-2,-1])
+    visualize_attributions(attributes, input_tensor=input_tensor, model_name="CNN Cifar", method="feature_ablation", 
+                        target_tensor=target_tensor, prob_class=incorrect_prob_bird[incorrect_size-10:incorrect_size], pred_class=incorrect_pred_bird[incorrect_size-10:incorrect_size], 
+                        file_name="confident_incorrect_birds", table_name="Niepoprawnie zidentyfikowane ptaki \nz największą pewnością")
+
+    attributes, input_tensor, target_tensor = get_attributions(model=model_CNN_cifar, input_tensor=correct_data_bird, 
+                        target_class=correct_birds_targets, method="feature_ablation", data_offsets=[0,1,2,3,4,5,6,7,8,9])
+    visualize_attributions(attributes, input_tensor=input_tensor, model_name="CNN Cifar", method="feature_ablation", 
+                        target_tensor=target_tensor, prob_class=correct_prob_bird[0:10], pred_class=correct_pred_bird[0:10], 
+                        file_name="shy_correct_birds", table_name="Poprawnie zidentyfikowane ptaki \nz najmniejszą pewnością")
+
 if __name__ == "__main__":
 
     loading_state_dict()
