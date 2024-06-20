@@ -25,13 +25,6 @@ path_models = path_script + "\\models\\"
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-
-model_CNN_cifar         = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=15, 
-                                   cnv1_out_channels=16, lin0_out_size=128, lin1_out_size=10, 
-                                   convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=False)
-
-data_CNN_cifar          = datasets_get.cifar10_to_cnn(device, False)
-
 cifar10_classes = [
     "Airplane",
     "Automobile",
@@ -44,18 +37,90 @@ cifar10_classes = [
     "Ship",
     "Truck"
 ]
+
+iris_classes = [
+    "Iris-setosa",
+    "Iris-versicolor",
+    "Iris-virginica"
+]
+
+breast_cancer_classes = [
+    "Benign",
+    "Malignant"
+]
+
+wine_classes = [
+    "Wine Class 0",
+    "Wine Class 1",
+    "Wine Class 2"
+]
+
+iris_features = [
+    'sepal length (cm)',
+    'sepal width (cm)',
+    'petal length (cm)',
+    'petal width (cm)'
+]
+
+wine_features = [
+    'alcohol', 
+    'malic_acid', 
+    'ash', 
+    'alcalinity_of_ash', 
+    'magnesium', 
+    'total_phenols', 
+    'flavanoids', 
+    'nonflavanoid_phenols', 
+    'proanthocyanins', 
+    'color_intensity', 
+    'hue', 
+    'od280/od315_of_diluted_wines', 
+    'proline'
+]
+
+breast_cancer_features = [
+    'mean radius', 
+    'mean texture', 
+    'mean perimeter', 
+    'mean area', 
+    'mean smoothness', 
+    'mean compactness', 
+    'mean concavity', 
+    'mean concave points', 
+    'mean symmetry', 
+    'mean fractal dimension', 
+    'radius error', 
+    'texture error', 
+    'perimeter error', 
+    'area error', 
+    'smoothness error', 
+    'compactness error', 
+    'concavity error', 
+    'concave points error', 
+    'symmetry error', 
+    'fractal dimension error', 
+    'worst radius', 
+    'worst texture', 
+    'worst perimeter', 
+    'worst area', 
+    'worst smoothness', 
+    'worst compactness', 
+    'worst concavity', 
+    'worst concave points', 
+    'worst symmetry', 
+    'worst fractal dimension'
+]
    
-def loading_state_dict():
-    model_CNN_cifar.load_state_dict(torch.load(path_models + 'CNN_cifar.pth'))
 
 #Atrybucje
-def get_attributions(model, input_tensor, target_class, method="saliency", data_offsets=[0]):
+def get_attributions(model, input_tensor, target_class, method="saliency", data_offsets=[]):
     model.double()
     model.eval()
     model.to(device)
 
-    input_tensor = input_tensor[data_offsets].requires_grad_(True)
-    target_class = target_class[data_offsets]
+    if data_offsets != []:
+        input_tensor = input_tensor[data_offsets].requires_grad_(True)
+        target_class = target_class[data_offsets]
 
     if method == "saliency":
         saliency = Saliency(model)
@@ -227,18 +292,19 @@ def visualize_attributions(attributions, input_tensor, model_name, pred_class=No
         plt.suptitle(table_name, fontname= 'Arial', fontsize = 30, fontweight = 'bold')
         plt.savefig(path_script+f"/temp/{file_name}.jpg")
 
-def explain_CNN(target=0):
-   
-    target_class_data = []
+def extract_single_class(data_set, target):
+
     target_class_indices = []
 
-    for idx, (img, label) in enumerate(zip(data_CNN_cifar.data, data_CNN_cifar.targets)):
-        if label == target:
-            target_class_data.append(torch.tensor(img, device=device))
-            target_class_indices.append(idx)
+    for obj_id in range(data_set.targets.size(0)):
+        if data_set.targets[obj_id].cpu().numpy() == target:
+            target_class_indices.append(obj_id)
 
-    target_class_data_tensor = torch.stack(target_class_data)
-    target_class_targets = torch.tensor([label for img, label in zip(data_CNN_cifar.data, data_CNN_cifar.targets) if label == target], device=device)
+    return data_set.data[target_class_indices], data_set.targets[target_class_indices], target_class_indices
+
+def post_show_model_biases(target=0):
+    
+    target_class_data_tensor, target_class_targets, target_class_indices = extract_single_class(data_set = data_CNN_cifar, target = target)
 
     pred_class = joblib.load(path_script + f"\\debug_temporaries\\CNN_cifar_pred_targets.joblib")
     pred_target_class  = pred_class[target_class_indices]
@@ -299,9 +365,51 @@ def explain_CNN(target=0):
                         target_tensor=target_tensor, prob_class=correct_prob_target_class[0:10], pred_class=correct_pred_target_class[0:10], 
                         file_name=f"POST_shy_correct_{cifar10_classes[target]}", table_name=f"Class: {cifar10_classes[target]}, Correctly identified\n with Lowest certainty")
 
+def get_violin_plot(model, data_set, method, classes, features=None):
+    
+
+    attribution, _, _ = get_attributions(model=model, input_tensor=data_set.data, target_class=data_set.targets, method=method)
+    attribution = attribution.cpu().numpy()
+    max = np.max(attribution) + 1
+    min = np.min(attribution) - 1
+
+    _, ax = plt.subplots(len(classes),1)
+
+    for target in range(len(classes)):
+        _, _, indicies = extract_single_class(data_set=data_set, target=target)
+        ax[target].violinplot(attribution[indicies])
+        ax[target].set_title(f"{classes[target]}")
+        ax[target].set_ylim([min,max])
+
+    plt.show()
+
 if __name__ == "__main__":
 
-    loading_state_dict()
-    explain_CNN(6)
+    """
+    data_CNN_cifar          = datasets_get.cifar10_to_cnn(device, False)
+    model_CNN_cifar         = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=15, 
+                                    cnv1_out_channels=16, lin0_out_size=128, lin1_out_size=10, 
+                                    convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=False)
+    model_CNN_cifar.load_state_dict(torch.load(path_models + 'CNN_cifar.pth'))
+    post_show_model_biases(6)
+    """
+    
+    data_MLP_iris           = datasets_get.iris(device)    
+    model_MLP_iris          = MLP(input_size=4, hidden_layer_size=2, classes=3)
+    model_MLP_iris.load_state_dict(torch.load(path_models + 'MLP_iris.pth'))
+
+    get_violin_plot(model_MLP_iris, data_MLP_iris, method="feature_ablation", classes=iris_classes)
+
+    """
+    data_MLP_wine           = datasets_get.wine(device)
+    model_MLP_wine          = MLP(input_size=13, hidden_layer_size=7, classes=3)
+    model_MLP_wine.load_state_dict(torch.load(path_models + 'MLP_wine.pth'))
+    
+    data_MLP_breast_cancer  = datasets_get.breast_cancer(device)
+    model_MLP_breast_cancer = MLP(input_size=30, hidden_layer_size=15, classes=2)
+    model_MLP_breast_cancer.load_state_dict(torch.load(path_models + 'MLP_breast_cancer.pth'))
+    """
+    
+    
  
   
