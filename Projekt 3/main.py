@@ -22,7 +22,6 @@ path_script = os.path.dirname(os.path.realpath(__file__))
 index = path_script.find(repo_name)
 path_models = path_script + "\\models\\"
 
-
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 model_CNN_mnist         = CNN_tanh(in_side_len=28, in_channels=1, cnv0_out_channels=12, 
@@ -205,7 +204,7 @@ def get_attributions(model, input_tensor, target_class, method="saliency", data_
         attribution = integrated_gradients.attribute(input_tensor, target=target_class)
     elif method == "shapley":
         shapley_value_sampling = ShapleyValueSampling(model)
-        attribution = shapley_value_sampling.attribute(input_tensor, target=target_class, n_samples=2)
+        attribution = shapley_value_sampling.attribute(input_tensor, target=target_class, n_samples=25)
     elif method == "deeplift":
         deepliftshapval = DeepLiftShap(model)
         attribution = deepliftshapval.attribute(input_tensor, target=target_class, baselines=torch.zeros(input_tensor.size(), device=device))
@@ -213,7 +212,7 @@ def get_attributions(model, input_tensor, target_class, method="saliency", data_
         raise ValueError(f"Unknown method was specified: {method}")
 
     #print(f'ATTRIBUTION for {method} is: {attribution}, shape: {attribution.shape}, size: {attribution.dim}')
-    return attribution, input_tensor, target_class
+    return attribution, input_tensor, target_class, 
 
 def tensor_to_attribution_heatmap(tensor):
     out = tensor.cpu().detach()
@@ -224,7 +223,7 @@ def tensor_to_attribution_heatmap(tensor):
 
 
 
-def visualize_attributions(attributions, input_tensor, model_name, method=None, target_tensor=None):
+def visualize_attributions(attributions, input_tensor, model_name, method=None, target_tensor=None, data_offsets=None):
 
     matplotlib.rcParams.update({'font.size': 7})
 
@@ -281,6 +280,9 @@ def visualize_attributions(attributions, input_tensor, model_name, method=None, 
         pred_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_pred_targets.joblib")
         prob_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_prob_targets.joblib")
 
+        pred_class = pred_class[data_offsets]
+        prob_class = prob_class[data_offsets]
+
         for i in range(attributions.size(0)):
             sb.barplot(x=feature_alias, y=attributions[i].cpu().detach().numpy(), ax=ax[i])
             ax[i].set_ylabel('Attribution')
@@ -300,6 +302,9 @@ def visualize_attributions(attributions, input_tensor, model_name, method=None, 
     elif method == "diff_feature_ablation" or method == "diff_saliency_map":
         pred_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_{model_name.split()[2]}_pred_targets.joblib")
         prob_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_{model_name.split()[2]}_prob_targets.joblib")
+        
+        pred_class = pred_class[data_offsets]
+        prob_class = prob_class[data_offsets]
         
         fig_min = np.min(attributions.cpu().detach().numpy().flatten()) - 0.1
         fig_max = np.max(attributions.cpu().detach().numpy().flatten()) + 0.1
@@ -343,10 +348,13 @@ def visualize_attributions(attributions, input_tensor, model_name, method=None, 
         pred_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_pred_targets.joblib")
         prob_class = joblib.load(path_script + f"\\debug_temporaries\\{model_name.split()[0]}_{model_name.split()[1]}_prob_targets.joblib")
         
+        pred_class = pred_class[data_offsets]
+        prob_class = prob_class[data_offsets]
+
         class_mapping = range(10)
         if model_name.split()[1] == "Cifar":
             class_mapping = cifar10_classes
-        
+
         for i in range(10):
             ax[i//2,(i%2)*2].set_title(f"predicted class: {class_mapping[pred_class[i]]}", fontsize = 10, fontweight = 'bold')
             ax[i//2,(i%2)*2+1].set_title(f"probability: {prob_class[i] :.4f}", fontsize = 10, fontweight = 'bold')
@@ -380,36 +388,41 @@ def explain_CNN():
     cifar_examples = [0,5,8,13,67,15,17,32,45,23]
 
     # ablation, input_tensor, target_tensor  = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="feature_ablation", data_offsets=cifar_examples)
-    # visualize_attributions(ablation, input_tensor, model_name="CNN Cifar",  method="feature_ablation", target_tensor=target_tensor)
+    # visualize_attributions(ablation, input_tensor, model_name="CNN Cifar",  method="feature_ablation", target_tensor=target_tensor, data_offsets=cifar_examples)
     
     # ablation, input_tensor, target_tensor  = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="feature_ablation", data_offsets=mnist_examples)
-    # visualize_attributions(ablation, input_tensor, model_name="CNN Mnist",  method="feature_ablation", target_tensor=target_tensor)
+    # visualize_attributions(ablation, input_tensor, model_name="CNN Mnist",  method="feature_ablation", target_tensor=target_tensor, data_offsets=mnist_examples)
    
     # saliency, input_tensor, target_tensor  = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="saliency", data_offsets=cifar_examples)   
-    # visualize_attributions(saliency, input_tensor, model_name="CNN Cifar",  method="saliency_image", target_tensor=target_tensor)
+    # visualize_attributions(saliency, input_tensor, model_name="CNN Cifar",  method="saliency_image", target_tensor=target_tensor, data_offsets=cifar_examples)
     
     # saliency, input_tensor, target_tensor  = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="saliency", data_offsets=mnist_examples)
-    # visualize_attributions(saliency, input_tensor, model_name="CNN Mnist",  method="saliency_image", target_tensor=target_tensor)
+    # visualize_attributions(saliency, input_tensor, model_name="CNN Mnist",  method="saliency_image", target_tensor=target_tensor, data_offsets=mnist_examples)
 
     # gradcam_attr, input_tensor, target_tensor  = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="guided_gradcam", data_offsets=cifar_examples)
-    # visualize_attributions(gradcam_attr, input_tensor, model_name="CNN Cifar",  method="guided_gradcam", target_tensor=target_tensor)
+    # visualize_attributions(gradcam_attr, input_tensor, model_name="CNN Cifar",  method="guided_gradcam", target_tensor=target_tensor, data_offsets=cifar_examples)
     
     # gradcam_attr, input_tensor, target_tensor  = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="guided_gradcam", data_offsets=mnist_examples)
-    # visualize_attributions(gradcam_attr, input_tensor, model_name="CNN Mnist",  method="guided_gradcam", target_tensor=target_tensor)
+    # visualize_attributions(gradcam_attr, input_tensor, model_name="CNN Mnist",  method="guided_gradcam", target_tensor=target_tensor, data_offsets=mnist_examples)
     
     # shap_attr, input_tensor, target_tensor  = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="shapley", data_offsets=cifar_examples)
-    # visualize_attributions(shap_attr, input_tensor, model_name="CNN Cifar",  method="guided_gradcam", target_tensor=target_tensor)
+    # visualize_attributions(shap_attr, input_tensor, model_name="CNN Cifar",  method="guided_gradcam", target_tensor=target_tensor, data_offsets=cifar_examples)
     
     # shap_attr, input_tensor, target_tensor  = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="guided_gradcam", data_offsets=mnist_examples)
-    # visualize_attributions(shap_attr, input_tensor, model_name="CNN Mnist",  method="guided_gradcam", target_tensor=target_tensor)
+    # visualize_attributions(shap_attr, input_tensor, model_name="CNN Mnist",  method="guided_gradcam", target_tensor=target_tensor, data_offsets=mnist_examples)
     
-    shap_attr, input_tensor, target_tensor = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="shapley", data_offsets=cifar_examples)
-    visualize_attributions(shap_attr, input_tensor=input_tensor, model_name="CNN Cifar",  method="shapley", target_tensor=target_tensor)
+    # shap_attr, input_tensor, target_tensor = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="shapley", data_offsets=cifar_examples)
+    # visualize_attributions(shap_attr, input_tensor=input_tensor, model_name="CNN Cifar",  method="shapley", target_tensor=target_tensor, data_offsets=cifar_examples)
     
-    shap_attr, input_tensor, target_tensor = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="shapley", data_offsets=mnist_examples)
-    visualize_attributions(shap_attr, input_tensor=input_tensor, model_name="CNN Mnist",  method="shapley", target_tensor=target_tensor)
+    # shap_attr, input_tensor, target_tensor = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="shapley", data_offsets=mnist_examples)
+    # visualize_attributions(shap_attr, input_tensor=input_tensor, model_name="CNN Mnist",  method="shapley", target_tensor=target_tensor, data_offsets=mnist_examples)
 
-
+    gradcam_attr, input_tensor, target_tensor  = get_attributions(model=model_CNN_cifar, input_tensor=data_CNN_cifar.data, target_class=data_CNN_cifar.targets, method="integrated_gradients", data_offsets=cifar_examples)
+    visualize_attributions(gradcam_attr, input_tensor, model_name="CNN Cifar",  method="integrated_gradients", target_tensor=target_tensor, data_offsets=cifar_examples)
+    
+    gradcam_attr, input_tensor, target_tensor  = get_attributions(model=model_CNN_mnist, input_tensor=data_CNN_mnist.data, target_class=data_CNN_mnist.targets, method="integrated_gradients", data_offsets=mnist_examples)
+    visualize_attributions(gradcam_attr, input_tensor, model_name="CNN Mnist",  method="integrated_gradients", target_tensor=target_tensor, data_offsets=mnist_examples)
+    
 def explain_MLP():
     
     mnist_examples = [3,5,1,32,4,8,98,36,84,7]
@@ -455,7 +468,7 @@ def explain_MLP():
 
 
 if __name__ == "__main__":
-    #testing_models_eval()
+    testing_models_eval()
     """
     Saliency Map oblicza gradienty wyniku modelu względem cech wejściowych, aby stworzyć mapę, która pokazuje, które cechy najbardziej wpływają na wynik modelu.
     Guided Grad-CAM łączy Grad-CAM (Gradient-weighted Class Activation Mapping) z Guided Backpropagation, aby wygenerować wizualizację, która pokazuje, które części obrazu najbardziej wpływają na decyzję modelu.
@@ -470,7 +483,7 @@ if __name__ == "__main__":
     
     """
     loading_state_dict()
-    explain_MLP()
-   # explain_CNN()
+    #explain_MLP()
+    explain_CNN()
  
   
