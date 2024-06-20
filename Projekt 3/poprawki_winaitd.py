@@ -32,75 +32,14 @@ data_MLP_iris           = datasets_get.iris(device)
 data_MLP_wine           = datasets_get.wine(device)
 data_MLP_breast_cancer  = datasets_get.breast_cancer(device)
 
+iris_classes = [    "Iris-setosa",    "Iris-versicolor",    "Iris-virginica"]
 
-iris_classes = [
-    "Iris-setosa",
-    "Iris-versicolor",
-    "Iris-virginica"
+breast_cancer_classes = [    "Benign",    "Malignant"
 ]
-
-breast_cancer_classes = [
-    "Benign",
-    "Malignant"
-]
-wine_classes = [
-    "Wine Class 0",
-    "Wine Class 1",
-    "Wine Class 2"
-]
-iris_features = [
-    'sepal length (cm)',
-    'sepal width (cm)',
-    'petal length (cm)',
-    'petal width (cm)']
-wine_features = [
-    'alcohol', 
-    'malic_acid', 
-    'ash', 
-    'alcalinity_of_ash', 
-    'magnesium', 
-    'total_phenols', 
-    'flavanoids', 
-    'nonflavanoid_phenols', 
-    'proanthocyanins', 
-    'color_intensity', 
-    'hue', 
-    'od280/od315_of_diluted_wines', 
-    'proline'
-]
-breast_cancer_features = [
-    'mean radius', 
-    'mean texture', 
-    'mean perimeter', 
-    'mean area', 
-    'mean smoothness', 
-    'mean compactness', 
-    'mean concavity', 
-    'mean concave points', 
-    'mean symmetry', 
-    'mean fractal dimension', 
-    'radius error', 
-    'texture error', 
-    'perimeter error', 
-    'area error', 
-    'smoothness error', 
-    'compactness error', 
-    'concavity error', 
-    'concave points error', 
-    'symmetry error', 
-    'fractal dimension error', 
-    'worst radius', 
-    'worst texture', 
-    'worst perimeter', 
-    'worst area', 
-    'worst smoothness', 
-    'worst compactness', 
-    'worst concavity', 
-    'worst concave points', 
-    'worst symmetry', 
-    'worst fractal dimension'
-]
-
+wine_classes = [    "Wine Class 0",    "Wine Class 1",    "Wine Class 2"]
+iris_features = [    'sepal length (cm)',    'sepal width (cm)',    'petal length (cm)',    'petal width (cm)']
+wine_features = [    'alcohol',     'malic_acid',     'ash',     'alcalinity_of_ash',     'magnesium',     'total_phenols',     'flavanoids',     'nonflavanoid_phenols',     'proanthocyanins',     'color_intensity',     'hue',     'od280/od315_of_diluted_wines',     'proline']
+breast_cancer_features = ['mean radius',     'mean texture',     'mean perimeter',     'mean area',     'mean smoothness',     'mean compactness',     'mean concavity',     'mean concave points',     'mean symmetry',     'mean fractal dimension',     'radius error',     'texture error',     'perimeter error',     'area error',     'smoothness error',     'compactness error',     'concavity error',     'concave points error',     'symmetry error',     'fractal dimension error',     'worst radius',     'worst texture',     'worst perimeter',     'worst area',     'worst smoothness',     'worst compactness',     'worst concavity',     'worst concave points',     'worst symmetry',     'worst fractal dimension']
    
 def loading_state_dict():
     model_MLP_iris.load_state_dict(torch.load(path_models + 'MLP_iris.pth'))
@@ -128,13 +67,6 @@ def get_attributions(model, input_tensor, target_class, method="saliency"):
 
     return attribution, input_tensor, target_class, 
 
-def tensor_to_attribution_heatmap(tensor):
-    out = tensor.cpu().detach()
-    for channel in range(1, out.size(0), 1):
-        out[0] += out[channel]
-    out = out[0]
-    return out
-
 def visualize_attributions(attributions, input_tensor, model_name, method=None, target_tensor=None, features=None, target=None, classes=None, ax=None):
     matplotlib.rcParams.update({'font.size': 7})
     
@@ -153,8 +85,6 @@ def visualize_attributions(attributions, input_tensor, model_name, method=None, 
         ax.set_title(f"Class: {classes[target]}", fontname='Arial', fontsize=16, fontweight='bold')
         
         plt.tight_layout()
-        
-
 
 def explain_MLP(model=None, data_set=None, model_name=None, features=None, classes=None, method=None):
     _, ax = plt.subplots(len(classes), 1, figsize=(10, 5))
@@ -183,7 +113,6 @@ def explain_MLP(model=None, data_set=None, model_name=None, features=None, class
 
     plt.suptitle(f"{model_name.split()[1]} Dataset - {method} Attribution Distribution", fontsize=20, fontname="Arial", fontweight="bold")
     plt.show()
-    
 
 if __name__ == "__main__":
     
@@ -191,5 +120,3 @@ if __name__ == "__main__":
     explain_MLP(model=model_MLP_iris, data_set=data_MLP_iris, model_name="MLP Iris", features=iris_features, classes=iris_classes, method="integrated_gradients")
     explain_MLP(model=model_MLP_wine, data_set=data_MLP_wine, model_name="MLP Wine", features=wine_features, classes=wine_classes, method="integrated_gradients")
     explain_MLP(model=model_MLP_breast_cancer, data_set=data_MLP_breast_cancer, model_name="MLP Breast", features=breast_cancer_features, classes=breast_cancer_classes, method="integrated_gradients")
- 
-  
