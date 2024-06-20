@@ -25,6 +25,7 @@ path_models = path_script + "\\models\\"
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+
 model_CNN_cifar         = CNN_tanh(in_side_len=32, in_channels=3, cnv0_out_channels=15, 
                                    cnv1_out_channels=16, lin0_out_size=128, lin1_out_size=10, 
                                    convolution_kernel=7, pooling_kernel=2, reduce_to_dim2=False)
@@ -91,7 +92,7 @@ def tensor_to_attribution_heatmap(tensor):
     out = out[0]
     return out
 
-def visualize_attributions(attributions, input_tensor, model_name, pred_class=None, prob_class=None, method=None, target_tensor=None):
+def visualize_attributions(attributions, input_tensor, model_name, pred_class=None, prob_class=None, method=None, target_tensor=None, file_name = "debug", table_name=""):
 
     matplotlib.rcParams.update({'font.size': 7})
 
@@ -223,12 +224,10 @@ def visualize_attributions(attributions, input_tensor, model_name, pred_class=No
                 ax[i,j].tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
                 ax[i,j].tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
         
-        plt.suptitle(f"xAI for {model_name}, Method: {method}", fontname= 'Arial', fontsize = 30, fontweight = 'bold')
-        plt.savefig(path_script+f"/temp/{model_name}_{method}.jpg")
+        plt.suptitle(table_name, fontname= 'Arial', fontsize = 30, fontweight = 'bold')
+        plt.savefig(path_script+f"/temp/{file_name}.jpg")
 
 def explain_CNN():
-
-    mnist_examples = [3,5,1,32,4,8,98,36,84,7]
    
     bird_data = []
     bird_indices = []
@@ -237,6 +236,7 @@ def explain_CNN():
         if label == 2:
             bird_data.append(torch.tensor(img, device=device))
             bird_indices.append(idx)
+
     bird_data_tensor = torch.stack(bird_data)
     birds_targets = torch.tensor([label for img, label in zip(data_CNN_cifar.data, data_CNN_cifar.targets) if label == 2], device=device)
 
@@ -245,8 +245,47 @@ def explain_CNN():
     prob_class = joblib.load(path_script + f"\\debug_temporaries\\CNN_cifar_prob_targets.joblib")
     prob_bird  = prob_class[bird_indices]
 
-    shap_attr, input_tensor, target_tensor = get_attributions(model=model_CNN_cifar, input_tensor=bird_data_tensor, target_class=birds_targets, method="feature_ablation", data_offsets=mnist_examples)
-    visualize_attributions(shap_attr, input_tensor=input_tensor, model_name="CNN Cifar",  method="feature_ablation", target_tensor=target_tensor, prob_class=prob_bird, pred_class=pred_bird)
+    correct_pred_id = []
+    incorrect_pred_id = []
+    
+    for obj_id in range(birds_targets.size(0)):
+        if birds_targets[obj_id].cpu().numpy() == pred_bird[obj_id]:
+            correct_pred_id.append(obj_id)
+        else: 
+            incorrect_pred_id.append(obj_id)
+
+    correct_prob_bird = prob_bird[correct_pred_id]
+    incorrect_prob_bird = prob_bird[incorrect_pred_id]
+
+    correct_prob_sort_permutation = np.argsort(correct_prob_bird)
+    incorrect_prob_sort_permutation = np.argsort(incorrect_prob_bird)
+
+    correct_prob_bird = correct_prob_bird[correct_prob_sort_permutation]
+    incorrect_prob_bird = incorrect_prob_bird[incorrect_prob_sort_permutation]
+
+    correct_pred_bird = pred_bird[correct_pred_id]
+    correct_pred_bird = correct_pred_bird[correct_prob_sort_permutation]
+    incorrect_pred_bird = pred_bird[incorrect_pred_id]
+    incorrect_pred_bird = incorrect_pred_bird[incorrect_prob_sort_permutation]
+
+    correct_data_bird = bird_data_tensor[correct_pred_id]
+    correct_data_bird = correct_data_bird[correct_prob_sort_permutation]
+    incorrect_data_bird = bird_data_tensor[incorrect_pred_id]
+    incorrect_data_bird = incorrect_data_bird[incorrect_prob_sort_permutation]
+
+    correct_birds_targets = birds_targets[correct_pred_id]
+    correct_birds_targets = correct_birds_targets[correct_prob_sort_permutation]
+    incorrect_birds_targets = birds_targets[incorrect_pred_id]
+    incorrect_birds_targets = incorrect_birds_targets[incorrect_prob_sort_permutation]
+
+    correct_size = len(correct_pred_id)
+    incorrect_size = len(incorrect_pred_id)
+
+    attributes, input_tensor, target_tensor = get_attributions(model=model_CNN_cifar, input_tensor=correct_data_bird, 
+                        target_class=correct_birds_targets, method="feature_ablation", data_offsets=[-10,-9,-8,-7,-6,-5,-4,-3,-2,-1])
+    visualize_attributions(attributes, input_tensor=input_tensor, model_name="CNN Cifar", method="feature_ablation", 
+                        target_tensor=target_tensor, prob_class=correct_prob_bird[correct_size-10:correct_size], pred_class=correct_pred_bird[correct_size-10:correct_size], 
+                        file_name="confident_correct_birds", table_name="Poprawnie zidentyfikowane ptaki \nz największą pewnością")
 
 if __name__ == "__main__":
 
